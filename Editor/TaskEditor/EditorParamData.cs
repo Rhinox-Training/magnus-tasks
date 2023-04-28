@@ -1,3 +1,4 @@
+#if ODIN_INSPECTOR
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using Sirenix.Serialization;
 
 namespace Rhinox.VOLT.Editor
 {
+    
     [HideReferenceObjectPicker]
     public class EditorParamData<T> : ParamData
     {
@@ -72,3 +74,4 @@ namespace Rhinox.VOLT.Editor
         }
     }
 }
+#endif
