@@ -68,13 +68,31 @@ namespace Rhinox.VOLT.Editor
             }
         }
 
+        private static StepData CreateCopy(StepData data)
+        {
+#if ODIN_INSPECTOR
+            var step = (StepData) SerializationUtility.CreateCopy(data);
+            return step;
+#else
+            if (data == null)
+                return null;
+            StepData copy = Activator.CreateInstance(data.GetType()) as StepData;
+            copy.ID = data.ID;
+            copy.Name = data.Name;
+            copy.Description = data.Description;
+            copy.SubStepData = data.SubStepData.ToList();
+            // TODO: deep copy of type specific things?
+            return copy;
+#endif
+        }
+
         private List<StepData> ConvertToEditor(List<StepData> taskSteps)
         {
             List<StepData> result = new List<StepData>();
             for (var i = 0; i < taskSteps.Count; i++)
             {
                 // Ensure it is not a reference
-                var step = (StepData) SerializationUtility.CreateCopy(taskSteps[i]);
+                var step = CreateCopy(taskSteps[i]);
 
                 // Ensure step has a guid
                 if (step.ID == null)
