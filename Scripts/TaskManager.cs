@@ -12,6 +12,7 @@ using UnityEngine.Serialization;
 
 namespace Rhinox.VOLT.Training
 {
+	//[SmartFallbackDrawn(false)]
 	public class TaskManager : Singleton<TaskManager>
 	{
 		[InlineIconButton("Refresh", nameof(RefreshTasks))]
