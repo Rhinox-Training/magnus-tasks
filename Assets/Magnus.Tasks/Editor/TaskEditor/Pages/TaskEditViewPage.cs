@@ -147,6 +147,7 @@ namespace Rhinox.VOLT.Editor
             else if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Pen")))
                 _editingName = value.TaskName;
             
+#if ODIN_INSPECTOR
             if (GUILayout.Button("Export Partial", GUILayout.ExpandWidth(false)))
             {
                 var dialog = EditorInputDialog.Create("Export Data", "Configure for export:")
@@ -162,10 +163,12 @@ namespace Rhinox.VOLT.Editor
 
                 dialog.Width = 600;
             }
+#endif
             GUILayout.EndHorizontal();
             return value;
         }
-
+        
+#if ODIN_INSPECTOR
         private void ExportPartialTask(string newTaskName, int startIndex, int endIndex, DataLayerConfig dataLayerTarget)
         {
             TaskObject to = new TaskObject()
@@ -221,6 +224,7 @@ namespace Rhinox.VOLT.Editor
 
             TaskExportHelper.BackupTask(to, dataLayerTarget);
         }
+#endif
         
         private static void ParseEvent(ref List<SerializableGuid> usedGuids, ValueReferenceEvent e)
         {
@@ -326,6 +330,7 @@ namespace Rhinox.VOLT.Editor
             _taskData.ParentSet.Save(_taskData.Task);
         }
 
+#if ODIN_INSPECTOR
         [HorizontalGroup("Buttons"), Button(ButtonSizes.Large)]
         //[DisableIf("HasChanges")]
         public void SaveAs()
@@ -351,5 +356,6 @@ namespace Rhinox.VOLT.Editor
                 .ShowInPopup();
             
         }
+#endif
     }
 }

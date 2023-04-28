@@ -6,17 +6,12 @@ using System.Text;
 using Rhinox.GUIUtils;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Editor.Helpers;
-using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.VOLT.Training;
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using TypeExtensions = Sirenix.Utilities.TypeExtensions;
 
 public static class TaskViewerSettings
 {
@@ -97,7 +92,7 @@ public static class TaskViewerSettings
 
         public IEnumerable<MemberInfo> GetMemberOptions()
         {
-            return _type.GetMembers(Flags.AllMembers)
+            return _type.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
                 .Where(x => !Members.Contains(x))
                 .Where(x => x.MemberType.EqualsOneOf(MemberTypes.Field, MemberTypes.Property))
                 .Where(x => !TypeExtensions.InheritsFrom(x.GetReturnType(), typeof(Object)));
@@ -197,15 +192,17 @@ public class TaskViewerSettingsUI : PagerPage
         
         foreach (TaskViewerSettings.TypeSettings set in TaskViewerSettings.All)
         {
-            CustomEditorGUI.BeginIndentedHorizontal(TaskViewer.HeaderStyle);
-            
-            GUILayout.Label(GUIContentHelper.TempContent(set.Type.Name));
-            GUILayout.FlexibleSpace();
-            GUILayout.Label(GUIContentHelper.TempContent(set.Type.Namespace), CustomGUIStyles.MiniLabelRight);
-            if (CustomEditorGUI.IconButton(EditorIcons.X, tooltip: "Remove type"))
-                EditorApplication.delayCall += () => TaskViewerSettings.Remove(set);
-            
-            CustomEditorGUI.EndIndentedHorizontal();
+            EditorGUILayout.BeginHorizontal(TaskViewer.HeaderStyle);
+            using (new eUtility.IndentedLayout())
+            {
+                GUILayout.Label(GUIContentHelper.TempContent(set.Type.Name));
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(GUIContentHelper.TempContent(set.Type.Namespace), CustomGUIStyles.MiniLabelRight);
+                if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Times"), tooltip: "Remove type"))
+                    EditorApplication.delayCall += () => TaskViewerSettings.Remove(set);
+
+            }
+            EditorGUILayout.EndHorizontal();
 
             GUIContentHelper.PushIndentLevel(EditorGUI.indentLevel + 1);
 
@@ -216,7 +213,7 @@ public class TaskViewerSettingsUI : PagerPage
                 {
                     GUILayout.Label(member.Name);
                     GUILayout.FlexibleSpace();
-                    if (CustomEditorGUI.IconButton(EditorIcons.X, tooltip: "Remove property"))
+                    if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Times"), tooltip: "Remove property"))
                         set.RemoveMember(member);
                 }
             }
@@ -225,9 +222,20 @@ public class TaskViewerSettingsUI : PagerPage
             {
                 var members = set.GetMemberOptions();
                 var memberNames = members.Select(x => x.Name).ToArray();
-                var i = SirenixEditorFields.Dropdown("Add Member", -1, memberNames);
-                if (i >= 0)
-                    set.AddMemberIfItExists(memberNames[i]);
+
+                if (EditorGUILayout.DropdownButton(GUIContentHelper.TempContent("Add Member"), FocusType.Passive))
+                {
+                    var genericMenu = new GenericMenu();
+                    foreach (var memberName in memberNames)
+                    {
+                        genericMenu.AddItem(memberName, (x) => { set.AddMemberIfItExists(x); });
+                    }
+
+                    genericMenu.DropDown(EditorGUILayout.GetControlRect());
+                }
+                // var i = SirenixEditorFields.Dropdown("Add Member", -1, memberNames);
+                // if (i >= 0)
+                //     set.AddMemberIfItExists(memberNames[i]);
             }
 
             GUIContentHelper.PopIndentLevel();

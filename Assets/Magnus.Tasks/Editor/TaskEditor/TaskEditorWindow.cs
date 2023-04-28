@@ -51,6 +51,7 @@ namespace Rhinox.VOLT.Editor
             CustomEditorGUI.BeginHorizontalToolbar(defaultHeight);
             GUILayout.FlexibleSpace();
             
+#if ODIN_INSPECTOR 
             if (CustomEditorGUI.ToolbarButton("Load from Scene"))
                 LoadScene();
             
@@ -61,6 +62,7 @@ namespace Rhinox.VOLT.Editor
             if (CustomEditorGUI.ToolbarButton(nameof(Backup)))
                 Backup();
             EditorGUI.EndDisabledGroup();
+#endif
             
             if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Redo"), 22))
                 Refresh();
@@ -69,6 +71,7 @@ namespace Rhinox.VOLT.Editor
             return defaultHeight;
         }
         
+#if ODIN_INSPECTOR 
         private void LoadScene()
         {
             TaskExportHelper.ImportFromScene(Refresh);
@@ -83,6 +86,7 @@ namespace Rhinox.VOLT.Editor
         {
             EditorApplication.delayCall += () => TaskExportHelper.BackupSingleTask(GetTasks());
         }
+#endif
 
         private ICollection<TaskObject> GetTasks()
         {
