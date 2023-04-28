@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Rhinox.Lightspeed;
+using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
 using Rhinox.VOLT;
@@ -45,7 +46,7 @@ public class ButtonClickCondition : BaseCondition
         if (!ButtonToPress.isActiveAndEnabled)
         {
             SetConditionMet();
-            PLog.Error<VOLTLogger>("Autocompleted ButtonClickCondition due to unavailable button.", associatedObject: Step);
+            PLog.Error<MagnusLogger>("Autocompleted ButtonClickCondition due to unavailable button.", associatedObject: Step);
             return;
         }
         
