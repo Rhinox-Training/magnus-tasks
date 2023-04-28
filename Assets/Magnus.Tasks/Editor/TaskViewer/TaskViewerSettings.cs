@@ -241,6 +241,7 @@ public class TaskViewerSettingsUI : PagerPage
             GUIContentHelper.PopIndentLevel();
         }
         
+#if ODIN_INSPECTOR
         GUILayout.Space(5);
         CustomEditorGUI.HorizontalLine(CustomGUIStyles.BorderColor);
         GUILayout.Space(5);
@@ -263,5 +264,6 @@ public class TaskViewerSettingsUI : PagerPage
                 selector.ShowInPopup();
             }
         }
+#endif
     }
 }

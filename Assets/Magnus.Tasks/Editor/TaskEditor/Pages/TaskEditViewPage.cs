@@ -80,6 +80,7 @@ namespace Rhinox.VOLT.Editor
                 if (step.ID == null)
                     step.ID = SerializableGuid.CreateNew();
 
+#if ODIN_INSPECTOR
                 if (step is ConditionStepObject conditionStep)
                 {
                     for (var condI = 0; condI < conditionStep.Conditions.Count; condI++)
@@ -94,6 +95,9 @@ namespace Rhinox.VOLT.Editor
                 {
                     result.Add(step);
                 }
+#else
+                result.Add(step);
+#endif
             }
 
             return result;
@@ -104,6 +108,7 @@ namespace Rhinox.VOLT.Editor
             List<StepData> result = new List<StepData>();
             foreach (var step in taskSteps)
             {
+#if ODIN_INSPECTOR
                 if (step is ConditionStepObject conditionStep)
                 {
                     conditionStep.Conditions.ForEach(x => EditorParamDataHelper.RevertFromEditor(ref x));
@@ -113,6 +118,9 @@ namespace Rhinox.VOLT.Editor
                 {
                     result.Add(step);
                 }
+#else
+                result.Add(step);
+#endif
             }
 
             return result;
@@ -269,7 +277,7 @@ namespace Rhinox.VOLT.Editor
         private void DrawStepsItemBegin(int i)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical(GUILayout.ExpandWidth());
+            GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
         }
         
         private void DrawStepsItemEnd(int i)

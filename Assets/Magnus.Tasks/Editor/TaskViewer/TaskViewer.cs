@@ -75,7 +75,7 @@ public class TaskViewer : PagerMenuEditorWindow<TaskViewer>
         var menuItem = window.MenuTree.MenuItems.FirstOrDefault(x => x.RawValue.Equals(value));
         menuItem?.Select();
     }
-
+#if ODIN_INSPECTOR
     private void Export()
     {
         var folder = EditorUtility.SaveFolderPanel("Save task", ".", "Tasks");
@@ -166,16 +166,19 @@ public class TaskViewer : PagerMenuEditorWindow<TaskViewer>
             targetStep.Conditions = (task.Steps[i] as ConditionStepObject).Conditions.Select(ConditionDataHelper.ToCondition).ToList();
         }
     }
+#endif
 
     protected override void DrawToolbarIcons(int toolbarHeight)
     {
         if (_pager.IsOnFirstPage)
         {
+#if ODIN_INSPECTOR
             if (TaskManager.HasInstance && CustomEditorGUI.ToolbarButton("Import"))
                 EditorApplication.delayCall += Import;
             
             if (_tasks.Any() && CustomEditorGUI.ToolbarButton("Export"))
                 EditorApplication.delayCall += Export;
+#endif
             
             if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Cog"), toolbarHeight-2, toolbarHeight-2, "Settings"))
                 _pager.PushPage(Settings, "Settings");
