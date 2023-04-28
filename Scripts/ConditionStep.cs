@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
@@ -15,6 +16,7 @@ using UnityEngine;
 namespace Rhinox.VOLT.Training
 {
     [HideReferenceObjectPicker]
+    [SmartFallbackDrawn(false)]
     public class ConditionStep : BaseStep
     {
         [TabGroup("Settings")]
@@ -22,6 +24,7 @@ namespace Rhinox.VOLT.Training
         
         [OnValueChanged(nameof(OnConditionsChanged)), ListDrawerSettings(Expanded = true)]
         [CustomContextMenu("Split into Steps", nameof(SplitConditionsIntoSteps)), TabGroup("Settings")]
+        [SerializeReference]
         public List<BaseCondition> Conditions = new List<BaseCondition>();
 
         protected List<BaseCondition> _activeConditions;

@@ -12,7 +12,7 @@ using UnityEngine.Serialization;
 
 namespace Rhinox.VOLT.Training
 {
-	//[SmartFallbackDrawn(false)]
+	[SmartFallbackDrawn(false)]
 	public class TaskManager : Singleton<TaskManager>
 	{
 		[InlineIconButton("Refresh", nameof(RefreshTasks))]
@@ -21,7 +21,8 @@ namespace Rhinox.VOLT.Training
 		[SerializeField, HideIf(nameof(AutoLoadTasks)), FormerlySerializedAs("Tasks"), SerializeReference]
 		private BaseTask[] _tasks;
 
-		[ShowInInspector, ReadOnly] public BaseTask CurrentTask { get; private set; }
+		[ShowInInspector, ReadOnly] 
+		public BaseTask CurrentTask { get; private set; }
 
 		public bool RunTaskOnStart = true;
 
