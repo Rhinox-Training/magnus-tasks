@@ -12,7 +12,7 @@ using UnityEngine.Events;
 
 namespace Rhinox.VOLT.Training
 {
-    //[SmartFallbackDrawn(false)]
+    [SmartFallbackDrawn(false)]
     public class BasicTask : BaseTask
     {
         public ValueReferenceLookup ValueReferenceLookup;
