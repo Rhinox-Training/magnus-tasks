@@ -28,7 +28,7 @@ public struct DefaultTypeReferenceKey
     }
 }
 
-// [Serializable]
+[Serializable]
 // [ShowOdinSerializedPropertiesInInspector]
 public class ValueReferenceLookup : IReferenceResolver
 {

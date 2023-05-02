@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "ID": 0,
+    "Name": "Unnamed Task",
+    "Steps": [],
+    "Lookup": {
+      "DefaultsByType": {},
+      "ValueResolversByKey": {},
+      "Keys": []
+    }
+  }
+]

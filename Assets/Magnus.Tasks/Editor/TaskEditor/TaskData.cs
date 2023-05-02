@@ -14,15 +14,15 @@ namespace Rhinox.VOLT.Editor
         public EndPointTaskSet ParentSet { get; private set; }
         
         [ShowInInspector, HideLabel, DisplayAsString] 
-        [HorizontalGroup("TaskEntry", 45)]
+        [HorizontalGroup("TaskEntry/Left", 45), HorizontalGroup("TaskEntry")]
         public int TaskID => Task.ID;
         
         [ShowInInspector, HideLabel, DisplayAsString] 
-        [HorizontalGroup("TaskEntry/info")]
+        [HorizontalGroup("TaskEntry/Left")]
         public string TaskName => Task.Name;
         
         [ShowInInspector, HideLabel]
-        [HorizontalGroup("TaskEntry/info", MaxWidth = 90)]
+        [HorizontalGroup("TaskEntry/Left", MaxWidth = 90)]
         [CustomValueDrawer(nameof(NumberOfStepsDrawer))]
         public int NumberOfSteps => Task.Steps != null ? Task.Steps.Count : 0;
         
@@ -32,13 +32,13 @@ namespace Rhinox.VOLT.Editor
             Task = task;
         }
 
-        [ButtonGroup("TaskEntry/Buttons"), HorizontalGroup("TaskEntry", width: 120)]
+        [ButtonGroup("TaskEntry/Right/Buttons"), Button(), HorizontalGroup("TaskEntry/Right", MaxWidth = 120)]
         private void Edit()
         {
             EditorApplication.delayCall += () => ParentSet.ParentPage.EditPage(this);
         }
 
-        [ButtonGroup("TaskEntry/Buttons")]
+        [ButtonGroup("TaskEntry/Right/Buttons"), Button()]
         private void Remove()
         {
             if (!EditorUtility.DisplayDialog("Confirmation",
