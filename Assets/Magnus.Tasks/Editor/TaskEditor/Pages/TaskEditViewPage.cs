@@ -41,7 +41,7 @@ namespace Rhinox.VOLT.Editor
 
         private int _indexMarkedForRemoval;
 
-        public TaskEditViewPage(SlidePagedWindowNavigationHelper<object> pager, TaskData data) : base(pager)
+        public TaskEditViewPage(SlidePageNavigationHelper<object> pager, TaskData data) : base(pager)
         {
             _taskData = data;
             if (data.Task == null)

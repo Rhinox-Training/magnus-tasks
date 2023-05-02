@@ -17,7 +17,7 @@ public class TaskViewerBase : PagerPage
     
     private EditorWrapper[] _components;
     
-    public TaskViewerBase(SlidePagedWindowNavigationHelper<object> pager) : base(pager)
+    public TaskViewerBase(SlidePageNavigationHelper<object> pager) : base(pager)
     {
     }
     

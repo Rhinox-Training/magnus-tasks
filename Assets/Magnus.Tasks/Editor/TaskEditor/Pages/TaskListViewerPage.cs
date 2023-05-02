@@ -111,7 +111,7 @@ namespace Rhinox.VOLT.Editor
         [ShowInInspector, UnfoldList, HideLabel]
         public List<EndPointTaskSet> Data;
 
-        public TaskListViewerPage(SlidePagedWindowNavigationHelper<object> pager) : base(pager)
+        public TaskListViewerPage(SlidePageNavigationHelper<object> pager) : base(pager)
         {
             Data = new List<EndPointTaskSet>();
             
