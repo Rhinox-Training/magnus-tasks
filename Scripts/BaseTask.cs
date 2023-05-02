@@ -16,10 +16,10 @@ namespace Rhinox.VOLT.Training
         
         public abstract IReadOnlyList<BaseStep> Steps { get; }
 
-        [ShowReadOnlyInPlayMode]
+        [ShowInInspector, ReadOnly, HideInEditorMode]
         public BaseStep ActiveStep { get; private set; }
         
-        [ShowReadOnlyInPlayMode] 
+        [ShowInInspector, ReadOnly, HideInEditorMode]
         public int CurrentStepId { get; protected set; }
         
         public bool IsIdle { get; private set; }
@@ -40,7 +40,7 @@ namespace Rhinox.VOLT.Training
         public event AwaitStepEvent PreStartStep;
         public event AwaitStepEvent PreStopStep;
 
-        [ShowReadOnlyInPlayMode]
+        [ShowInInspector, ReadOnly, HideInEditorMode]
         public bool IsActive { get; protected set; }
         
         protected bool _initialized;
@@ -226,7 +226,7 @@ namespace Rhinox.VOLT.Training
             var go = ActiveStep.gameObject;
             PLog.Info<MagnusLogger>($"[BasicTask::OnStepStarted] Moving on to step {CurrentStepId + 1}: {go.name}", associatedObject: go);
 
-            var coroutine = new ManagedCoroutine(PreStartStepHandler(ActiveStep));
+            var coroutine = ManagedCoroutine.Begin(PreStartStepHandler(ActiveStep));
             // coroutine.OnFinished += x =>
             // {
             //     // Might be null when the coroutine is terminated due to end of game

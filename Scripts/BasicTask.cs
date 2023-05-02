@@ -17,7 +17,7 @@ namespace Rhinox.VOLT.Training
     {
         public ValueReferenceLookup ValueReferenceLookup;
 
-        [ShowReadOnlyInPlayMode] private BaseStep[] _steps;
+        [ShowInInspector, ReadOnly, HideInEditorMode] private BaseStep[] _steps;
         public override IReadOnlyList<BaseStep> Steps => _initialized ? _steps : GetComponentsInChildren<BaseStep>();
         
         public UnityEvent OnTaskStarted;
