@@ -176,7 +176,7 @@ public class TaskViewerSettingsUI : PagerPage
 {
     private List<Type> _availableTypes;
     
-    public TaskViewerSettingsUI(SlidePagedWindowNavigationHelper<object> pager) : base(pager)
+    public TaskViewerSettingsUI(SlidePageNavigationHelper<object> pager) : base(pager)
     {
         if (!TaskViewerSettings.HasData)
             TaskViewerSettings.LoadAll();
