@@ -1,88 +1,105 @@
-﻿using Rhinox.GUIUtils.Editor;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Rhinox.GUIUtils;
+using Rhinox.GUIUtils.Editor;
+using Rhinox.Lightspeed;
 using Rhinox.VOLT.Data;
+using Rhinox.VOLT.Training;
 using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(ConditionStepObject))]
-    public class ConditionStepObjectDrawer : BasePropertyDrawer<ConditionStepObject>
+    public class ConditionStepObjectDrawer : BasePropertyDrawer<ConditionStepObject, ConditionStepObjectDrawer.DrawerData>
     {
-        private float _labelHeight;
-        private float _horizontalMargin;
-        private DrawablePropertyView _basePropertyView;
-
-        protected override void Initialize()
+        public class DrawerData
         {
-            base.Initialize();
-            _labelHeight = base.GetPropertyHeight(new GUIContent("SAMPLE_LABEL"));
-            _horizontalMargin = 0.05f;
-
-            if (_basePropertyView == null)
-            { 
-                //_basePropertyView = new DrawablePropertyView(SmartValue);
-            }
+            public GenericHostInfo HostInfo;
+            public TypePicker Picker;
+            public Type SelectedType;
         }
 
-        protected override void DrawProperty(Rect position, GUIContent label)
+        protected override DrawerData CreateData(GenericHostInfo info)
         {
-            if (_basePropertyView != null)
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => !x.IsAbstract)
+                .Where(x => !x.IsGenericTypeDefinition)
+                .Where(x => typeof(BaseCondition).IsAssignableFrom(x))
+                .ToArray();
+                    
+            var picker = new TypePicker(types);
+            
+            var data = new DrawerData()
             {
-                //_basePropertyView.Draw(position);
-            }
-            else
-            {
-                Rect controlRect = GetControlRect(position);
-                Rect prefixRect = controlRect;
-                prefixRect.width /= 4;
-                prefixRect.height = _labelHeight;
-
-                Rect valueRect = controlRect;
-                valueRect.x = prefixRect.width * 2;
-                valueRect.width = valueRect.width / 4 * 2;
-                valueRect.height = _labelHeight;
-
-                GUI.Label(prefixRect, "ID");
-                GUI.Label(valueRect, SmartValue.ID.ToString());
-                prefixRect.y += _labelHeight;
-                valueRect.y += _labelHeight;
-
-                GUI.Label(prefixRect, "Name");
-                SmartValue.Name = GUI.TextField(valueRect, SmartValue.Name);
-                prefixRect.y += _labelHeight;
-                valueRect.y += _labelHeight;
-                valueRect.height = 3 * _labelHeight;
-
-                GUI.Label(prefixRect, "Description");
-                SmartValue.Description = GUI.TextField(valueRect, SmartValue.Description);
-                prefixRect.y += _labelHeight;
-                valueRect.y += valueRect.height;
-
-                valueRect.x = prefixRect.x;
-                valueRect.height = _labelHeight + SmartValue.SubStepData.Count * _labelHeight;
-                
-            }
-        }
-
-        private Rect GetControlRect(Rect position)
-        {
-            int horizontalMarginPx = (int)(position.width * _horizontalMargin);
-            Rect controlRect = new Rect()
-            {
-                x = position.x + horizontalMarginPx,
-                y = position.y,
-                width = position.width - 2 * horizontalMarginPx,
-                height = position.height
+                HostInfo = info,
+                Picker = picker,
+                SelectedType = null
             };
-
-            return controlRect;
+            
+            picker.OptionSelected += (x) => data.SelectedType = x;
+            return data;
         }
 
-        protected override float GetPropertyHeight(GUIContent label)
+        protected override GenericHostInfo GetHostInfo(DrawerData data)
         {
-            float fieldHeight = 5 * _labelHeight;
-            float subStepDataHeight = _labelHeight + SmartValue.SubStepData.Count * _labelHeight;
-            return fieldHeight + subStepDataHeight;
+            return data.HostInfo;
+        }
+
+        protected override void DrawProperty(Rect position, ref DrawerData data, GUIContent label)
+        {
+            var shiftedRect = CallInnerDrawer(position, label);
+
+            var buttonRect = shiftedRect.AlignTop(EditorGUIUtility.singleLineHeight);
+            if (GUI.Button(buttonRect, "Add Condition"))
+            {
+                data.Picker.Show(buttonRect);
+            }
+
+            if (Event.current.type == EventType.Layout)
+            {
+                if (data.SelectedType != null)
+                {
+                    AddEntry(data.HostInfo, data.SelectedType);
+                    data.SelectedType = null;
+                }
+            }
+        }
+
+        private void AddEntry(GenericHostInfo hostInfo, Type type)
+        {
+            if (type == null)
+                return;
+            
+            var conditionObj = Activator.CreateInstance(type) as BaseCondition;
+            if (conditionObj.OnBetterConditionMet.Events == null)
+                conditionObj.OnBetterConditionMet.Events = new List<ValueReferenceEventEntry>();
+            var conditionData = ConditionDataHelper.FromCondition(conditionObj);
+
+            var stepObject = hostInfo.GetSmartValue<ConditionStepObject>();
+            // TODO: enable conversion
+            //EditorParamDataHelper.ConvertToEditor(ref conditionData);
+            if (stepObject.Conditions == null)
+                stepObject.Conditions = new List<ConditionData>();
+            stepObject.Conditions.Add(conditionData);
+            hostInfo.Apply();
+            // var conditionsProperty = Property.FindChild(x => x.Name == nameof(ConditionStepObject.Conditions), false);
+            // var conditionsValueEntry = conditionsProperty != null ? conditionsProperty.ValueEntry as IPropertyValueEntry<List<ConditionData>> : null;
+            //
+            // if (conditionsValueEntry.SmartValue == null)
+            //     conditionsValueEntry.SmartValue = new List<ConditionData>();
+            //
+            // EditorParamDataHelper.ConvertToEditor(ref conditionData);
+            //
+            // conditionsValueEntry.SmartValue.Add(conditionData);
+        }
+
+        protected override float GetPropertyHeight(GUIContent label, in DrawerData data)
+        {
+            return GetInnerDrawerHeight(label) + CustomGUIUtility.Padding + EditorGUIUtility.singleLineHeight;
         }
     }
 }
