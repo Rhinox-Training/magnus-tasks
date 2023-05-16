@@ -10,12 +10,12 @@ using Sirenix.OdinInspector.Editor;
 #endif
 using UnityEngine;
 
-[Serializable]
+[Serializable, HideLabel]
 public struct ValueReferenceEvent : ISerializationCallbackReceiver, IUseReferenceGuid
 {
     [HideDuplicateReferenceBox]
     [HideReferenceObjectPicker, ListDrawerSettings(OnTitleBarGUI = "DrawInvokeButton", Expanded = true, CustomAddFunction = nameof(AddEvent))]
-    [LabelText("@GetMemberName($property)")]
+    [LabelText("$property.Parent.NiceName")]
     public List<ValueReferenceEventEntry> Events;
 
     private IReferenceResolver _referenceResolver;
