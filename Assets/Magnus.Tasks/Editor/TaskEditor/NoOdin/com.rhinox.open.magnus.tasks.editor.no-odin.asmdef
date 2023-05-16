@@ -1,6 +1,10 @@
 {
     "name": "com.rhinox.open.magnus.tasks.editor.no-odin",
-    "references": [],
+    "references": [
+        "GUID:4b8acebb84c5b2e45a0791aa0bf45526",
+        "GUID:7262f4696183b8841b571481b3ac0765",
+        "GUID:fc025ba4ac3997440926e87ec084af89"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

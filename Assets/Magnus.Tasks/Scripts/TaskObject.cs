@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
@@ -67,6 +68,7 @@ namespace Rhinox.VOLT.Data
         }
     }
 
+    [Serializable]
     public abstract class StepData : IUseReferenceGuid
     {
         [DisplayAsString, ReadOnly]
@@ -131,6 +133,7 @@ namespace Rhinox.VOLT.Data
         }
     }
 
+    [Serializable]
     public class ConditionStepObject : StepData
     {
         public bool OrderedConditions;
