@@ -10,7 +10,7 @@ using Sirenix.OdinInspector;
 
 namespace Rhinox.VOLT.Data
 {
-    [HideReferenceObjectPicker]
+    [HideReferenceObjectPicker, Serializable]
     public class ParamData
     {
         public string Name;
@@ -102,6 +102,7 @@ namespace Rhinox.VOLT.Data
 
     }
     
+    [Serializable]
     public class ConditionData : IUseReferenceGuid
     {
         public SerializableType ConditionType;
