@@ -4,6 +4,9 @@
 
 Tasks system (create quests/tasks)
 
+## Dependencies
+- Magnus (https://github.com/Rhinox-Training/magnus)
+
 ## Optional dependencies
 
 - OdinInspector (https://odininspector.com/)
