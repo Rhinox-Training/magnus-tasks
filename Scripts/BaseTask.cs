@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace Rhinox.VOLT.Training
 {
+    
     public abstract class BaseTask : MonoBehaviour, ITask
     {
         public TagContainer TagContainer = new TagContainer();
