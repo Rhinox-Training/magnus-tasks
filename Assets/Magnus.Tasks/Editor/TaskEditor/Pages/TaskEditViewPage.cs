@@ -23,10 +23,12 @@ namespace Rhinox.VOLT.Editor
     {
         [CustomValueDrawer(nameof(TaskHeaderDrawer))]
         public TaskData TaskData;
-
+        
         [TabGroup("Lookup")]
         public ValueReferenceLookup Lookup;
 
+
+        public int Lookupss;
         public DataLayerConfig Configuration => TaskData?.ParentSet?.Configuration;
 
         [TabGroup("Steps")]
