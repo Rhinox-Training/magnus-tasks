@@ -136,11 +136,9 @@ namespace Rhinox.VOLT.Data
     [Serializable]
     public class ConditionStepObject : StepData
     {
-        public bool OrderedConditions;
-
-        public TagContainer TagContainer;
-        
-        public List<ConditionData> Conditions;
+        [PropertyOrder(5)] public bool OrderedConditions;
+        [PropertyOrder(6)] public TagContainer TagContainer;
+        [PropertyOrder(7)] public List<ConditionData> Conditions;
 
         public ConditionStepObject(SerializableGuid id, string name, string description = "") : base(id, name, description)
         { 
