@@ -26,16 +26,11 @@ namespace Rhinox.VOLT.Editor
         
         [TabGroup("Lookup")]
         public ValueReferenceLookup Lookup;
-
-
-        public int Lookupss;
+        
         public DataLayerConfig Configuration => TaskData?.ParentSet?.Configuration;
 
         [TabGroup("Steps")]
-        [ListDrawerSettings(
-            ShowPaging = true, NumberOfItemsPerPage = 1,
-            // ShowIndexLabels = true, ListElementLabelName = "Name",
-            Expanded = true, OnTitleBarGUI = nameof(OnTitleBarGUI))]
+        [ListDrawerSettings(ShowPaging = true, NumberOfItemsPerPage = 1, /* ShowIndexLabels = true, ListElementLabelName = "Name",*/ Expanded = true, OnTitleBarGUI = nameof(OnTitleBarGUI))]
         public List<StepData> Steps;
 
         private TaskData _taskData;
