@@ -152,12 +152,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6191368919136442a168dc4343e84a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _int1: 177
-  _float1: 5.19
-  _bool1: 0
-  _int2: 89
-  _int3: 0
-  _int4: 0
+  _dic:
+    _keyData: 00000000030000000200000004000000
+    _valueData:
+    - fadfa
+    - dada
+    - dada
+    - dada
+  _i: 5
 --- !u!23 &416453451
 MeshRenderer:
   m_ObjectHideFlags: 0

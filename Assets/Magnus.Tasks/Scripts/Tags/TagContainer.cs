@@ -7,6 +7,7 @@ using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Rhinox.VOLT.Training
 {
@@ -104,6 +105,7 @@ namespace Rhinox.VOLT.Training
             return table.GetAllData()
                 .Select(x => new ValueDropdownItem(x.Name, x.Name))
                 .ToArray();
+            
         }
 #endif
 

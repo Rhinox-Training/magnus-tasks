@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
+using Rhinox.Lightspeed.Collections;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
 using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
+using UnityEngine;
 
 [Serializable]
 public struct DefaultTypeReferenceKey
@@ -32,6 +34,7 @@ public struct DefaultTypeReferenceKey
 // [ShowOdinSerializedPropertiesInInspector]
 public class ValueReferenceLookup : IReferenceResolver
 {
+
     public Dictionary<SerializableType, DefaultTypeReferenceKey[]> DefaultsByType = new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
     
     public Dictionary<SerializableGuid, IValueResolver> ValueResolversByKey = new Dictionary<SerializableGuid, IValueResolver>();
