@@ -6,11 +6,12 @@ using Rhinox.GUIUtils.Attributes;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
+using Rhinox.VOLT.Training;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
 	[SmartFallbackDrawn(false)]
 	public class TaskManager : Singleton<TaskManager>

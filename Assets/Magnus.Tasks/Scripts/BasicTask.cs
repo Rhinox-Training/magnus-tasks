@@ -5,6 +5,7 @@ using System.Reflection;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Utilities;
 using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;

@@ -5,10 +5,11 @@ using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
+using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     
     public abstract class BaseTask : MonoBehaviour, ITask
@@ -264,7 +265,7 @@ namespace Rhinox.VOLT.Training
             if (!IsActive || CurrentStepId == -1) // Events can stop the current task
                 return;
 
-            var coroutine = new ManagedCoroutine(PreStopStepHandler(ActiveStep));
+            var coroutine = ManagedCoroutine.Begin(PreStopStepHandler(ActiveStep));
             // coroutine.OnFinished += x =>
             // {
             //     ++CurrentStepId;

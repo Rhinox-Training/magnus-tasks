@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Rhinox.GUIUtils.Editor;
 using Rhinox.Utilities.Editor;
-using Sirenix.Utilities;
-using Sirenix.Utilities.Editor;
+using Rhinox.VOLT.Data;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,13 +33,14 @@ namespace Rhinox.VOLT.Editor
             _optionsCache = options;
             Update(_optionsCache.Count);
             
-            SirenixEditorGUI.BeginToolbarBox();
-            var toolbarRect = SirenixEditorGUI.BeginToolbarBoxHeader();
+            //EditorGUILayout.BeginToolbarBox();
+            EditorGUILayout.BeginVertical();
+            var toolbarRect = CustomEditorGUI.BeginHorizontalToolbar();
             
             DrawSearchField();
             DrawToolbarPagingButtons(ref toolbarRect, showPaging, showItemCount);
             
-            SirenixEditorGUI.EndToolbarBoxHeader();
+            CustomEditorGUI.EndHorizontalToolbar();
             
             if (Event.current.type == EventType.Repaint)
                 prevRect = toolbarRect;
@@ -54,12 +55,10 @@ namespace Rhinox.VOLT.Editor
             
             if (SearchField)
             {
-                var searchRect = prevRect.AddYMin(3);
-                var searchFieldName = "BetterPagingSearchField";
+                var searchRect = prevRect;
+                searchRect.yMin += 3;
 
-
-                var newSearchText = SirenixEditorGUI.SearchField(searchRect, SearchText, controlName: searchFieldName);
-
+                var newSearchText = CustomEditorGUI.ToolbarSearchField(searchRect, SearchText);
                 if (newSearchText != SearchText)
                 {
                     SearchText = newSearchText;
@@ -80,7 +79,8 @@ namespace Rhinox.VOLT.Editor
         {
             Update(_optionsCache.Count);
             _optionsCache = null;
-            SirenixEditorGUI.EndToolbarBox();
+            //SirenixEditorGUI.EndToolbarBox();
+            EditorGUILayout.EndVertical();
 
             if (RequiresRefresh)
             {

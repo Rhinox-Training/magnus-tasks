@@ -418,7 +418,7 @@ public class ValueReferenceLookupDrawer : SimpleOdinValueDrawer<ValueReferenceLo
             {
                 if (i >= property.Children.Count)
                 {
-                    // NOTE: refresh needed, when deleting items and readding otherwise drawer is not up to date
+                    // NOTE: refresh needed, when deleting items and reading otherwise drawer is not up to date
                     RefreshDefaultValueSet();
                     property = GetChildProperty("#Value", _selectedPropertyToInspect);
                     if (i >= property.Children.Count)
