@@ -8,7 +8,7 @@ using Rhinox.Vortex.File;
 namespace Rhinox.VOLT.Data.File
 {
     [DataEndPoint(typeof(FileEndPoint))]
-    public class TaskObjectDataTable : JsonFileDT<TaskObject>
+    public class TaskObjectDataTable : DataTable<TaskObject>
     {
         protected override string _tableName => "task-objects";
         protected override int GetID(TaskObject dataObject)
@@ -22,10 +22,10 @@ namespace Rhinox.VOLT.Data.File
             return dto;
         }
 
-        protected override ICollection<TaskObject> LoadData(bool createIfNotExists = false)
+        protected override TaskObject[] HandleLoadData(bool createIfNotExists = false)
         {
             SceneHierarchyTree.Freeze();
-            var result = base.LoadData(createIfNotExists);
+            var result = base.HandleLoadData(createIfNotExists);
             SceneHierarchyTree.UnFreeze();
             return result;
         }

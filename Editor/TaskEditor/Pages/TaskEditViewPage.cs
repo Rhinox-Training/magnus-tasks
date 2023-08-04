@@ -8,7 +8,10 @@ using Rhinox.Lightspeed.Reflection;
 using Rhinox.VOLT.Data;
 using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
+#endif
 using UnityEditor;
 using UnityEngine;
 

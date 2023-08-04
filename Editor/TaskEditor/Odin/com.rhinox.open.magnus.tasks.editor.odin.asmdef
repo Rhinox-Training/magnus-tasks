@@ -1,7 +1,20 @@
 {
     "name": "com.rhinox.open.magnus.tasks.editor.odin",
-    "references": [],
-    "includePlatforms": [],
+    "references": [
+        "GUID:3b169ccda512e504b9e2eb8b0bec14f9",
+        "GUID:0ddc618087b4c494893b70a3bef42e02",
+        "GUID:7262f4696183b8841b571481b3ac0765",
+        "GUID:62a965aa53b0d0e4a9715c9a86d7fd31",
+        "GUID:4b8acebb84c5b2e45a0791aa0bf45526",
+        "GUID:fc025ba4ac3997440926e87ec084af89",
+        "GUID:cacc866837634ee43b789e23dc71d920",
+        "GUID:78e00279be7293347ba03f49a198e668",
+        "GUID:d06f234cedf03a546807d093bc1d736b",
+        "GUID:bdec58fdb2fc7a141a577d42148efa77"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

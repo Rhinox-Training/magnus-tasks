@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
 using Rhinox.VOLT.Data;

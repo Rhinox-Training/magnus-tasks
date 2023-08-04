@@ -251,7 +251,7 @@ public class TaskViewerSettingsUI : PagerPage
             GUILayout.Label(GUIContentHelper.TempContent("Add Type"));
             if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Plus")))
             {
-                var selector = new TypeSelector(_availableTypes, false);
+                var selector = new Sirenix.OdinInspector.Editor.TypeSelector(_availableTypes, false);
                 selector.SelectionConfirmed += l =>
                 {
                     var t = l.FirstOrDefault();

@@ -1,5 +1,6 @@
 ﻿using System;
 using Rhinox.Lightspeed;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Utilities;
 using Rhinox.Utilities.Attributes;
 using Rhinox.VOLT.Data;
