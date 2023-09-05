@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Rhinox.VOLT.Training
 {
-	[ExecuteAfter(typeof(BaseTask))]
+	[ExecuteAfter(typeof(BaseTask)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
 		[Title("Base Settings")]

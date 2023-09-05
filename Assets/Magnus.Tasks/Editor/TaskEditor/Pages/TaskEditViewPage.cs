@@ -14,6 +14,7 @@ using Sirenix.Serialization;
 #endif
 using UnityEditor;
 using UnityEngine;
+using SerializationUtility = Sirenix.Serialization.SerializationUtility;
 
 // unity 2021.3 has introduced their own SerializationUtility, so scope it
 
