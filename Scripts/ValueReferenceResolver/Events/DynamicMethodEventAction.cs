@@ -4,10 +4,13 @@ using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
+using Rhinox.Magnus;
+using Rhinox.Perceptor;
 using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+[RefactoringOldNamespace("", "com.rhinox.volt")]
 public class DataViewer<T> : ArgumentDataContainer
 {
     public Type TargetType => typeof(T);
@@ -66,6 +69,7 @@ public class DataViewer<T> : ArgumentDataContainer
     }
 }
 
+[RefactoringOldNamespace("", "com.rhinox.volt")]
 public class SerializedViewer : ArgumentDataContainer
 {
     [OnValueChanged(nameof(ValueChanged))]
@@ -153,7 +157,7 @@ public abstract class ArgumentDataContainer : IUseReferenceGuid
     public abstract void ReplaceGuid(SerializableGuid guid, SerializableGuid replacement);
 }
 
-[HideReferenceObjectPicker, Serializable]
+[HideReferenceObjectPicker, Serializable, RefactoringOldNamespace("", "com.rhinox.volt")]
 public class DynamicMethodArgument : ISerializationCallbackReceiver, IUseReferenceGuid
 {
     [HideInInspector]
@@ -182,8 +186,12 @@ public class DynamicMethodArgument : ISerializationCallbackReceiver, IUseReferen
 
         // If we have a container type serialized, we are probably deserializing and can recreate our container
         if (_containerType != null)
-            return Activator.CreateInstance(_containerType, new [] { this }) as ArgumentDataContainer;
-        
+        {
+            if (_containerType.Type == null)
+                PLog.Error<MagnusLogger>($"ContainerType {_containerType.AssemblyQualifiedName} not found");
+            return Activator.CreateInstance(_containerType, new[] {this}) as ArgumentDataContainer;
+        }
+
         // If we are starting fresh, we want to create a GUID based approach for object types by default
         if ( t.InheritsFrom(typeof(UnityEngine.Object)))
             return new SerializedViewer(this)
@@ -239,7 +247,7 @@ public class DynamicMethodArgument : ISerializationCallbackReceiver, IUseReferen
 
 
 
-[Serializable]
+[Serializable, RefactoringOldNamespace("", "com.rhinox.volt")]
 public class DynamicMethodEventAction<T> : ValueReferenceEventAction<T>, IUseReferenceGuid
 {
     [ValueDropdown(nameof(GetMethodDropdownOptions)), OnValueChanged(nameof(MethodChanged))] 

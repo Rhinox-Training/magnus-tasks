@@ -1,5 +1,6 @@
 {
     "name": "com.rhinox.open.magnus.tasks.editor",
+    "rootNamespace": "",
     "references": [
         "GUID:4b8acebb84c5b2e45a0791aa0bf45526",
         "GUID:78e00279be7293347ba03f49a198e668",
@@ -15,7 +16,9 @@
         "GUID:d06f234cedf03a546807d093bc1d736b",
         "GUID:cacc866837634ee43b789e23dc71d920"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

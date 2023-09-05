@@ -11,7 +11,7 @@ using Sirenix.OdinInspector;
 
 namespace Rhinox.VOLT.Data
 {
-    [DataLayer]
+    [DataLayer, Serializable, RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
     public class TaskObject
     {
         public int ID;

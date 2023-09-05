@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Editor.Helpers;
+using Rhinox.Magnus.Tasks;
 using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 #if ODIN_VALIDATOR
@@ -35,16 +36,6 @@ public class TaskViewerBase : PagerPage
 
         for (var i = 0; i < _components.Length; i++)
             _components[i].Draw();
-        
-#if ODIN_VALIDATOR
-        if (_targetWrapper.Target is BaseTask)
-        {
-            if (GUILayout.Button("Validate"))
-            {
-                _targetWrapper.Validate(_pager.Window);
-            }
-        }
-#endif
     }
 
     private void FetchComponents()
