@@ -8,13 +8,13 @@ using Rhinox.Lightspeed.Reflection;
 using Rhinox.VOLT.Data;
 using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
-#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
 using Sirenix.Serialization;
+using SerializationUtility = Sirenix.Serialization.SerializationUtility;
 #endif
 using UnityEditor;
 using UnityEngine;
-using SerializationUtility = Sirenix.Serialization.SerializationUtility;
 
 // unity 2021.3 has introduced their own SerializationUtility, so scope it
 

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using Rhinox.GUIUtils;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus.Tasks;
 using Rhinox.VOLT.Training;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,7 +23,7 @@ namespace Rhinox.Magnus.Tasks.Editor
         static CrossoutConditionDrawer()
         {
             _stepById = new Dictionary<int, BaseStep>();
-            
+
             EditorApplication.update += OnEditorUpdate;
             EditorApplication.hierarchyWindowItemOnGUI += DrawCrossOutCondition;
         }
@@ -33,11 +33,11 @@ namespace Rhinox.Magnus.Tasks.Editor
             if (_delay.Tick(60))
                 _needsRefresh = true;
         }
-        
+
         private static void DrawCrossOutCondition(int instanceID, Rect selectionRect)
         {
             if (!Application.isPlaying || !TaskManager.HasInstance) return;
-            
+
             if (_needsRefresh)
                 _stepById.Clear();
 
@@ -73,7 +73,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 var rect = selectionRect.SetHeight(1);
                 rect = RectExtensions.AddY(rect, selectionRect.height / 2 - 1);
                 // Crossout
-                EditorGUI.DrawRect(rect, SirenixGUIStyles.HighlightedTextColor);
+                EditorGUI.DrawRect(rect, CustomGUIStyles.HoverColor);
             }
         }
     }
