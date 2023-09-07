@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     public class TagContainerConverter : JsonConverter<TagContainer>
     {

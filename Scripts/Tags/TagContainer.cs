@@ -9,11 +9,11 @@ using Rhinox.Vortex;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker, HideLabel]
     [JsonConverter(typeof(TagContainerConverter))]
-    [Serializable]
+    [Serializable, RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class TagContainer
     {
         [ValueDropdown("GetAllTags"), ListDrawerSettings(Expanded = true, DraggableItems = false)]
