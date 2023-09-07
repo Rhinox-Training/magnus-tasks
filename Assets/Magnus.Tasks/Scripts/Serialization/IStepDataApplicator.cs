@@ -5,6 +5,7 @@ using Rhinox.VOLT.Training;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Magnus;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
 using Rhinox.Vortex;
 using UnityEngine;

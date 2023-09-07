@@ -14,12 +14,12 @@ namespace Rhinox.VOLT.Training
 	[ExecuteAfter(typeof(BaseTask)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
-		[Title("Base Settings")]
+		[Title("Info"), VerticalGroup("CoreSettings", -100)]
 		public TagContainer TagContainer = new TagContainer();
 
-		[LabelWidth(50)]
+		[LabelWidth(50), VerticalGroup("CoreSettings", -100)]
 		public string Title;
-		[TextArea(1,3)]
+		[TextArea(1,3), VerticalGroup("CoreSettings", -100)]
 		public string Description;
 		
 		// Currently only filled in from TaskObject (to keep a reference from where it came)
@@ -27,7 +27,7 @@ namespace Rhinox.VOLT.Training
 		public SerializableGuid ID { get; set; }
 		
 		[PropertySpace, SerializeReference]
-		[ListDrawerSettings(Expanded = true), TabGroup("Settings")]
+		[ListDrawerSettings(Expanded = true), TabGroup("Settings", order: -100)]
 		public IStepTimingEvent[] StepTimingEvents = new IStepTimingEvent[] { };
 		
 		public string EventsHeader => $"Events ({TotalEventCount})";
