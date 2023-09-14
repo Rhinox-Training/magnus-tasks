@@ -30,7 +30,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             private static GUIStyle _tagCardStyle;
 
             public static GUIStyle TagCardStyle => _tagCardStyle ?? (_tagCardStyle =
-                new GUIStyle(CustomGUIStyles.IconButton)
+                new GUIStyle(CustomGUIStyles.Box)
                 {
                     padding = new RectOffset(0, 0, 0, 0),
 
@@ -57,7 +57,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 return null;
 
             var propertyHelper = MemberHelper.Create<DataLayerConfig>(hostInfo.GetValue(), processorAttribute.MemberName);
-            var referenceResolver = propertyHelper.GetSmartValue();
+            var referenceResolver = propertyHelper.ForceGetValue();
             return referenceResolver;
         }
 
@@ -89,7 +89,7 @@ namespace Rhinox.Magnus.Tasks.Editor
 
                         var content = GUIContentHelper.TempContent(tag);
                         var width = Styles.TagCardStyle.CalcSize(GUIContent.none).x + Styles.TagLabelStyle.CalcSize(content).x;
-                        width += iconSize + 2; // icon & spacer 
+                        width += iconSize + 4; // icon & spacer 
                         if (currentWidth + width > maxWidth)
                         {
                             // TODO: support multiline
@@ -102,11 +102,11 @@ namespace Rhinox.Magnus.Tasks.Editor
                         tagRect = tagRect.AlignLeft(width);
 
                         GUI.Box(tagRect, GUIContent.none, Styles.TagCardStyle);
-                        GUI.Label(tagRect.HorizontalPadding(2.0f), content, Styles.TagLabelStyle);
+                        GUI.Label(tagRect.HorizontalPadding(2.0f).PadRight(iconSize), content, Styles.TagLabelStyle);
                         if (CustomEditorGUI.IconButton(tagRect.AlignRight(iconSize), UnityIcon.AssetIcon("Fa_Times")))
                             _tagsToRemove.Add(tag);
 
-                        tagRect = tagRect.AddX(width);
+                        tagRect = tagRect.AddX(width + 2.0f);
 
                         currentWidth += width;
                     }
@@ -134,7 +134,8 @@ namespace Rhinox.Magnus.Tasks.Editor
             ICollection<string> source = GetValues(container) ?? Array.Empty<string>();
             GenericPicker.Show<string>(r, source, x =>
             {
-                container.Tags.Add(x);
+                if (!string.IsNullOrEmpty(x))
+                    container.Tags.Add(x);
             });
         }
 
