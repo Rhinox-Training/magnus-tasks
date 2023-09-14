@@ -139,7 +139,8 @@ namespace Rhinox.VOLT.Data
     {
         [PropertyOrder(5)] public bool OrderedConditions;
         [PropertyOrder(6)] public TagContainer TagContainer;
-        [PropertyOrder(7)] public List<ConditionData> Conditions;
+        [PropertyOrder(7), ListDrawerSettings(HideAddButton = true)] 
+        public List<ConditionData> Conditions;
 
         public ConditionStepObject(SerializableGuid id, string name, string description = "") : base(id, name, description)
         { 
