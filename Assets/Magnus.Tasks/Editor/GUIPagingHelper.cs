@@ -117,7 +117,7 @@ namespace Rhinox.VOLT.Data
                     rect2.xMin += 4f;
                     --rect2.y;
                     GUI.Label(rect1, text, CustomGUIStyles.CenteredLabel);
-                    int pageIndex = CustomEditorGUI.SlideRectInt(rect1, 0, this.CurrentPage);
+                    int pageIndex = CustomEditorGUI.TrackMouseDragForIntegerChange(rect1, 0, this.CurrentPage);
                     if (pageIndex != this.CurrentPage)
                         this._nextPageNumber = new int?(pageIndex);
                     int num3 = EditorGUI.IntField(rect2.AlignCenterVertical(15f), this.CurrentPage + 1) - 1;
