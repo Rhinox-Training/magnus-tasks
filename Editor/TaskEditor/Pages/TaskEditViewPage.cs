@@ -5,8 +5,6 @@ using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Editor.Helpers;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
 #if ODIN_INSPECTOR
@@ -18,7 +16,7 @@ using UnityEngine;
 
 // unity 2021.3 has introduced their own SerializationUtility, so scope it
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     [DataLayer, ShowOdinSerializedPropertiesInInspector]
     [SerializedGuidProcessor(nameof(Lookup))]

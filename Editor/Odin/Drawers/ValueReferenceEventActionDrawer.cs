@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ValueReferenceEventActionDrawer<T> : SimpleOdinValueDrawer<T> where T : ValueReferenceEventAction
     {

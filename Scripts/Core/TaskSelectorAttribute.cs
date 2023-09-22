@@ -1,6 +1,6 @@
 using System;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public class TaskSelectorAttribute : Attribute
     {

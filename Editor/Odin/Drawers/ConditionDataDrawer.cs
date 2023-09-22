@@ -17,8 +17,7 @@ using UnityEngine;
 using RectExtensions = Rhinox.Lightspeed.RectExtensions;
 using TypeExtensions = Sirenix.Utilities.TypeExtensions;
 
-
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ConditionDataDrawer : SimpleOdinValueDrawer<ConditionData>
     {

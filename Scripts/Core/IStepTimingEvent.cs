@@ -1,8 +1,10 @@
 ﻿using Rhinox.GUIUtils.Attributes;
+using Rhinox.Lightspeed;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Utilities;
 using Sirenix.OdinInspector;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     public enum StepTiming
     {
@@ -18,6 +20,7 @@ namespace Rhinox.VOLT.Training
     }
 
     [HideReferenceObjectPicker]
+    [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public abstract class BaseStepTimingEvent : IStepTimingEvent
     {
         public StepTiming Timing = StepTiming.OnStart_EndOnComplete;

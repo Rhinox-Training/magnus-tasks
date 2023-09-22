@@ -5,12 +5,11 @@ using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
-using Rhinox.VOLT.Data;
 using Rhinox.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     public static class ConditionDataHelper
     {

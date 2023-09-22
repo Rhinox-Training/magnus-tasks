@@ -5,7 +5,7 @@ using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ConditionStepObjectProcessor : StepDataProcessor<ConditionStepObject>
     {

@@ -1,11 +1,14 @@
 using System;
 
-public class ImportToDataLayerAttribute : Attribute
+namespace Rhinox.Magnus.Tasks
 {
-    public string MemberName { get; }
-    
-    public ImportToDataLayerAttribute(string memberName)
+    public class ImportToDataLayerAttribute : Attribute
     {
-        MemberName = memberName;
+        public string MemberName { get; }
+
+        public ImportToDataLayerAttribute(string memberName)
+        {
+            MemberName = memberName;
+        }
     }
 }

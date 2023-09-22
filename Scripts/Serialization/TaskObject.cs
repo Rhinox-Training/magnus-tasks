@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus;
-using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     [DataLayer, Serializable, RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
     public class TaskObject

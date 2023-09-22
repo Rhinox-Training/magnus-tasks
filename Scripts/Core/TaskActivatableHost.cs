@@ -9,74 +9,76 @@ using Rhinox.Utilities.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-/// <summary>
-/// Component that activates when one of the child activatables activates. Usefull for providing i.e. a background for UI, where the activatables are possible elements
-/// </summary>
-[ExecuteAfter(typeof(TaskActivatable))]
-public class TaskActivatableHost : MonoBehaviour
+namespace Rhinox.Magnus.Tasks
 {
-    private TaskActivatable[] _children;
-
-    [ShowReadOnlyInPlayMode]
-    private List<TaskActivatable> _activeActivatables;
-
-    private bool _isActive;
-
-    private void Awake()
+    /// <summary>
+    /// Component that activates when one of the child activatables activates. Usefull for providing i.e. a background for UI, where the activatables are possible elements
+    /// </summary>
+    [ExecuteAfter(typeof(TaskActivatable))]
+    public class TaskActivatableHost : MonoBehaviour
     {
-        // Required due to datatasks only spawning in later
-        SceneReadyHandler.YieldToggleControl(this);
+        private TaskActivatable[] _children;
 
-        _activeActivatables = new List<TaskActivatable>();
-    }
-    
-    void Start()
-    {
-        _children = GetComponentsInChildren<TaskActivatable>(true);
+        [ShowReadOnlyInPlayMode] private List<TaskActivatable> _activeActivatables;
 
-        foreach (var child in _children)
+        private bool _isActive;
+
+        private void Awake()
         {
-            child.StateChanged += OnStateChanged;
-            if (child.IsActive)
-                _activeActivatables.Add(child);
+            // Required due to datatasks only spawning in later
+            SceneReadyHandler.YieldToggleControl(this);
+
+            _activeActivatables = new List<TaskActivatable>();
         }
 
-        CheckActivationState();
-    }
-
-    private void OnDestroy()
-    {
-        if (_children != null)
+        void Start()
         {
+            _children = GetComponentsInChildren<TaskActivatable>(true);
+
             foreach (var child in _children)
             {
-                if (child)
-                    child.StateChanged -= OnStateChanged;
+                child.StateChanged += OnStateChanged;
+                if (child.IsActive)
+                    _activeActivatables.Add(child);
             }
+
+            CheckActivationState();
         }
-        
-        SceneReadyHandler.RevertToggleControl(this);
-    }
-    
-    private void OnStateChanged(TaskActivatable activatable, bool state)
-    {
-        if (state)
-            _activeActivatables.Add(activatable);
-        else
-            _activeActivatables.Remove(activatable);
 
-        CheckActivationState();
-    }
+        private void OnDestroy()
+        {
+            if (_children != null)
+            {
+                foreach (var child in _children)
+                {
+                    if (child)
+                        child.StateChanged -= OnStateChanged;
+                }
+            }
 
-    private void CheckActivationState()
-    {
-        var isActive = _activeActivatables.Any();
-        SetState(isActive);
-    }
+            SceneReadyHandler.RevertToggleControl(this);
+        }
 
-    private void SetState(bool state)
-    {
-        _isActive = state;
-        gameObject.SetActive(state);
+        private void OnStateChanged(TaskActivatable activatable, bool state)
+        {
+            if (state)
+                _activeActivatables.Add(activatable);
+            else
+                _activeActivatables.Remove(activatable);
+
+            CheckActivationState();
+        }
+
+        private void CheckActivationState()
+        {
+            var isActive = _activeActivatables.Any();
+            SetState(isActive);
+        }
+
+        private void SetState(bool state)
+        {
+            _isActive = state;
+            gameObject.SetActive(state);
+        }
     }
 }

@@ -1,24 +1,27 @@
 using System;
-using Rhinox.VOLT.Data;
+using Rhinox.Lightspeed;
 
-[Serializable]
-public abstract class BaseValueResolver<T> : IValueResolver<T>
+namespace Rhinox.Magnus.Tasks
 {
-    public abstract string SimpleName { get; }
-    public virtual string ComplexName => null;
-    
-    public abstract bool TryResolve(ref T value);
-
-    bool IValueResolver.TryResolve(ref object value)
+    [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
+    public abstract class BaseValueResolver<T> : IValueResolver<T>
     {
-        T typedValue = default;
-        if (!TryResolve(ref typedValue))
-            return false;
-        value = typedValue;
-        return true;
+        public abstract string SimpleName { get; }
+        public virtual string ComplexName => null;
+
+        public abstract bool TryResolve(ref T value);
+
+        bool IValueResolver.TryResolve(ref object value)
+        {
+            T typedValue = default;
+            if (!TryResolve(ref typedValue))
+                return false;
+            value = typedValue;
+            return true;
+        }
+
+        public Type GetTargetType() => typeof(T);
+
+        public abstract bool Equals(IValueResolver other);
     }
-
-    public Type GetTargetType() => typeof(T);
-
-    public abstract bool Equals(IValueResolver other);
 }

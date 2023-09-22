@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using Rhinox.Lightspeed;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public static class TaskObjectUtility
     {

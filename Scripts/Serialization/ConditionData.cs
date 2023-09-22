@@ -8,9 +8,10 @@ using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Sirenix.OdinInspector;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker, Serializable]
+    [RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
     public class ParamData
     {
         public string Name;
@@ -103,6 +104,7 @@ namespace Rhinox.VOLT.Data
     }
     
     [Serializable]
+    [RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
     public class ConditionData : IUseReferenceGuid
     {
         public SerializableType ConditionType;

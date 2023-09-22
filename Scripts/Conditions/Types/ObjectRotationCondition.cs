@@ -1,10 +1,9 @@
 ﻿using Rhinox.Lightspeed;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Domain
+namespace Rhinox.Magnus.Tasks
 {
+    [RefactoringOldNamespace("Rhinox.VOLT.Domain", "com.rhinox.volt.domain")]
     public class ObjectRotationCondition : BaseCondition
     {
         public Transform Object;

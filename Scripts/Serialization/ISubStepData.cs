@@ -1,7 +1,8 @@
 using System;
 using Rhinox.GUIUtils.Attributes;
+using Rhinox.Lightspeed;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public class SubDataContainerAttribute : Attribute
     {
@@ -14,6 +15,7 @@ namespace Rhinox.VOLT.Data
     }
     
     [Serializable, AssignableTypeFilter(Expanded = true)]
+    [RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
     public abstract class BaseSubStepData
     {
         public abstract bool HasData();

@@ -5,15 +5,13 @@ using System.Reflection;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
-using Rhinox.Magnus.Tasks;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using UnityEngine.Events;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     [SmartFallbackDrawn(false)]
+    [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class BasicTask : BaseTask
     {
         public ValueReferenceLookup ValueReferenceLookup;

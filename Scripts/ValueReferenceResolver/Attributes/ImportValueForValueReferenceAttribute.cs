@@ -1,13 +1,14 @@
 using System;
 
-public class ImportValueForValueReferenceAttribute : Attribute
+namespace Rhinox.Magnus.Tasks
 {
-    public string MemberName { get; }
-    
-    public ImportValueForValueReferenceAttribute(string memberName)
+    public class ImportValueForValueReferenceAttribute : Attribute
     {
-        MemberName = memberName;
+        public string MemberName { get; }
+
+        public ImportValueForValueReferenceAttribute(string memberName)
+        {
+            MemberName = memberName;
+        }
     }
-    
-    
 }

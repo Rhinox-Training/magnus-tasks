@@ -1,12 +1,11 @@
-﻿using Rhinox.Magnus;
+﻿using Rhinox.Lightspeed;
 using Rhinox.Perceptor;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Domain
+namespace Rhinox.Magnus.Tasks
 {
+    [RefactoringOldNamespace("Rhinox.VOLT.Domain", "com.rhinox.volt.domain")]
     public class TimeElapsedCondition : BaseCondition
     {
         [SuffixLabel("sec")]

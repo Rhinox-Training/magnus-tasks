@@ -7,14 +7,11 @@ using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using UnityEditor;
 using UnityEngine;
 using RectExtensions = Rhinox.Lightspeed.RectExtensions;
 
-
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(ConditionData))]
     public class ConditionDataDrawer : BasePropertyDrawer<ConditionData>

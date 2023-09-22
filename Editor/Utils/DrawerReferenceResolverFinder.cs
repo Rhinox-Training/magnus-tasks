@@ -1,14 +1,13 @@
 using System;
 using System.Linq;
 using Rhinox.GUIUtils.Editor;
-using Rhinox.VOLT.Data;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector.Editor;
 using Rhinox.GUIUtils.Odin.Editor;
 using Sirenix.Utilities;
 #endif
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     public static class DrawerReferenceResolverFinder
     {

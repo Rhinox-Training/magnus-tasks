@@ -9,7 +9,7 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public abstract class StepDataProcessor<T> : OdinAttributeProcessor<T> where T : StepData
     {

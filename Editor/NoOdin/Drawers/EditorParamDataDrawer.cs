@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed.Reflection;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(EditorParamData<>), true)]
     public class EditorParamDataDrawer<T> : BasePropertyDrawer<EditorParamData<T>>

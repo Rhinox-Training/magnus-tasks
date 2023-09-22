@@ -1,9 +1,7 @@
 using System;
-using System.ComponentModel;
 using System.Text;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.GUIUtils.Editor;
-using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector.Editor;
@@ -14,33 +12,35 @@ using UnityEditor;
 
 // unity 2021.3 has introduced their own SerializationUtility, so scope it
 
-
-public class ValueRefTestEditorWindow : CustomEditorWindow
+namespace Rhinox.Magnus.Tasks.Editor
 {
-    [MenuItem("Rhinox/Value References Test")]
-    public static void GetWindow()
+    public class ValueRefTestEditorWindow : CustomEditorWindow
     {
-        var window = EditorWindow.GetWindow<ValueRefTestEditorWindow>();
-        window.Show();
-    }
-
-    [OnValueChanged(nameof(ParseCondition)), AssignableTypeFilter]
-    public BaseCondition Condition;
-
-    public object ConditionData;
-
-    public ValueReferenceLookup Lookup;
-
-
-    private void ParseCondition()
-    {
-        if (Condition == null)
+        [MenuItem("Rhinox/Value References Test")]
+        public static void GetWindow()
         {
-            ConditionData = null;
-            return;
+            var window = EditorWindow.GetWindow<ValueRefTestEditorWindow>();
+            window.Show();
         }
-        ConditionData = ConditionDataHelper.FromCondition(Condition);
-    }
+
+        [OnValueChanged(nameof(ParseCondition)), AssignableTypeFilter]
+        public BaseCondition Condition;
+
+        public object ConditionData;
+
+        public ValueReferenceLookup Lookup;
+
+
+        private void ParseCondition()
+        {
+            if (Condition == null)
+            {
+                ConditionData = null;
+                return;
+            }
+
+            ConditionData = ConditionDataHelper.FromCondition(Condition);
+        }
 
 #if ODIN_INSPECTOR
     [Button]
@@ -57,7 +57,7 @@ public class ValueRefTestEditorWindow : CustomEditorWindow
 
     }
 #endif
-    
-    [MultiLineProperty(20)]
-    public string LookUpSerialized;
+
+        [MultiLineProperty(20)] public string LookUpSerialized;
+    }
 }

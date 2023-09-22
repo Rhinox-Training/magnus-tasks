@@ -1,6 +1,9 @@
 using System;
 
-public class NotConvertedToDataLayerAttribute : Attribute
+namespace Rhinox.Magnus.Tasks
 {
-    
+    public class NotConvertedToDataLayerAttribute : Attribute
+    {
+
+    }
 }

@@ -4,13 +4,10 @@ using System.Linq;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(SerializableGuid))]
     public class SerializableGuidDrawer : BasePropertyDrawer<SerializableGuid>
