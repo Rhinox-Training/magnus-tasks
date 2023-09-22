@@ -5,11 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using UnityEditor;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     public static class Cloner
     {

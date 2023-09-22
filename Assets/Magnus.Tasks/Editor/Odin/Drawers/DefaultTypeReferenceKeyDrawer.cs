@@ -9,7 +9,7 @@ using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class DefaultTypeReferenceKeyDrawer : SimpleOdinValueDrawer<DefaultTypeReferenceKey>
     {

@@ -2,11 +2,9 @@
 using Rhinox.GUIUtils;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus.Tasks;
-using Rhinox.VOLT.Training;
 using UnityEditor;
 using UnityEngine;
 
-// TODO: Move to magnus tasks?
 namespace Rhinox.Magnus.Tasks.Editor
 {
     /// <summary>

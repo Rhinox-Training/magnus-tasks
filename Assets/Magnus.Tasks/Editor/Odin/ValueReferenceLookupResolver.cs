@@ -1,9 +1,8 @@
-#if ODIN_INSPECTOR
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector.Editor;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ValueReferenceLookupResolver : BaseMemberPropertyResolver<ValueReferenceLookup>, IDisposable
     {
@@ -39,4 +38,3 @@ namespace Rhinox.VOLT.Editor
         }
     }
 }
-#endif

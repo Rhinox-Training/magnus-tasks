@@ -1,17 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    
     public abstract class BaseTask : MonoBehaviour, ITask
     {
         public TagContainer TagContainer = new TagContainer();

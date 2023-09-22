@@ -2,14 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Rhinox.GUIUtils.Editor;
-using Rhinox.Utilities.Editor;
-using Rhinox.VOLT.Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
-    public class BetterGUIPagingHelper : GUIPagingHelper
+    public class SearchablePagedDrawerHelper : PagedDrawerHelper
     {
         private ICollection _optionsCache;
 
@@ -17,45 +15,44 @@ namespace Rhinox.VOLT.Editor
         public string SearchText;
         public bool RequiresRefresh { get; private set; }
 
-        private Rect prevRect;
+        private Rect _prevRect;
 
         public delegate void SearchTextChangedHandler(string searchText);
         public event SearchTextChangedHandler SearchTextChanged;
 
-        public BetterGUIPagingHelper(int itemsPerPage, bool searchField = false)
+        public SearchablePagedDrawerHelper(int itemsPerPage, bool searchField = false)
+            : base(itemsPerPage)
         {
-            this.NumberOfItemsPerPage = itemsPerPage;
             this.SearchField = searchField;
         }
         
         public Rect BeginDrawPager(ICollection options, bool showPaging = true, bool showItemCount = true)
         {
             _optionsCache = options;
-            Update(_optionsCache.Count);
+            Resize(_optionsCache.Count);
             
-            //EditorGUILayout.BeginToolbarBox();
             EditorGUILayout.BeginVertical();
             var toolbarRect = CustomEditorGUI.BeginHorizontalToolbar();
-            
-            DrawSearchField();
-            DrawToolbarPagingButtons(ref toolbarRect, showPaging, showItemCount);
-            
+            {
+                DrawSearchField();
+                DrawHeaderPagingButtons(ref toolbarRect, showPaging, showItemCount);
+            }
             CustomEditorGUI.EndHorizontalToolbar();
             
             if (Event.current.type == EventType.Repaint)
-                prevRect = toolbarRect;
+                _prevRect = toolbarRect;
             
             return toolbarRect;
         }
 
         private void DrawSearchField()
         {
-            if (prevRect.height == 0.0)
+            if (_prevRect.height == 0.0)
                 return;
             
             if (SearchField)
             {
-                var searchRect = prevRect;
+                var searchRect = _prevRect;
                 searchRect.yMin += 3;
 
                 var newSearchText = CustomEditorGUI.ToolbarSearchField(searchRect, SearchText);
@@ -70,16 +67,15 @@ namespace Rhinox.VOLT.Editor
         public void Refresh()
         {
             if (_optionsCache == null)
-                Update(0);
+                Resize(0);
             else
-                Update(_optionsCache.Count);
+                Resize(_optionsCache.Count);
         }
 
         public void EndDrawPager()
         {
-            Update(_optionsCache.Count);
+            Resize(_optionsCache.Count);
             _optionsCache = null;
-            //SirenixEditorGUI.EndToolbarBox();
             EditorGUILayout.EndVertical();
 
             if (RequiresRefresh)

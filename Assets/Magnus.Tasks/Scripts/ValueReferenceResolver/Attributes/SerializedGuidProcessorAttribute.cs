@@ -1,11 +1,14 @@
 using System;
 
-public class SerializedGuidProcessorAttribute : Attribute
+namespace Rhinox.Magnus.Tasks
 {
-    public string MemberName { get; }
-
-    public SerializedGuidProcessorAttribute(string memberName)
+    public class SerializedGuidProcessorAttribute : Attribute
     {
-        MemberName = memberName;
+        public string MemberName { get; }
+
+        public SerializedGuidProcessorAttribute(string memberName)
+        {
+            MemberName = memberName;
+        }
     }
 }

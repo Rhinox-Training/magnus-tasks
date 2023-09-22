@@ -2,13 +2,13 @@
 using System.Linq;
 using Rhinox.Lightspeed;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker, Serializable]
+    [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public abstract class BaseCondition
     {
 #if UNITY_EDITOR

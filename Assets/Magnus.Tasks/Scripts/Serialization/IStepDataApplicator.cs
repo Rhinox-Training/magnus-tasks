@@ -1,17 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Training;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
-using Rhinox.Magnus;
-using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
 using Rhinox.Vortex;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public interface IStepDataApplicator
     {

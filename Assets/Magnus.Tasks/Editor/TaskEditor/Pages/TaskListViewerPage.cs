@@ -6,13 +6,12 @@ using Rhinox.GUIUtils.Editor.Helpers;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
-using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     // [Serializable]
     [HideReferenceObjectPicker, DataLayerConfigResolver(nameof(Configuration))]

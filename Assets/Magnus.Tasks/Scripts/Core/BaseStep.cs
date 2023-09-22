@@ -1,15 +1,11 @@
 ﻿using System;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus.Tasks;
-using Rhinox.Utilities;
 using Rhinox.Utilities.Attributes;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using UnityEngine.Events;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
 	[ExecuteAfter(typeof(BaseTask)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable

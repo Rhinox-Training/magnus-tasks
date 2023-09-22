@@ -5,7 +5,7 @@ using System.Reflection;
 using Rhinox.Lightspeed.Reflection;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public class RegisterApplicatorAttribute : Attribute
     {

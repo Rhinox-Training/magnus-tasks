@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus;
-using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     public interface ITask
     {
@@ -33,6 +29,7 @@ namespace Rhinox.VOLT.Training
     
     // TODO: do we even need this
     [SerializedGuidProcessor(nameof(LookupOverride))]
+    [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class DataTask : BaseTask, IDataTaskIdentifier, IValueReferenceResolverProvider
     {
         [TaskSelector]

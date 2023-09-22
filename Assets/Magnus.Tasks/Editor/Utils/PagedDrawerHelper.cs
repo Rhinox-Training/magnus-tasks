@@ -5,18 +5,16 @@ using Rhinox.Lightspeed;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks.Editor
 {
     /// <summary>
     /// A helper class to control paging of n number of elements in various situations.
     /// </summary>
-    public class GUIPagingHelper
+    public class PagedDrawerHelper
     {
         public bool IsEnabled { get; set; }
 
-        /// <summary>Gets or sets the number of items per page.</summary>
-        /// <value>The number of items pr page.</value>
-        public int NumberOfItemsPerPage { get; protected set; }
+        public int NumberOfItemsPerPage => _itemsPerPage;
 
         public int CurrentPage
         {
@@ -24,16 +22,17 @@ namespace Rhinox.VOLT.Data
             set => this._currentPage = Mathf.Clamp(value, 0, this.PageCount - 1);
         }
 
-        public int StartIndex => this.IsExpanded ? 0 : this._startIndex;
+        public int StartIndex => this.ExpandAllPages ? 0 : this._startIndex;
 
-        public int EndIndex => this.IsExpanded ? this._elementCount : this._endIndex;
+        public int EndIndex => this.ExpandAllPages ? this._elementCount : this._endIndex;
 
         public int PageCount { get; private set; }
 
         public int ElementCount { get; private set; }
 
-        /// <summary>Disables the paging, and show all elements.</summary>
-        public bool IsExpanded;
+        
+        
+        public bool ExpandAllPages;
 
         private Rect _prevRect;
         private int _elementCount;
@@ -45,13 +44,12 @@ namespace Rhinox.VOLT.Data
         private int? _nextPageNumber;
         private bool? _nextIsExpanded;
 
-        public GUIPagingHelper()
+        public PagedDrawerHelper(int itemsPerPage = 1)
         {
-            this._itemsPerPage = 1;
+            this._itemsPerPage = itemsPerPage;
         }
 
-        /// <summary>Draws right-aligned toolbar paging buttons.</summary>
-        public void DrawToolbarPagingButtons(ref Rect toolbarRect, bool showPaging, bool showItemCount,
+        public void DrawHeaderPagingButtons(ref Rect toolbarRect, bool showPaging, bool showItemCount,
             int btnWidth = 23)
         {
             if ((double) this._prevRect.height == 0.0)
@@ -69,12 +67,12 @@ namespace Rhinox.VOLT.Data
                     if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarButtonCentered))
                     {
                         CustomEditorGUI.RemoveFocusControl();
-                        this._nextIsExpanded = new bool?(!this.IsExpanded);
+                        this._nextIsExpanded = new bool?(!this.ExpandAllPages);
                     }
                 }
 
                 int? nextPageNumber;
-                bool flag1 = ((this.IsEnabled ? (this.IsExpanded ? 0 : 1) : 0)
+                bool flag1 = ((this.IsEnabled ? (this.ExpandAllPages ? 0 : 1) : 0)
                               & (showPaging ? 1 : 0)) != 0 &&
                              this._pageCount > 1;
                 if (flag1)
@@ -164,7 +162,7 @@ namespace Rhinox.VOLT.Data
             }
         }
 
-        protected void Update(int elementCount)
+        protected void Resize(int elementCount)
         {
             this._elementCount = elementCount >= 0
                 ? elementCount
@@ -193,7 +191,7 @@ namespace Rhinox.VOLT.Data
 
             if (!this._nextIsExpanded.HasValue)
                 return;
-            this.IsExpanded = this._nextIsExpanded.Value;
+            this.ExpandAllPages = this._nextIsExpanded.Value;
             this._nextIsExpanded = new bool?();
         }
     }

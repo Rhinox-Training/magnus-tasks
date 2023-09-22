@@ -10,7 +10,7 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class SerializableGuidAttributeProcessor : OdinAttributeProcessor<SerializableGuid>
     {

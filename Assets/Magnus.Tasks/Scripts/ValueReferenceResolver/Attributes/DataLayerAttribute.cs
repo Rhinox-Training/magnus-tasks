@@ -1,6 +1,9 @@
 ﻿using System;
 
-public class DataLayerAttribute : Attribute
+namespace Rhinox.Magnus.Tasks
 {
-    
+    public class DataLayerAttribute : Attribute
+    {
+
+    }
 }

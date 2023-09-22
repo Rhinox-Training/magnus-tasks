@@ -1,7 +1,7 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker]
     public interface IValueResolver : IEquatable<IValueResolver>

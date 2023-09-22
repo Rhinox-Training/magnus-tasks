@@ -5,7 +5,7 @@ using System.Reflection;
 using Rhinox.Lightspeed;
 using Rhinox.Utilities;
 
-namespace Rhinox.VOLT.Data
+namespace Rhinox.Magnus.Tasks
 {
     public interface IUseReferenceGuid
     {

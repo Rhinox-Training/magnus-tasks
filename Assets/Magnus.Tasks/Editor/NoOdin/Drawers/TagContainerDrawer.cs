@@ -6,19 +6,13 @@ using Rhinox.GUIUtils;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Utilities;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus;
-using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
-using Rhinox.VOLT;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
-using Rhinox.Vortex.Editor;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.Magnus.Tasks.Editor
+namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(TagContainer), true)]
     public class TagContainerDrawer : BasePropertyDrawer<TagContainer>

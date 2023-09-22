@@ -3,7 +3,7 @@ using Rhinox.GUIUtils.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor.Drawers
+namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomPropertyDrawer(typeof(NotConvertedToDataLayerAttribute))]
     public class NotConvertedToDataLayerAttributeDrawer : BasePropertyDrawer<NotConvertedToDataLayerAttribute>

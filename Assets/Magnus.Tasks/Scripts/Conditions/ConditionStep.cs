@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
-using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
 #if UNITY_EDITOR
@@ -13,7 +12,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker]
     [SmartFallbackDrawn(false)]

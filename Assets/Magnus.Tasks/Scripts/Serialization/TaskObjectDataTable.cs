@@ -5,7 +5,7 @@ using Rhinox.Utilities;
 using Rhinox.Vortex;
 using Rhinox.Vortex.File;
 
-namespace Rhinox.VOLT.Data.File
+namespace Rhinox.Magnus.Tasks
 {
     [DataEndPoint(typeof(FileEndPoint))]
     public class TaskObjectDataTable : DataTable<TaskObject>

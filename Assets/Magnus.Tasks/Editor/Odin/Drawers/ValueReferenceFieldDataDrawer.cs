@@ -10,7 +10,7 @@ using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ValueReferenceFieldDataDrawer : SimpleOdinValueDrawer<ValueReferenceFieldData>
     {

@@ -1,8 +1,9 @@
-﻿using Rhinox.VOLT.Training;
+﻿using Rhinox.Lightspeed;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Domain
+namespace Rhinox.Magnus.Tasks
 {
+    [RefactoringOldNamespace("Rhinox.VOLT.Domain", "com.rhinox.volt.domain")]
     public class ObjectProximityCondition : BaseCondition
     {
         public Transform Object1;

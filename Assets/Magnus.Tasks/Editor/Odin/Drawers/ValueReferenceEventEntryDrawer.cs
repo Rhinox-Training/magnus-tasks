@@ -11,7 +11,7 @@ using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class ValueReferenceEventEntryDrawer: SimpleOdinValueDrawer<ValueReferenceEventEntry>
     {

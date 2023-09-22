@@ -1,4 +1,4 @@
-﻿namespace Magnus.Tasks.Scripts
+﻿namespace Rhinox.Magnus.Tasks
 {
     public static class TaskConstants
     {

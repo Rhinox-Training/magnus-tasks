@@ -4,7 +4,7 @@ using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class DynamicMethodEventActionDrawer<TValue, TDrawer> : SimpleOdinValueDrawer<TDrawer> where TDrawer : DynamicMethodEventAction<TValue>
     {

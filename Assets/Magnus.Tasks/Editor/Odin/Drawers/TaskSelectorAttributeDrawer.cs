@@ -9,7 +9,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor.Drawers
+namespace Rhinox.Magnus.Tasks.Editor.Odin
 {
     public class TaskSelectorAttributeDrawer : OdinAttributeDrawer<TaskSelectorAttribute, int>
     {
