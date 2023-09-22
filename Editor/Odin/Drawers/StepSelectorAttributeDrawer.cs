@@ -4,7 +4,6 @@ using System.Linq;
 using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Utilities;
 using Rhinox.Lightspeed;
-using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
