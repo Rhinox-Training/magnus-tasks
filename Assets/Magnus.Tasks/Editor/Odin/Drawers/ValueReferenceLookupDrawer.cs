@@ -10,9 +10,6 @@ using Rhinox.Lightspeed.Collections;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
-using Rhinox.VOLT;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Editor;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using GUILayoutOptions = Sirenix.Utilities.GUILayoutOptions;
@@ -91,8 +88,8 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
         private bool _expanded;
 
         private GUIContent _activeTab;
-        private BetterGUIPagingHelper _pager;
-        private BetterGUIPagingHelper _defaultsPager;
+        private SearchablePagedDrawerHelper _pager;
+        private SearchablePagedDrawerHelper _defaultsPager;
 
         private SerializableType _selectedDefaultFilter;
         private InspectorProperty _selectedPropertyToInspect;
@@ -118,9 +115,9 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
 
             _resolverPropertyByKey = new Dictionary<ReferenceKey, InspectorProperty>();
 
-            _pager = new BetterGUIPagingHelper(10, true);
+            _pager = new SearchablePagedDrawerHelper(10, true);
             _pager.SearchTextChanged += UpdateKeyFilter;
-            _defaultsPager = new BetterGUIPagingHelper(5);
+            _defaultsPager = new SearchablePagedDrawerHelper(5);
 
             _validKeyIds = new List<int>();
         }

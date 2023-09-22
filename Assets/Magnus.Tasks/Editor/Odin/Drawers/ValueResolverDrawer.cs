@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;

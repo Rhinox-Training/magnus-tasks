@@ -4,8 +4,6 @@ using System.Linq;
 using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEngine;

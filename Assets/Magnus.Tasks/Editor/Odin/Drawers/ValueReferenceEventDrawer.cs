@@ -4,8 +4,6 @@ using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Editor;
 using UnityEditor;
 using UnityEngine;
 

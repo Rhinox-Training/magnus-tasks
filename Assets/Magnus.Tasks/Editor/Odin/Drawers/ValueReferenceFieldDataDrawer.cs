@@ -3,7 +3,6 @@ using System.Reflection;
 using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
