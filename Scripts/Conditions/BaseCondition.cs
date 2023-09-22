@@ -12,23 +12,24 @@ namespace Rhinox.Magnus.Tasks
     public abstract class BaseCondition
     {
 #if UNITY_EDITOR
-        [HorizontalGroup("Title"), PropertyOrder(-1), ReadOnly, ShowInInspector]
+        [HorizontalGroup("Title", order: -5), ReadOnly, ShowInInspector, HideLabel, DisplayAsString()]
         private string _type => GetType().FullName;
 #endif
-        
-        [ShowInInspector, ReadOnly, HorizontalGroup("Title", width: 20, LabelWidth = 40)]
+
+        [ShowInInspector, ReadOnly, HorizontalGroup("Title", width: 55f, Order = -5)]
+        [LabelWidth(40f)]
         public bool IsMet { get; private set; }
 
         public BaseStep Step { get; set; }
-        
+
         public bool IsStarted { get; private set; }
 
         public bool Initialized { get; private set; }
-        
+
         protected IReferenceResolver _valueResolver;
 
         [PropertyOrder(int.MaxValue)] public BetterEvent OnConditionMet;
-        
+
         // TODO: append to betterevent instead of having a separate data event (only the data should have this)
         [PropertyOrder(int.MaxValue)] public ValueReferenceEvent OnBetterConditionMet;
 
@@ -50,7 +51,6 @@ namespace Rhinox.Magnus.Tasks
 
         protected virtual void OnMet()
         {
-            
         }
 
         /// <summary>
@@ -81,8 +81,10 @@ namespace Rhinox.Magnus.Tasks
         {
             Check();
         }
-        
-        protected virtual void Check() { }
+
+        protected virtual void Check()
+        {
+        }
 
         // TODO: Make this protected but accessible by the autocompletor
         public void SetConditionMet()
@@ -101,27 +103,26 @@ namespace Rhinox.Magnus.Tasks
         {
             if (key == null || _valueResolver == null) return false;
             if (!_valueResolver.Resolve(key, out T resolvedValue)) return false;
-            
+
             value = resolvedValue;
             return true;
         }
 
         public T[] GetSiblingConditions<T>()
         {
-            return ((ConditionStep) Step).Conditions.OfType<T>().ToArray();
+            return ((ConditionStep)Step).Conditions.OfType<T>().ToArray();
         }
-        
+
         public T GetSiblingCondition<T>() where T : BaseCondition
         {
-            foreach (var condition in ((ConditionStep) Step).Conditions)
+            foreach (var condition in ((ConditionStep)Step).Conditions)
                 if (condition is T typedCondition)
                     return typedCondition;
             return null;
         }
-        
+
         public virtual void OnDrawGizmosSelected()
         {
-            
         }
     }
 }
