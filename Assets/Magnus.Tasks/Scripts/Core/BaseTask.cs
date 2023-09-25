@@ -10,20 +10,23 @@ namespace Rhinox.Magnus.Tasks
 {
     public abstract class BaseTask : MonoBehaviour, ITask
     {
+        [PropertyOrder(-1)]
         public TagContainer TagContainer = new TagContainer();
         
         public abstract IReadOnlyList<BaseStep> Steps { get; }
 
         [ShowInInspector, ReadOnly, HideInEditorMode]
+        [TabGroup("State")]
         public BaseStep ActiveStep { get; private set; }
         
         [ShowInInspector, ReadOnly, HideInEditorMode]
+        [TabGroup("State")]
         public int CurrentStepId { get; protected set; }
         
         public bool IsIdle { get; private set; }
 
         public delegate void TaskEvent();
-
+        
         public event TaskEvent TaskStarted;
         public event TaskEvent TaskStopped;
         public event TaskEvent TaskCompleted;
@@ -39,6 +42,7 @@ namespace Rhinox.Magnus.Tasks
         public event AwaitStepEvent PreStopStep;
 
         [ShowInInspector, ReadOnly, HideInEditorMode]
+        [TabGroup("State")]
         public bool IsActive { get; protected set; }
         
         protected bool _initialized;

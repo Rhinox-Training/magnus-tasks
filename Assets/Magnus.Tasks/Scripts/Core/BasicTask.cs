@@ -6,6 +6,7 @@ using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Rhinox.Magnus.Tasks
@@ -14,14 +15,15 @@ namespace Rhinox.Magnus.Tasks
     [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class BasicTask : BaseTask
     {
+        [TabGroup("Configuration")]
         public ValueReferenceLookup ValueReferenceLookup;
 
-        [ShowInInspector, ReadOnly, HideInEditorMode] private BaseStep[] _steps;
+        [ShowInInspector, ReadOnly, HideInEditorMode, TabGroup("Configuration"), Space] private BaseStep[] _steps;
         public override IReadOnlyList<BaseStep> Steps => _initialized ? _steps : GetComponentsInChildren<BaseStep>();
         
-        public UnityEvent OnTaskStarted;
-        public UnityEvent OnTaskStopped;
-        public UnityEvent OnTaskCompleted;
+        [TabGroup("Events")] public UnityEvent OnTaskStarted;
+        [TabGroup("Events")] public UnityEvent OnTaskStopped;
+        [TabGroup("Events")] public UnityEvent OnTaskCompleted;
 
         protected override void Awake()
         {
@@ -49,6 +51,7 @@ namespace Rhinox.Magnus.Tasks
         }
 
         [Button, ShowIf("@ValueReferenceLookup != null")]
+        [TabGroup("Configuration")]
         private void RefreshValueReferencesInStep()
         {
             // TODO: TEMP code needs to be changed when no longer monoBehaviour
