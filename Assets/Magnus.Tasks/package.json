@@ -10,11 +10,12 @@
   ],
   "category": "Unity",
   "dependencies": {
-	"com.rhinox.open.lightspeed": "1.5.3",
-	"com.rhinox.open.guiutils": "2.6.2",
+	"com.rhinox.open.lightspeed": "1.7.0",
+	"com.rhinox.open.guiutils": "2.12.1",
 	"com.rhinox.open.perceptor": "0.2.0",
-    "com.rhinox.open.utilities": "1.5.2",
-    "com.rhinox.open.magnus": "0.5.0"
+    "com.rhinox.open.utilities": "1.8.0",
+    "com.rhinox.open.magnus": "0.7.1",
+    "com.rhinox.open.vortex": "0.5.0-alpha.2"
   },
    "repository": {
     "type": "git",
