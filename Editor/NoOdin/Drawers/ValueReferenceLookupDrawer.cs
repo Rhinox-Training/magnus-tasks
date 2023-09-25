@@ -233,7 +233,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 return;
             }
 
-            var host = HostInfo.Parent.GetValue();
+            object host = HostInfo.Parent != null ? HostInfo.Parent.GetValue() : null;
 
             if (_keysValueEntry.SmartValue == null)
                 _keysValueEntry.SmartValue = new List<ReferenceKey>();
