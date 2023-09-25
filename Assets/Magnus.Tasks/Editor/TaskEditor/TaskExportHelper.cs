@@ -8,10 +8,9 @@ using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Magnus;
+using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using MemberFinder = Sirenix.Utilities.MemberFinder;
 using Rhinox.Vortex;
 using UnityEditor;
@@ -19,7 +18,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     public static class TaskExportHelper
     {

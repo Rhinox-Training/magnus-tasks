@@ -5,16 +5,18 @@ using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Editor.Helpers;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
-using Rhinox.VOLT.Data;
-using Rhinox.VOLT.Training;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+using Sirenix.Serialization;
+using SerializationUtility = Sirenix.Serialization.SerializationUtility;
+#endif
 using UnityEditor;
 using UnityEngine;
 
 // unity 2021.3 has introduced their own SerializationUtility, so scope it
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     [DataLayer, ShowOdinSerializedPropertiesInInspector]
     [SerializedGuidProcessor(nameof(Lookup))]
@@ -23,17 +25,14 @@ namespace Rhinox.VOLT.Editor
     {
         [CustomValueDrawer(nameof(TaskHeaderDrawer))]
         public TaskData TaskData;
-
+        
         [TabGroup("Lookup")]
         public ValueReferenceLookup Lookup;
-
+        
         public DataLayerConfig Configuration => TaskData?.ParentSet?.Configuration;
 
         [TabGroup("Steps")]
-        [ListDrawerSettings(
-            ShowPaging = true, NumberOfItemsPerPage = 1,
-            // ShowIndexLabels = true, ListElementLabelName = "Name",
-            Expanded = true, OnTitleBarGUI = nameof(OnTitleBarGUI))]
+        [ListDrawerSettings(ShowPaging = true, NumberOfItemsPerPage = 1, /* ShowIndexLabels = true, ListElementLabelName = "Name",*/ Expanded = true, OnTitleBarGUI = nameof(OnTitleBarGUI))]
         public List<StepData> Steps;
 
         private TaskData _taskData;

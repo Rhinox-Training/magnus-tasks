@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
-using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     public class TaskEditorWindow : PagerEditorWindow<TaskEditorWindow>
     {

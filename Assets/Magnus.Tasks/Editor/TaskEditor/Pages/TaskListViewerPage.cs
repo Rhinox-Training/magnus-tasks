@@ -1,20 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
-using Rhinox.GUIUtils;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Editor.Helpers;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Perceptor;
-using Rhinox.Utilities;
-using Rhinox.VOLT.Data;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace Rhinox.VOLT.Editor
+namespace Rhinox.Magnus.Tasks.Editor
 {
     // [Serializable]
     [HideReferenceObjectPicker, DataLayerConfigResolver(nameof(Configuration))]
@@ -51,7 +48,13 @@ namespace Rhinox.VOLT.Editor
         [HorizontalGroup("TitleBar"), Button("Add", ButtonSizes.Small)]
         private void AddEditor()
         {
-            Tasks.Add(new TaskData(this, new TaskObject(-1)));
+            Tasks.Add(new TaskData(this, new TaskObject(GenerateTaskID())));
+        }
+
+        private int GenerateTaskID()
+        {
+            if (Tasks.Count == 0)  return 0;
+            return Tasks[Tasks.Count -1].TaskID + 1;
         }
 
         [HorizontalGroup("TitleBar"), Button(ButtonSizes.Small)]

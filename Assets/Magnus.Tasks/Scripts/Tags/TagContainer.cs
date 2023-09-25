@@ -7,12 +7,13 @@ using Rhinox.Magnus;
 using Rhinox.Perceptor;
 using Rhinox.Vortex;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
-namespace Rhinox.VOLT.Training
+namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker, HideLabel]
     [JsonConverter(typeof(TagContainerConverter))]
-    [Serializable]
+    [Serializable, RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class TagContainer
     {
         [ValueDropdown("GetAllTags"), ListDrawerSettings(Expanded = true, DraggableItems = false)]
@@ -104,6 +105,7 @@ namespace Rhinox.VOLT.Training
             return table.GetAllData()
                 .Select(x => new ValueDropdownItem(x.Name, x.Name))
                 .ToArray();
+            
         }
 #endif
 
