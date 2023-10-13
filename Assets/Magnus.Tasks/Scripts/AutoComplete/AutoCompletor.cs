@@ -12,7 +12,7 @@ namespace Rhinox.Magnus.Tasks
     [ExecuteBefore(typeof(TaskManager)) ]
     public class AutoCompletor : Singleton<AutoCompletor>
     {
-        [SerializeField]
+        [SerializeField, SerializeReference]
         private AutocompleteBot _autocompleteBot;
         public AutocompleteBot AutocompleteBot => _autocompleteBot;
 
@@ -28,7 +28,7 @@ namespace Rhinox.Magnus.Tasks
         private AutocompleteAction _runningAutocompleteAction;
 
         public bool IsIdle => !Running && _queue.Count == 0;
-        public bool CanRun => _conditionsStep != null && !_conditionsStep.IsStepCompleted();
+        public bool CanRun => _conditionsStep != null && _conditionsStep.State != ProcessState.Finished;
 
         public delegate void StepAction(ConditionStep step);
         public event StepAction BeforeAutocomplete;

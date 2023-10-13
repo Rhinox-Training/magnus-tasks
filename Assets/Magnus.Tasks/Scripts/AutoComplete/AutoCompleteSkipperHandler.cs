@@ -44,7 +44,7 @@ namespace Rhinox.Magnus.Tasks
         {
             yield return 0.0f;
             
-            if (!Task.IsActive)
+            if (Task.State != TaskState.Running)
                 TaskManager.Instance.ForceStartTask(Task);
             
             float stepCount = GetStepCount();

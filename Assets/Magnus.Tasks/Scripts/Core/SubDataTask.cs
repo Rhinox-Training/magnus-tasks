@@ -27,7 +27,7 @@ namespace Rhinox.Magnus.Tasks
 
         public SerializableGuid ID { get; set; }
 
-        public bool IsActive => !Steps.IsNullOrEmpty() && Steps.Any(x => x.IsActive);
+        public bool IsActive => !Steps.IsNullOrEmpty() && Steps.Any(x => x.State == ProcessState.Running);
 
         protected void Awake()
         {
@@ -92,7 +92,7 @@ namespace Rhinox.Magnus.Tasks
         public bool HasPassed(BaseStep step)
         {
             var stepI = Steps.IndexOf(step);
-            var currentStepI = Steps.FindIndex(x => x.IsActive);
+            var currentStepI = Steps.FindIndex(x => x.State == ProcessState.Running);
             return currentStepI >= stepI;
         }
 

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Rhinox.Lightspeed;
+using Rhinox.Utilities;
 using Rhinox.Utilities.Attributes;
 using UnityEngine.Events;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Rhinox.Magnus.Tasks
 {
@@ -21,45 +25,190 @@ namespace Rhinox.Magnus.Tasks
 		// Currently only filled in from TaskObject (to keep a reference from where it came)
 		// TODO probably don't want it to be a public setter
 		public SerializableGuid ID { get; set; }
+
+		public StepContainer Container { get; private set; }
 		
 		[PropertySpace, SerializeReference]
 		[ListDrawerSettings(Expanded = true), TabGroup("Settings", order: -100)]
 		public IStepTimingEvent[] StepTimingEvents = new IStepTimingEvent[] { };
 		
+		[ShowInInspector, ReadOnly]
+		public ProcessState State { get; private set; }
+		[ShowInInspector, ReadOnly]
+		public CompletionState CompletionState { get; private set; }
+		
+		protected IReferenceResolver _valueResolver;
+		
+		private IEnumerable<StepContainer.AwaitStepEvent> _postStopStepHandlers;
+		private IEnumerable<StepContainer.AwaitStepEvent> _preStartStepHandlers;
+		
+		//==============================================================================================================
+		// Events
+		[Preserve]
 		public string EventsHeader => $"Events ({TotalEventCount})";
 
 		private int TotalEventCount => (StepStarted?.GetPersistentEventCount() ?? 0) + (StepCompleted?.GetPersistentEventCount() ?? 0);
 
+		public event Action StepLoading;
+		public event Action StepCleaningUp;
+		
 		[TabGroup("$EventsHeader"), PropertyOrder(1000)]
 		public UnityEvent StepStarted;
 		[TabGroup("$EventsHeader"), PropertyOrder(1000)]
 		public UnityEvent StepCompleted;
 		
-		public BaseTask Task { get; private set; }
+		//==============================================================================================================
+		// Methods
 		
-		public bool IsActive { get; private set; } // Active as in, this is the 'active' step of the Task
-		public bool IsStarted { get; private set; } // Started as in, the step is being tracked
-		
-		protected IReferenceResolver _valueResolver;
-
-		public event Action PostStepCompleted;
-
-		public void Initialize(BaseTask task)
+		public void BindContainer(StepContainer container)
 		{
-			if (task == Task)
-				return;
-			Task = task;
-			Task.StepStarted += OnStepInitialized;
-		}
-		
-		public void CleanUp()
-		{
-			if (Task == null)
+			if (container == Container)
 				return;
 			
-			Task.StepStarted -= OnStepInitialized;
-			Task = null;
+			if (Container != null)
+				UnbindContainer();
+			
+			Container = container;
+			_preStartStepHandlers = container.GetPreStartStepHandlers();
+			_postStopStepHandlers = container.GetPostStopStepHandlers();
+			State = ProcessState.None;
+			CompletionState = CompletionState.None;
 		}
+
+		public void UnbindContainer()
+		{
+			if (Container == null)
+				return;
+			
+			_postStopStepHandlers = null;
+			_preStartStepHandlers = null;
+			Container = null;
+		}
+
+		/// <summary>
+		/// A Step in initialized when its Task initializes
+		/// </summary>
+		public void Initialize()
+		{
+			OnInitialize();
+			State = ProcessState.Initialized;
+			CompletionState = CompletionState.None;
+		}
+
+		protected abstract void OnInitialize();
+
+		/// <summary>
+		/// A Step is terminated when its Task stops
+		/// </summary>
+		public void Terminate()
+		{
+			OnTerminate();
+		}
+
+		protected abstract void OnTerminate();
+		
+		public bool StartStep()
+		{
+			if (State.HasStarted())
+				return false;
+			ManagedCoroutine.Begin(StartStepRoutine()); // TODO: What if we stop the task in the same frame
+			return true;
+		}
+		
+		private IEnumerator StartStepRoutine()
+		{
+			State = ProcessState.Loading;
+			
+			StepLoading?.Invoke();
+
+			yield return null;
+			
+			foreach (IStepTimingEvent stepEvent in StepTimingEvents)
+				stepEvent.Initialize(this);
+
+			if (_preStartStepHandlers != null)
+			{
+				foreach (var invocation in _preStartStepHandlers)
+					yield return invocation.Invoke(this);
+			}
+			
+			State = ProcessState.Running;
+			
+			OnStepStarted();
+			
+			TriggerStartedEvents();
+		}
+
+		protected abstract void OnStepStarted();
+
+		public abstract void HandleUpdate();
+
+		protected bool SetCompleted(bool failed = false)
+		{
+			if (State.IsFinishingOrFinished())
+				return false;
+
+			ManagedCoroutine.Begin(FinishStepRoutine(failed));
+			return true;
+		}
+
+		private IEnumerator FinishStepRoutine(bool failed = false)
+		{
+			State = ProcessState.CleaningUp;
+			
+			StepCleaningUp?.Invoke();
+
+			yield return null;
+			
+			foreach (IStepTimingEvent stepEvent in StepTimingEvents)
+				stepEvent.Initialize(this);
+
+			if (_postStopStepHandlers != null)
+			{
+				foreach (var invocation in _postStopStepHandlers)
+					yield return invocation.Invoke(this);
+			}
+			
+			State = ProcessState.Finished;
+			
+			OnStepCompleted();
+
+			TriggerCompletedEvents();
+			
+			CompletionState = failed ? CompletionState.Failure : CompletionState.Success;
+		}
+
+		protected virtual void OnStepCompleted()
+		{
+		}
+
+		private void TriggerStartedEvents()
+		{
+			StepStarted?.Invoke();
+			Container.NotifyStepStarted(this);
+		}
+
+		private void TriggerCompletedEvents()
+		{
+			StepCompleted?.Invoke();
+			Container.NotifyStepCompleted(this);
+		}
+
+		public void ResetStep()
+		{
+			if (State == ProcessState.None)
+				return;
+
+			State = ProcessState.Initialized;
+			OnResetStep();
+		}
+
+		protected virtual void OnResetStep()
+		{
+		}
+		
+		//==============================================================================================================
+		// Value resolution
 
 		public void SetValueResolver(IReferenceResolver valueReferenceLookup)
 		{
@@ -83,49 +232,9 @@ namespace Rhinox.Magnus.Tasks
 			value = default;
 			return false;
 		}
-
-		private void OnStepInitialized(BaseStep step)
-		{
-			if (step == this)
-				OnStepInitialized();
-		}
 		
-		protected virtual void OnStepInitialized()
-		{
-			IsActive = true;
-			
-			foreach (IStepTimingEvent stepEvent in StepTimingEvents)
-				stepEvent.Initialize(this);
-			
-			TaskManager.Instance.TriggerStepStarted(this);
-			StepStarted?.Invoke();
-		}
-
-		protected void StopStep()
-		{
-			if (!IsActive)
-				return;
-			
-			if (TaskManager.HasInstance)
-				TaskManager.Instance.TriggerStepCompleted(this);
-			
-			OnStepCompleted();
-			PostStepCompleted?.Invoke();
-			
-			IsActive = false;
-		}
-
-		protected virtual void OnStepCompleted()
-		{
-			StepCompleted?.Invoke();
-		}
-
-		public int GetIndex()
-		{
-			if (!gameObject.activeSelf || Task == null || Task.Steps == null) return -1;
-			
-			return Task.Steps.IndexOf(this);
-		} 
+		//==============================================================================================================
+		// Unity Editor
 		
 		protected virtual void OnValidate()
 		{
@@ -133,26 +242,16 @@ namespace Rhinox.Magnus.Tasks
 				TagContainer = new TagContainer();
 			TagContainer.RemoveDoubles();
 		}
+	}
 
-		public void StartStep()
+	public static class StepExtensions
+	{
+		public static int GetIndex(this BaseStep step)
 		{
-			IsStarted = true;
-			OnStartStep();
-		}
-
-		protected abstract void OnStartStep();
-		public abstract void ResetStep();
-		public abstract void CheckProgress();
-		public abstract void CheckStepCompleted();
-		public abstract bool IsStepCompleted();
-		
-		/// <summary>
-		/// A Step in initialized when its Task initializes
-		/// </summary>
-		public abstract void Initialize();
-		/// <summary>
-		/// A Step is terminated when its Task stops
-		/// </summary>
-		public abstract void Terminate();
+			if (!step.gameObject.activeSelf || step.Container == null || step.Container.Steps == null) 
+				return -1;
+			
+			return step.Container.Steps.IndexOf(step);
+		} 
 	}
 }

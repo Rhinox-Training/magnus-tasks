@@ -34,7 +34,7 @@ namespace Rhinox.Magnus.Tasks
 
         public event Action ActiveConditionsChanged;
         
-        public override void Initialize()
+        protected override void OnInitialize()
         {
             _activeConditions = new List<BaseCondition>();
 
@@ -64,7 +64,7 @@ namespace Rhinox.Magnus.Tasks
             }
         }
 
-        public override void Terminate()
+        protected override void OnTerminate()
         {
             foreach (var condition in Conditions)
             {
@@ -76,18 +76,19 @@ namespace Rhinox.Magnus.Tasks
             ActiveConditionsChanged?.Invoke();
         }
 
-        public override void ResetStep()
+        protected override void OnResetStep()
         {
+            base.OnResetStep();
             foreach (var condition in Conditions)
                 condition.ResetCondition();
         }
 
-        protected override void OnStartStep()
+        protected override void OnStepStarted()
         {
             ActivateConditions();
             
             // Step might already be completed (i.e. ValidateData returned false for all condition)
-            CheckStepCompleted();
+            TryHandleStepCompletion();
         }
 
         private bool ActivateConditions()
@@ -112,10 +113,10 @@ namespace Rhinox.Magnus.Tasks
             return changed;
         }
 
-        public override bool IsStepCompleted()
+        public bool IsStepCompleted()
         {
             // Do not convert to LINQ pls
-            for (var i = 0; i < Conditions.Count; i++)
+            for (int i = 0; i < Conditions.Count; ++i)
             {
                 var condition = Conditions[i];
                 if (condition.Initialized && !condition.IsMet)
@@ -135,13 +136,13 @@ namespace Rhinox.Magnus.Tasks
             if (OrderedConditions) // Initialize Next condition if Ordered
                 ActivateConditions();
 
-            CheckStepCompleted();
+            TryHandleStepCompletion();
             
         }
 
-        public override void CheckStepCompleted()
+        private void TryHandleStepCompletion()
         {
-            if (IsActive && !IsStepCompleted())
+            if (State == ProcessState.Running && !IsStepCompleted())
                 return;
 
             foreach (var condition in Conditions)
@@ -151,10 +152,10 @@ namespace Rhinox.Magnus.Tasks
             
             ActiveConditionsChanged?.Invoke();
 
-            StopStep();
+            SetCompleted();
         }
 
-        public override void CheckProgress()
+        public override void HandleUpdate()
         {
             for (var i = _activeConditions.Count - 1; i >= 0; i--)
                 _activeConditions[i].Update();

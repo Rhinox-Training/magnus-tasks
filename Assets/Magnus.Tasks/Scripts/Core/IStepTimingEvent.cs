@@ -35,7 +35,10 @@ namespace Rhinox.Magnus.Tasks
             switch (Timing)
             {
                 case StepTiming.OnStart:
-                    _step.StepStarted.AddListener(Execute);
+                    if (_step.State == ProcessState.Running)
+                        Execute();
+                    else
+                        _step.StepStarted.AddListener(Execute);
                     break;
                 case StepTiming.OnComplete:
                     _step.StepCompleted.AddListener(Execute);

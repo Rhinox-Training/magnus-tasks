@@ -25,6 +25,9 @@ namespace Rhinox.Magnus.Tasks
 
 		public bool RunTaskOnStart = true;
 
+		//==============================================================================================================
+		// Events
+		
 		public delegate void TaskEvent(BaseTask task);
 
 		public event TaskEvent TaskSelected;
@@ -47,6 +50,9 @@ namespace Rhinox.Magnus.Tasks
 
 		public UnityEvent TasksCompleted;
 
+		//==============================================================================================================
+		// Methods
+		
 		private void Awake()
 		{
 			SceneReadyHandler.YieldToggleControl(this);
@@ -87,7 +93,7 @@ namespace Rhinox.Magnus.Tasks
 		[Button(ButtonSizes.Medium)]
 		public void StartCurrentTask()
 		{
-			if (CurrentTask != null && CurrentTask.IsActive)
+			if (CurrentTask != null && CurrentTask.State == TaskState.Running)
 			{
 				PLog.Warn<MagnusLogger>($"Cannot start task, task {CurrentTask.name} already running");
 				return;

@@ -12,19 +12,14 @@ namespace Rhinox.Magnus.Tasks
 {
     public interface ITask
     {
-        bool IsActive { get; }
-        
         IReadOnlyList<BaseStep> Steps { get; }
-        
-        // TODO: currently returns true when the active step is the given step. Does this make sense?
-        bool HasPassed(BaseStep step);
     }
     
     public interface IDataTaskIdentifier : ITask
     {
-        TaskObject GetDataTask();
 
-        int GetTaskId();
+        bool IsActive { get; }
+        TaskObject GetDataTask();
     }
     
     // TODO: do we even need this
@@ -41,6 +36,8 @@ namespace Rhinox.Magnus.Tasks
 
         private IReadOnlyList<BaseStep> _generatedSteps;
         public override IReadOnlyList<BaseStep> Steps => _generatedSteps;
+
+        public bool IsActive => State == TaskState.Running;
 
         [StepSelector(nameof(TaskId))]
         public SerializableGuid EndStep { get; set; } // Destroy everything after this step TODO do it better

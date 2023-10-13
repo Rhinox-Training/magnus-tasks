@@ -53,25 +53,26 @@ namespace Rhinox.Magnus.Tasks.Editor
                 _stepById[instanceID] = step;
             }
 
-            if (step == null || step.Task == null)
+            if (step == null || step.Container == null)
                 return;
 
-            bool hasPassedTask = false;
-            bool taskIsActive = step.Task.IsActive;
-            if (taskIsActive)
-            {
-                int activeI = step.Task.GetStepIndex(step.Task.ActiveStep);
-                int thisI = step.Task.GetStepIndex(step);
-                hasPassedTask = activeI > thisI;
-                taskIsActive = activeI >= 0;
-            }
+            if (step.State != ProcessState.Finished)
+                return;
 
-            if (step.IsStepCompleted() && (!taskIsActive || hasPassedTask))
+            if (step.CompletionState == CompletionState.Success)
             {
                 var rect = selectionRect.SetHeight(1);
                 rect = RectExtensions.AddY(rect, selectionRect.height / 2 - 1);
                 // Crossout
                 EditorGUI.DrawRect(rect, CustomGUIStyles.HoverColor);
+            }
+
+            if (step.CompletionState == CompletionState.Failure)
+            {
+                var rect = selectionRect.SetHeight(1);
+                rect = RectExtensions.AddY(rect, selectionRect.height - 1);
+                // Crossout
+                EditorGUI.DrawRect(rect, Color.red);
             }
         }
     }

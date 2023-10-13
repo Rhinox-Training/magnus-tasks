@@ -62,7 +62,7 @@ namespace Rhinox.Magnus.Tasks
         [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode]
         private BaseStep _currentEnd;
 
-        protected ITask _activeTask;
+        protected StepContainer _activeTask;
 
         [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode]
         [HorizontalGroup("Debug/State"), ToggleLeft]
@@ -164,7 +164,7 @@ namespace Rhinox.Magnus.Tasks
                 _validStartSteps.Add(startStep);
                 _validEndSteps.Add(task.Steps.Last());
 
-                return task.IsActive ? startStep : null;
+                return task.State == TaskState.Running ? startStep : null;
             }
 
             startStep = StartStep;
@@ -176,7 +176,7 @@ namespace Rhinox.Magnus.Tasks
             _validStartSteps.Add(startStep);
             _validEndSteps.Add(endStep);
 
-            return task.IsActive ? startStep : null;
+            return task.State == TaskState.Running ? startStep : null;
         }
 
         protected virtual BaseStep ConfigureForTask(IDataTaskIdentifier task)
@@ -227,7 +227,7 @@ namespace Rhinox.Magnus.Tasks
             _validStartSteps.Add(startStep);
             _validEndSteps.Add(endStep);
 
-            if (task.IsActive && task.HasPassed(startStep) && !task.HasPassed(endStep))
+            if (task.IsActive && startStep.State == ProcessState.Finished && !endStep.State.IsFinishingOrFinished())
                 return startStep;
             return null;
         }
@@ -252,13 +252,14 @@ namespace Rhinox.Magnus.Tasks
             _currentStart = startStep;
             _currentEnd = null;
 
-            int i = startStep.Task.Steps.IndexOf(startStep);
+            int i = startStep.GetIndex();
 
             // Find end step
-            for (; i < startStep.Task.Steps.Count; ++i)
+            for (; i < startStep.Container.Steps.Count; ++i)
             {
-                var potentialEndStep = startStep.Task.Steps[i];
-                if (!_validEndSteps.Contains(potentialEndStep)) continue;
+                var potentialEndStep = startStep.Container.Steps[i];
+                if (!_validEndSteps.Contains(potentialEndStep)) 
+                    continue;
 
                 _currentEnd = potentialEndStep;
                 break;
@@ -279,9 +280,9 @@ namespace Rhinox.Magnus.Tasks
             else
             {
                 // All of these should be present & not null, if not there is an issue
-                var startI = step.Task.Steps.IndexOf(_currentStart);
-                var currentI = step.Task.Steps.IndexOf(step) + 1;
-                var endI = step.Task.Steps.IndexOf(_currentEnd);
+                var startI = step.Container.Steps.IndexOf(_currentStart);
+                var currentI = step.Container.Steps.IndexOf(step) + 1;
+                var endI = step.Container.Steps.IndexOf(_currentEnd);
 
                 progress = (currentI - startI) / (float) (endI - startI);
             }
@@ -292,7 +293,7 @@ namespace Rhinox.Magnus.Tasks
 
         protected virtual void Activate()
         {
-            _activeTask = _currentStart.Task;
+            _activeTask = _currentStart.Container;
 
             IsActive = true;
             TriggerStateChanged();
