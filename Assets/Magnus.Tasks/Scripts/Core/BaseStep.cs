@@ -170,12 +170,11 @@ namespace Rhinox.Magnus.Tasks
 			}
 			
 			State = ProcessState.Finished;
+			CompletionState = failed ? CompletionState.Failure : CompletionState.Success;
 			
 			OnStepCompleted();
 
 			TriggerCompletedEvents();
-			
-			CompletionState = failed ? CompletionState.Failure : CompletionState.Success;
 		}
 
 		protected virtual void OnStepCompleted()
