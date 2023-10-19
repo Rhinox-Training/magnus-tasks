@@ -32,7 +32,9 @@ namespace Rhinox.Magnus.Tasks
 
 		public override bool HasNextStep()
 		{
-			return NextStep != null;
+			if (State != ProcessState.Finished)
+				return NextStep != null;
+			return CompletionState == CompletionState.Failure ? NextStepFailed != null : NextStep != null;
 		}
 	}
 	
