@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Rhinox.Lightspeed;
 using Rhinox.Magnus;
 using Rhinox.Magnus.Tasks;
 using Rhinox.Perceptor;
@@ -13,7 +14,7 @@ public class AutoCompleteSkipper : MonoBehaviour
 {
     [ValueDropdown(nameof(GetTasks))]
     public BaseTask Task;
-    public int StepToSkipTo = -1;
+    public SerializableGuid StepIDToSkipTo;
     private const int _frameWait = 5;
 
     private void Update()
@@ -24,22 +25,11 @@ public class AutoCompleteSkipper : MonoBehaviour
         if (!AutoCompletor.Instance.IsIdle)
             return;
         
-        if (!ShouldAutoCompleteStep())
+        if (!AutoCompleteSkipperHelper.ShouldAutoCompleteStep(Task, StepIDToSkipTo))
             return;
         
         PLog.TraceDetailed<MagnusLogger>($"Enqueuing Autocomplete");
         AutoCompletor.Instance.Autocomplete();
-    }
-
-    private bool ShouldAutoCompleteStep()
-    {
-        if (!TaskManager.HasInstance || TaskManager.Instance.CurrentTask == null)
-            return false;
-
-        if (TaskManager.Instance.CurrentTask != Task)
-            return false;
-
-        return StepToSkipTo < 0 || TaskManager.Instance.CurrentTask.CurrentStepId < StepToSkipTo;
     }
 
     private ICollection<ValueDropdownItem> GetTasks()

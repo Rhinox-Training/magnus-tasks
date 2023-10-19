@@ -46,7 +46,7 @@ namespace Rhinox.Magnus.Tasks
             if (SkipTags && !containsTag || !containsTag) return;
 
             // TODO what about other types of steps?
-            foreach (var step in task.Steps.OfType<ConditionStep>())
+            foreach (var step in task.GetStepNodes().OfType<ConditionStep>()) // TODO: this will break
             {
                 PLog.TraceDetailed<MagnusLogger>($"Enqueuing Autocomplete for step '{step}'");
                 AutoCompletor.Instance.Autocomplete(step);

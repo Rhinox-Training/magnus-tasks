@@ -11,6 +11,31 @@ using UnityEngine.Scripting;
 
 namespace Rhinox.Magnus.Tasks
 {
+	public abstract class BaseBinaryStep : BaseStep
+	{
+		public BaseStep NextStep;
+		public BaseStep NextStepFailed;
+
+		public override BaseStep GetNextStep()
+		{
+			switch (CompletionState)
+			{
+				case CompletionState.None: // NOTE: when the state was not yet completed assume success for pathing reasons
+				case CompletionState.Success:
+					return NextStep;
+				case CompletionState.Failure:
+					return NextStepFailed;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public override bool HasNextStep()
+		{
+			return NextStep != null;
+		}
+	}
+	
 	[ExecuteAfter(typeof(BaseTask)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
@@ -25,7 +50,7 @@ namespace Rhinox.Magnus.Tasks
 		// Currently only filled in from TaskObject (to keep a reference from where it came)
 		// TODO probably don't want it to be a public setter
 		public SerializableGuid ID { get; set; }
-
+		
 		public StepContainer Container { get; private set; }
 		
 		[PropertySpace, SerializeReference]
@@ -241,16 +266,8 @@ namespace Rhinox.Magnus.Tasks
 				TagContainer = new TagContainer();
 			TagContainer.RemoveDoubles();
 		}
-	}
 
-	public static class StepExtensions
-	{
-		public static int GetIndex(this BaseStep step)
-		{
-			if (!step.gameObject.activeSelf || step.Container == null || step.Container.Steps == null) 
-				return -1;
-			
-			return step.Container.Steps.IndexOf(step);
-		} 
+		public abstract BaseStep GetNextStep();
+		public abstract bool HasNextStep();
 	}
 }

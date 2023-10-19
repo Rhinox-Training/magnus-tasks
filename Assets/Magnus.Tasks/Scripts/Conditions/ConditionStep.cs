@@ -16,7 +16,7 @@ namespace Rhinox.Magnus.Tasks
 {
     [HideReferenceObjectPicker]
     [SmartFallbackDrawn(false)]
-    public class ConditionStep : BaseStep
+    public class ConditionStep : BaseBinaryStep
     {
         [TabGroup("Settings")]
         public bool OrderedConditions = false;

@@ -7,8 +7,10 @@ namespace Rhinox.Magnus.Tasks
 {
     public abstract class StepContainer : MonoBehaviour
     {
-        public abstract IReadOnlyList<BaseStep> Steps { get; }
-        
+        public BaseStep StartStep;
+
+        public abstract IEnumerable<BaseStep> GetStepNodes();
+
         public delegate IEnumerator AwaitStepEvent(BaseStep step);
 
         public event AwaitStepEvent PreStartStep;

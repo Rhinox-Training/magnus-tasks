@@ -12,12 +12,11 @@ namespace Rhinox.Magnus.Tasks
 {
     public interface ITask
     {
-        IReadOnlyList<BaseStep> Steps { get; }
     }
     
-    public interface IDataTaskIdentifier : ITask
+    public interface IDataTaskIdentifier
     {
-
+        IReadOnlyList<BaseStep> Steps { get; }
         bool IsActive { get; }
         TaskObject GetDataTask();
     }
@@ -35,8 +34,12 @@ namespace Rhinox.Magnus.Tasks
         public ValueReferenceLookupOverride LookupOverride;
 
         private IReadOnlyList<BaseStep> _generatedSteps;
-        public override IReadOnlyList<BaseStep> Steps => _generatedSteps;
+        public override IEnumerable<BaseStep> GetStepNodes()
+        {
+            return _generatedSteps;
+        }
 
+        public IReadOnlyList<BaseStep> Steps => _generatedSteps;
         public bool IsActive => State == TaskState.Running;
 
         [StepSelector(nameof(TaskId))]

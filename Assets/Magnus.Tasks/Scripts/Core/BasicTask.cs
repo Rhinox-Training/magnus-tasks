@@ -19,7 +19,7 @@ namespace Rhinox.Magnus.Tasks
         public ValueReferenceLookup ValueReferenceLookup;
 
         [ShowInInspector, ReadOnly, HideInEditorMode, TabGroup("Configuration"), Space] private BaseStep[] _steps;
-        public override IReadOnlyList<BaseStep> Steps => _initialized ? _steps : GetComponentsInChildren<BaseStep>();
+        public IReadOnlyList<BaseStep> Steps => _initialized ? _steps : GetComponentsInChildren<BaseStep>();
         
         [TabGroup("Events")] public UnityEvent OnTaskStarted;
         [TabGroup("Events")] public UnityEvent OnTaskStopped;
@@ -118,6 +118,11 @@ namespace Rhinox.Magnus.Tasks
 
                 this.ValueReferenceLookup.Register(key, fieldValue as IValueResolver);
             }
+        }
+
+        public override IEnumerable<BaseStep> GetStepNodes()
+        {
+            return Steps;
         }
     }
 }

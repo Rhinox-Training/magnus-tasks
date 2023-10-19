@@ -68,7 +68,8 @@ namespace Rhinox.Magnus.Tasks
         [HorizontalGroup("Debug/State"), ToggleLeft]
         public bool IsActive { get; protected set; }
 
-        [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode] [HorizontalGroup("Debug/State"), ToggleLeft]
+        [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode] 
+        [HorizontalGroup("Debug/State"), ToggleLeft]
         protected bool _isInitialised;
 
         public delegate void ActivatableStateAction(TaskActivatable activatable, bool state);
@@ -97,30 +98,11 @@ namespace Rhinox.Magnus.Tasks
             TaskManager.Instance.TaskCompleted += OnTaskCompleted;
 
             var tasks = TaskManager.Instance.GetTasks();
-            BaseStep activeStartStep = null;
-            if (!SceneTask)
-            {
-                var dataTasks = tasks.SelectMany(x => x.GetComponentsInChildren<IDataTaskIdentifier>());
-                foreach (var dataTask in dataTasks)
-                {
-                    var startedStep = ConfigureForTask(dataTask);
-                    if (startedStep && !activeStartStep)
-                        activeStartStep = startedStep;
-                }
-            }
-            else
-            {
-                foreach (var task in tasks)
-                {
-                    var startedStep = ConfigureForTask(task);
-                    if (startedStep && !activeStartStep)
-                        activeStartStep = startedStep;
-                }
-            }
+            var activeStartStep = FindStartStepForConfiguration(tasks);
 
             _isInitialised = true;
 
-            // Always deactivate
+            // Always deactivate on start
             Deactivate();
 
             // Reactive in case we have an already active step (would not pass by StartStep and activate then)
@@ -130,6 +112,35 @@ namespace Rhinox.Magnus.Tasks
 
                 Activate();
             }
+        }
+
+        private BaseStep FindStartStepForConfiguration(BaseTask[] tasks)
+        {
+            BaseStep activeStartStep = null;
+            if (!SceneTask)
+            {
+                var dataTasks = tasks.SelectMany(x => x.GetComponentsInChildren<IDataTaskIdentifier>());
+                foreach (var dataTask in dataTasks)
+                {
+                    var startedStep = ConfigureForTask(dataTask);
+                    if (startedStep != null && activeStartStep == null)
+                    {
+                        activeStartStep = startedStep;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var task in tasks)
+                {
+                    var startedStep = ConfigureForTask(task);
+                    if (startedStep != null && activeStartStep == null)
+                        activeStartStep = startedStep;
+                }
+            }
+
+            return activeStartStep;
         }
 
         private void OnTaskCompleted(BaseTask task)
@@ -159,10 +170,10 @@ namespace Rhinox.Magnus.Tasks
             // If always; just ignore the data and choose first & last steps
             if (Always)
             {
-                startStep = task.Steps.First();
+                startStep = task.GetStepNodes().First();
                 // Add the steps to the valid ones
                 _validStartSteps.Add(startStep);
-                _validEndSteps.Add(task.Steps.Last());
+                _validEndSteps.Add(task.GetStepNodes().Last());
 
                 return task.State == TaskState.Running ? startStep : null;
             }
@@ -170,8 +181,8 @@ namespace Rhinox.Magnus.Tasks
             startStep = StartStep;
             var endStep = EndStep;
 
-            if (startStep == null) startStep = task.Steps.First();
-            if (endStep == null) endStep = task.Steps.Last();
+            if (startStep == null) startStep = task.GetStepNodes().First();
+            if (endStep == null) endStep = task.GetStepNodes().Last();
 
             _validStartSteps.Add(startStep);
             _validEndSteps.Add(endStep);
@@ -183,7 +194,8 @@ namespace Rhinox.Magnus.Tasks
         {
             // If it's not the right task; return
             var dataTask = task.GetDataTask();
-            if (dataTask.ID != DataTask) return null;
+            if (dataTask.ID != DataTask) 
+                return null;
 
             BaseStep startStep;
 
@@ -234,36 +246,15 @@ namespace Rhinox.Magnus.Tasks
 
         protected virtual void OnStepStarted(BaseStep step)
         {
-            if (IsActive || !_validStartSteps.Contains(step))
+            if (IsActive)
                 return;
-
-            RegisterStartAndFindEndStep(step);
-
-            if (!_currentEnd)
-                PLog.Error<MagnusLogger>("Could not resolve an End for TaskActivatable!", this);
+            
+            if (!ShouldActivate(step)) 
+                return;
 
             Activate();
 
             OnStepChainProgress?.Invoke(step, 0f);
-        }
-
-        private void RegisterStartAndFindEndStep(BaseStep startStep)
-        {
-            _currentStart = startStep;
-            _currentEnd = null;
-
-            int i = startStep.GetIndex();
-
-            // Find end step
-            for (; i < startStep.Container.Steps.Count; ++i)
-            {
-                var potentialEndStep = startStep.Container.Steps[i];
-                if (!_validEndSteps.Contains(potentialEndStep)) 
-                    continue;
-
-                _currentEnd = potentialEndStep;
-                break;
-            }
         }
 
         protected virtual void OnStepCompleted(BaseStep step)
@@ -272,7 +263,7 @@ namespace Rhinox.Magnus.Tasks
                 return;
 
             float progress = 0f;
-            if (_currentEnd == step)
+            if (ShouldDeactivate(step))
             {
                 Deactivate();
                 progress = 1f;
@@ -280,21 +271,52 @@ namespace Rhinox.Magnus.Tasks
             else
             {
                 // All of these should be present & not null, if not there is an issue
-                var startI = step.Container.Steps.IndexOf(_currentStart);
-                var currentI = step.Container.Steps.IndexOf(step) + 1;
-                var endI = step.Container.Steps.IndexOf(_currentEnd);
-
-                progress = (currentI - startI) / (float) (endI - startI);
+                int currentDistance = StepPathPlanner.CalculateDistance(_currentStart, step);
+                int totalDistance = StepPathPlanner.CalculateDistance(_currentStart, _currentEnd);
+                
+                progress = currentDistance / (float) totalDistance;
             }
 
             OnStepChainProgress?.Invoke(step, progress);
+        }
+
+        private bool ShouldActivate(BaseStep step)
+        {
+            if (!_validStartSteps.Contains(step))
+                return false;
+
+            RegisterStartAndFindEndStep(step);
+
+            if (!_currentEnd)
+                PLog.Error<MagnusLogger>("Could not resolve an End for TaskActivatable!", this);
+            return true;
+        }
+
+        private bool ShouldDeactivate(BaseStep step)
+        {
+            return _currentEnd == step;
+        }
+
+        private void RegisterStartAndFindEndStep(BaseStep startStep)
+        {
+            _currentStart = startStep;
+            _currentEnd = null;
+
+            // Find end step
+            foreach (var potentialEndStep in startStep.Container.GetStepNodes())
+            {
+                if (!_validEndSteps.Contains(potentialEndStep)) 
+                    continue;
+
+                _currentEnd = potentialEndStep;
+                break;
+            }
         }
 
 
         protected virtual void Activate()
         {
             _activeTask = _currentStart.Container;
-
             IsActive = true;
             TriggerStateChanged();
         }
