@@ -47,26 +47,33 @@ namespace Rhinox.Magnus.Tasks
         //==============================================================================================================
         // Methods
         
-        protected virtual void Awake()
+        public void Initialize()
         {
+            if (_initialized)
+                return;
+
+            OnPreInitialize();
+            
             foreach (var step in GetStepNodes())
                 step.BindContainer(this);
 
-            OnAwake();
+            foreach (var step in GetStepNodes())
+                step.Initialize();
 
+            OnInitialize();
+            
+            State = TaskState.Initialized;
             _initialized = true;
         }
-
-        protected virtual void OnAwake()
+        
+        protected virtual void OnPreInitialize()
         {
             
         }
 
-        protected virtual void Start()
+        protected virtual void OnInitialize()
         {
-            foreach (var step in GetStepNodes())
-                step.Initialize();
-            State = TaskState.Initialized;
+            
         }
 
         private void OnDisable()
@@ -76,10 +83,19 @@ namespace Rhinox.Magnus.Tasks
             StopTask();
         }
 
-        protected virtual void OnDestroy()
+        public void Terminate()
         {
+            if (!_initialized)
+                return;
+            
             foreach (var step in GetStepNodes())
                 step.UnbindContainer();
+            _initialized = false;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            Terminate();
         }
 
         public bool StartTask()

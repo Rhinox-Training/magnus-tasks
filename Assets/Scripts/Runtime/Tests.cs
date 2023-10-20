@@ -5,6 +5,7 @@ using Rhinox.GUIUtils.Attributes;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Collections;
+using Rhinox.Magnus.Tasks;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;

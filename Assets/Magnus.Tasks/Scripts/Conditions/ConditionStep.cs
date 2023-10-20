@@ -113,7 +113,7 @@ namespace Rhinox.Magnus.Tasks
             return changed;
         }
 
-        public bool IsStepCompleted()
+        private bool IsStepCompleted()
         {
             // Do not convert to LINQ pls
             for (int i = 0; i < Conditions.Count; ++i)
@@ -145,6 +145,17 @@ namespace Rhinox.Magnus.Tasks
             if (State == ProcessState.Running && !IsStepCompleted())
                 return;
 
+            bool hasFailed = false;
+            foreach (var condition in _activeConditions)
+            {
+                if (condition.CompletionState == CompletionState.Failure)
+                {
+                    hasFailed = true;
+                    break;
+                }
+            }
+            
+            
             foreach (var condition in Conditions)
                 condition.Terminate();
 
@@ -152,7 +163,7 @@ namespace Rhinox.Magnus.Tasks
             
             ActiveConditionsChanged?.Invoke();
 
-            SetCompleted();
+            SetCompleted(hasFailed);
         }
 
         public override void HandleUpdate()

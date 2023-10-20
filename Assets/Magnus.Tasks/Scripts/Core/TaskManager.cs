@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using System.Linq;
 using Rhinox.GUIUtils.Attributes;
+using Rhinox.Lightspeed;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
 using UnityEngine;
@@ -91,12 +92,12 @@ namespace Rhinox.Magnus.Tasks
 		}
 
 		[Button(ButtonSizes.Medium)]
-		public void StartCurrentTask()
+		public bool StartCurrentTask()
 		{
 			if (CurrentTask != null && CurrentTask.State == TaskState.Running)
 			{
 				PLog.Warn<MagnusLogger>($"Cannot start task, task {CurrentTask.name} already running");
-				return;
+				return false;
 			}
 
 			PLog.TraceDetailed<MagnusLogger>("Triggered");
@@ -106,13 +107,22 @@ namespace Rhinox.Magnus.Tasks
 
 			TaskSelected?.Invoke(CurrentTask);
 
-			if (CurrentTask == null) return;
+			if (CurrentTask == null)
+				return false;
+			
+			CurrentTask.Initialize();
 
-			CurrentTask.StartTask();
+			if (!CurrentTask.StartTask())
+			{
+				PLog.Warn<MagnusLogger>($"Cannot start task {CurrentTask.name}...");
+				return false;
+			}
+			
 			CurrentTask.TaskStopped += OnTaskStopped;
 			CurrentTask.TaskCompleted += OnTaskCompleted;
 
 			TaskStarted?.Invoke(CurrentTask);
+			return true;
 		}
 
 		[Button(ButtonSizes.Medium)]
@@ -208,7 +218,15 @@ namespace Rhinox.Magnus.Tasks
 				StopCurrentTask();
 
 			var list = _tasks?.ToList() ?? new List<BaseTask>();
-			list.AddRange(tasks);
+			bool changed = false;
+			foreach (var task in tasks)
+			{
+				if (list.AddUnique(task))
+					changed = true;
+			}
+
+			if (!changed)
+				return false;
 			
 			_tasks = list.ToArray();
 			if (CurrentTask == null || !_tasks.Contains(CurrentTask))
@@ -216,6 +234,15 @@ namespace Rhinox.Magnus.Tasks
 
 			TaskSelected?.Invoke(CurrentTask);
 			return true;
+		}
+
+		public void ClearTasks()
+		{
+			PLog.TraceDetailed<MagnusLogger>($"Clearing tasks from TaskManager which had {_tasks?.Length ?? 0} tasks.");
+			if (CurrentTask != null)
+				StopCurrentTask();
+
+			_tasks = Array.Empty<BaseTask>();
 		}
 	}
 }

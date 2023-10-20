@@ -1,8 +1,10 @@
 {
   "dependencies": {
-    "com.rhinox.open.lightspeed": "1.7.1",
-    "com.rhinox.open.magnus": "0.7.1",
+    "com.rhinox.open.guiutils": "2.12.3",
+    "com.rhinox.open.lightspeed": "1.8.1",
+    "com.rhinox.open.magnus": "0.8.0",
     "com.rhinox.open.perceptor": "0.2.0",
+    "com.rhinox.open.utilities": "1.9.0",
     "com.rhinox.open.vortex": "0.5.0-alpha.2",
     "com.unity.collab-proxy": "1.14.18",
     "com.unity.ide.rider": "1.2.1",

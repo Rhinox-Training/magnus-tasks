@@ -45,13 +45,12 @@ namespace Rhinox.Magnus.Tasks
         [StepSelector(nameof(TaskId))]
         public SerializableGuid EndStep { get; set; } // Destroy everything after this step TODO do it better
 
-        protected override void Awake()
+        protected override void OnPreInitialize()
         {
+            base.OnPreInitialize();
             // Generate the steps based on the DataTask
             RefreshTaskData();
             _generatedSteps = GenerateSteps();
-            
-            base.Awake();
         }
 
         private void RefreshTaskData()

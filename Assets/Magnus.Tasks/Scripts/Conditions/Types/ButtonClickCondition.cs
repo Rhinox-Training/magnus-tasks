@@ -24,7 +24,7 @@ namespace Rhinox.Magnus.Tasks
             base.Terminate();
             // ButtonToPress.interactable = false;
             if (ButtonToPress != null)
-                ButtonToPress.onClick.RemoveListener(SetConditionMet);
+                ButtonToPress.onClick.RemoveListener(HandleClick);
         }
 
         public override void Start()
@@ -43,7 +43,12 @@ namespace Rhinox.Magnus.Tasks
                 return;
             }
 
-            ButtonToPress.onClick.AddListener(SetConditionMet);
+            ButtonToPress.onClick.AddListener(HandleClick);
+        }
+
+        private void HandleClick()
+        {
+            SetConditionMet();
         }
     }
 }

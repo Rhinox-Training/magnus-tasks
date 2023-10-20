@@ -693,6 +693,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 503d75f879cb42b48bb0862bcf5c2898, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartStep: {fileID: 0}
   TagContainer:
     Tags: []
   TaskId: -1
@@ -1015,6 +1016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d427c5fae48e442a409d1000cd07fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartStep: {fileID: 0}
   TagContainer:
     Tags: []
   ValueReferenceLookup:

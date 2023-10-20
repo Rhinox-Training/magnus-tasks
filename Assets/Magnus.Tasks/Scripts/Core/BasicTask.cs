@@ -25,11 +25,10 @@ namespace Rhinox.Magnus.Tasks
         [TabGroup("Events")] public UnityEvent OnTaskStopped;
         [TabGroup("Events")] public UnityEvent OnTaskCompleted;
 
-        protected override void Awake()
+        protected override void OnPreInitialize()
         {
+            base.OnPreInitialize();
             _steps = GetComponentsInChildren<BaseStep>();
-
-            base.Awake();
         }
 
         protected override void OnStart()
