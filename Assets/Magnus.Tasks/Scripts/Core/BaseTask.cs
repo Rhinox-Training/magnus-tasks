@@ -25,6 +25,8 @@ namespace Rhinox.Magnus.Tasks
         [ShowInInspector, ReadOnly, HideInEditorMode]
         [TabGroup("State")]
         public TaskState State { get; protected set; }
+        
+        public CompletionState CompletionState { get; protected set; }
 
         public bool IsActive => State == TaskState.Running;
         
@@ -158,9 +160,12 @@ namespace Rhinox.Magnus.Tasks
                 if (ActiveStep != null && !ActiveStep.HasNextStep())
                 {
                     TaskCompleted?.Invoke();
-                    OnCompleted();
+                    OnCompleted(ActiveStep.CompletionState == CompletionState.Failure);
 
                     State = TaskState.Finished;
+                    CompletionState = ActiveStep.CompletionState == CompletionState.Failure
+                        ? Tasks.CompletionState.Failure
+                        : CompletionState.Success;
                     return;
                 }
                 else
@@ -198,7 +203,7 @@ namespace Rhinox.Magnus.Tasks
             }
         }
         
-        protected virtual void OnCompleted()
+        protected virtual void OnCompleted(bool failed = false)
         {
             
         }

@@ -146,7 +146,7 @@ namespace Rhinox.Magnus.Tasks
                 return;
 
             bool hasFailed = false;
-            foreach (var condition in _activeConditions)
+            foreach (var condition in Conditions)
             {
                 if (condition.CompletionState == CompletionState.Failure)
                 {
@@ -154,7 +154,6 @@ namespace Rhinox.Magnus.Tasks
                     break;
                 }
             }
-            
             
             foreach (var condition in Conditions)
                 condition.Terminate();

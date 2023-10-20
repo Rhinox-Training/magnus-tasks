@@ -64,10 +64,36 @@ namespace Tests
             
             _condition.SetConditionMet();
 
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < 6; ++i)
                 yield return new WaitForEndOfFrame();
 
             Assert.AreEqual(TaskState.Finished, _task.State);
+        }
+
+        [UnityTest]
+        public IEnumerator TestTaskCompletedSuccess()
+        {
+            TaskManager.Instance.StartCurrentTask();
+            
+            _condition.SetConditionMet();
+
+            for (int i = 0; i < 6; ++i)
+                yield return new WaitForEndOfFrame();
+
+            Assert.AreEqual(CompletionState.Success, _task.CompletionState);
+        }
+
+        [UnityTest]
+        public IEnumerator TestTaskCompletedFailure()
+        {
+            TaskManager.Instance.StartCurrentTask();
+            
+            _condition.SetConditionMet(true);
+
+            for (int i = 0; i < 6; ++i)
+                yield return new WaitForEndOfFrame();
+
+            Assert.AreEqual(CompletionState.Failure, _task.CompletionState);
         }
     }
 }

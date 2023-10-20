@@ -43,9 +43,9 @@ namespace Rhinox.Magnus.Tasks
             OnTaskStopped?.Invoke();
         }
 
-        protected override void OnCompleted()
+        protected override void OnCompleted(bool hasFailed = false)
         {
-            base.OnCompleted();
+            base.OnCompleted(hasFailed);
             OnTaskCompleted?.Invoke();
         }
 
