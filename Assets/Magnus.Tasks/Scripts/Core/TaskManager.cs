@@ -46,9 +46,6 @@ namespace Rhinox.Magnus.Tasks
 		public static event GlobalStepEvent GlobalStepStarted;
 		public static event GlobalStepEvent GlobalStepCompleted;
 
-		public static event Action GlobalTrainingStarted;
-		public static event Action GlobalTrainingEnded;
-
 		public UnityEvent TasksCompleted;
 
 		//==============================================================================================================
@@ -57,14 +54,10 @@ namespace Rhinox.Magnus.Tasks
 		private void Awake()
 		{
 			SceneReadyHandler.YieldToggleControl(this);
-
-			GlobalTrainingStarted?.Invoke();
 		}
 
 		protected override void OnDestroy()
 		{
-			GlobalTrainingEnded?.Invoke();
-
 			SceneReadyHandler.RevertToggleControl(this);
 
 			base.OnDestroy();
@@ -160,9 +153,9 @@ namespace Rhinox.Magnus.Tasks
 			CurrentTask.TaskStopped -= OnTaskStopped; // TODO: why?
 		}
 
-		private void OnTaskCompleted()
+		private void OnTaskCompleted(bool hasFailed)
 		{
-			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) Completed.");
+			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) has {(hasFailed ? "failed" : "completed")}.");
 			TaskCompleted?.Invoke(CurrentTask);
 			CurrentTask.TaskCompleted -= OnTaskCompleted;
 			int currTaskIndex = Array.IndexOf(_tasks, CurrentTask);
@@ -174,7 +167,8 @@ namespace Rhinox.Magnus.Tasks
 				return;
 			}
 
-			CurrentTask = _tasks[++currTaskIndex];
+			// Start next task
+			CurrentTask = _tasks[currTaskIndex + 1];
 			StartCurrentTask();
 		}
 

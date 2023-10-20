@@ -36,10 +36,11 @@ namespace Rhinox.Magnus.Tasks
         // Events
 
         public delegate void TaskEvent();
+        public delegate void TaskCompletionEvent(bool hasFailed);
         
         public event TaskEvent TaskStarted;
         public event TaskEvent TaskStopped;
-        public event TaskEvent TaskCompleted;
+        public event TaskCompletionEvent TaskCompleted;
 
         public delegate void StepEvent(BaseStep step);
 
@@ -159,11 +160,12 @@ namespace Rhinox.Magnus.Tasks
                 // If task completed
                 if (ActiveStep != null && !ActiveStep.HasNextStep())
                 {
-                    TaskCompleted?.Invoke();
-                    OnCompleted(ActiveStep.CompletionState == CompletionState.Failure);
+                    bool hasFailed = ActiveStep.CompletionState.HasFailed();
+                    TaskCompleted?.Invoke(hasFailed);
+                    OnCompleted(hasFailed);
 
                     State = TaskState.Finished;
-                    CompletionState = ActiveStep.CompletionState == CompletionState.Failure
+                    CompletionState = hasFailed
                         ? Tasks.CompletionState.Failure
                         : CompletionState.Success;
                     return;
