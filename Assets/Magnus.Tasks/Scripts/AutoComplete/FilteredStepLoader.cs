@@ -7,10 +7,10 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [RequireComponent(typeof(BaseTask))]
+    [RequireComponent(typeof(TaskBehaviour))]
     public class FilteredStepLoader : MonoBehaviour
     {
-        private BaseTask _task;
+        private TaskBehaviour _task;
 
         public bool SkipTags;
 
@@ -21,7 +21,7 @@ namespace Rhinox.Magnus.Tasks
         {
             _checkAutoComplete = false;
 
-            _task = GetComponent<BaseTask>();
+            _task = GetComponent<TaskBehaviour>();
             _task.StepStarted += OnStepStarted;
         }
 

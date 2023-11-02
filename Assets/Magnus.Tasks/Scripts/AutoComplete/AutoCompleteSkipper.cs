@@ -13,7 +13,7 @@ using UnityEngine;
 public class AutoCompleteSkipper : MonoBehaviour
 {
     [ValueDropdown(nameof(GetTasks))]
-    public BaseTask Task;
+    public ITask Task;
     public SerializableGuid StepIDToSkipTo;
     private const int _frameWait = 5;
 
@@ -25,7 +25,7 @@ public class AutoCompleteSkipper : MonoBehaviour
         if (!AutoCompletor.Instance.IsIdle)
             return;
         
-        if (!AutoCompleteSkipperHelper.ShouldAutoCompleteStep(Task, StepIDToSkipTo))
+        if (!Task.DoesActiveStepPrecede(StepIDToSkipTo))
             return;
         
         PLog.TraceDetailed<MagnusLogger>($"Enqueuing Autocomplete");

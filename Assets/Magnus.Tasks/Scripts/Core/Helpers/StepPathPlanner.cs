@@ -11,7 +11,7 @@ namespace Rhinox.Magnus.Tasks
             return -1;
         }
 
-        public static int GetTaskLength(BaseTask task)
+        public static int GetTaskLength(ITask task)
         {
             if (task == null || task.StartStep == null)
                 return 0;

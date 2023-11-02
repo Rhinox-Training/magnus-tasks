@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     public class AutoCompleteSkipperHandler : ILevelLoadHandler
     {
         [ValueDropdown(nameof(GetTasks))]
-        public BaseTask Task;
+        public ITask Task;
 
         public SerializableGuid StepIDToSkipTo;
 
@@ -19,8 +19,6 @@ namespace Rhinox.Magnus.Tasks
         public int LoadOrder => LevelLoadOrder.AUTOCOMPLETE_LOADING;
 
         public event Action AutoCompleted;
-
-        
         
         public IEnumerator<float> OnLevelLoad()
         {
@@ -30,7 +28,7 @@ namespace Rhinox.Magnus.Tasks
                 TaskManager.Instance.ForceStartTask(Task);
             
             int stepCount = AutoCompleteSkipperHelper.CalculateCompletionLength(Task, StepIDToSkipTo);
-            while (AutoCompleteSkipperHelper.ShouldAutoCompleteStep(Task, StepIDToSkipTo))
+            while (Task.DoesActiveStepPrecede(StepIDToSkipTo))
             {
                 // Current task's step is null or completed
                 // the system progresses the task the next frame when done, not immediately

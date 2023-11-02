@@ -13,23 +13,23 @@ using UnityEngine.Serialization;
 namespace Rhinox.Magnus.Tasks
 {
 	[SmartFallbackDrawn(false)]
-	public class TaskManager : Singleton<TaskManager>
+	public class TaskManager : Singleton<TaskManager>, ITaskManager
 	{
 		[InlineIconButton("Refresh", nameof(RefreshTasks))]
 		public bool AutoLoadTasks;
 
 		[SerializeField, HideIf(nameof(AutoLoadTasks)), FormerlySerializedAs("Tasks"), SerializeReference]
-		private BaseTask[] _tasks;
+		private TaskBehaviour[] _tasks;
 
 		[ShowInInspector, ReadOnly] 
-		public BaseTask CurrentTask { get; private set; }
+		public TaskBehaviour CurrentTask { get; private set; }
 
 		public bool RunTaskOnStart = true;
 
 		//==============================================================================================================
 		// Events
 		
-		public delegate void TaskEvent(BaseTask task);
+		public delegate void TaskEvent(ITask task);
 
 		public event TaskEvent TaskSelected;
 		public event TaskEvent TaskStarted;
@@ -45,9 +45,7 @@ namespace Rhinox.Magnus.Tasks
 
 		public static event GlobalStepEvent GlobalStepStarted;
 		public static event GlobalStepEvent GlobalStepCompleted;
-
-		public UnityEvent TasksCompleted;
-
+ 
 		//==============================================================================================================
 		// Methods
 		
@@ -74,14 +72,14 @@ namespace Rhinox.Magnus.Tasks
 
 		private void RefreshTasks()
 		{
-			_tasks = GetComponentsInChildren<BaseTask>();
+			_tasks = GetComponentsInChildren<TaskBehaviour>();
 		}
 
-		public BaseTask[] GetTasks()
+		public TaskBehaviour[] GetTasks()
 		{
 			if (AutoLoadTasks)
-				return GetComponentsInChildren<BaseTask>();
-			return _tasks ?? Array.Empty<BaseTask>();
+				return GetComponentsInChildren<TaskBehaviour>();
+			return _tasks ?? Array.Empty<TaskBehaviour>();
 		}
 
 		[Button(ButtonSizes.Medium)]
@@ -103,7 +101,7 @@ namespace Rhinox.Magnus.Tasks
 			if (CurrentTask == null)
 				return false;
 			
-			CurrentTask.Initialize();
+			CurrentTask.Initialize(this);
 
 			if (!CurrentTask.StartTask())
 			{
@@ -111,9 +109,6 @@ namespace Rhinox.Magnus.Tasks
 				return false;
 			}
 			
-			CurrentTask.TaskStopped += OnTaskStopped;
-			CurrentTask.TaskCompleted += OnTaskCompleted;
-
 			TaskStarted?.Invoke(CurrentTask);
 			return true;
 		}
@@ -130,61 +125,44 @@ namespace Rhinox.Magnus.Tasks
 
 			CurrentTask.StopTask();
 
-			CurrentTask.TaskStopped -= OnTaskStopped;
-			CurrentTask.TaskCompleted -= OnTaskCompleted;
-
 			CurrentTask = null;
 		}
 
 		/// <summary>
 		/// Use with caution and only when you know what you're doing
 		/// </summary>
-		public void ForceStartTask(BaseTask task)
+		public void ForceStartTask(TaskBehaviour task)
 		{
 			PLog.Info<MagnusLogger>($"Forcefully starting task '{task}'", associatedObject: task);
 			CurrentTask = task;
 			StartCurrentTask();
 		}
 
-		private void OnTaskStopped()
-		{
-			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) Stopped.");
-			TaskStopped?.Invoke(CurrentTask);
-			CurrentTask.TaskStopped -= OnTaskStopped; // TODO: why?
-		}
-
-		private void OnTaskCompleted(bool hasFailed)
-		{
-			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) has {(hasFailed ? "failed" : "completed")}.");
-			TaskCompleted?.Invoke(CurrentTask);
-			CurrentTask.TaskCompleted -= OnTaskCompleted;
-			int currTaskIndex = Array.IndexOf(_tasks, CurrentTask);
-
-			// Check if there are any more tasks after this one
-			if (currTaskIndex < 0 || currTaskIndex > _tasks.Length - 2)
-			{
-				TasksCompleted?.Invoke();
-				return;
-			}
-
-			// Start next task
-			CurrentTask = _tasks[currTaskIndex + 1];
-			StartCurrentTask();
-		}
-
-		internal void TriggerStepStarted(BaseStep step)
+		public void NotifyStepStarted(ITask task, BaseStep step)
 		{
 			StepStarted?.Invoke(step);
 			GlobalStepStarted?.Invoke(this, step);
 		}
 
-		internal void TriggerStepCompleted(BaseStep step)
+		public void NotifyStepCompleted(ITask task, BaseStep step)
 		{
 			StepCompleted?.Invoke(step);
 			GlobalStepCompleted?.Invoke(this, step);
 		}
 
-		public bool LoadTasks(params BaseTask[] tasks)
+		public void NotifyTaskCompleted(ITask task, bool hasFailed)
+		{
+			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) has {(hasFailed ? "failed" : "completed")}.");
+			TaskCompleted?.Invoke(task);
+		}
+
+		public void NotifyTaskStopped(ITask task)
+		{
+			PLog.Info<MagnusLogger>($"Task ({task}) Stopped.");
+			TaskStopped?.Invoke(task);
+		}
+
+		public bool LoadTasks(params TaskBehaviour[] tasks)
 		{
 			if (tasks == null || tasks.Length == 0)
 				return false;
@@ -201,7 +179,7 @@ namespace Rhinox.Magnus.Tasks
 			return true;
 		}
 
-		public bool AppendTasks(params BaseTask[] tasks)
+		public bool AppendTasks(params TaskBehaviour[] tasks)
 		{
 			if (tasks == null || tasks.Length == 0)
 				return false;
@@ -211,7 +189,7 @@ namespace Rhinox.Magnus.Tasks
 			if (CurrentTask != null)
 				StopCurrentTask();
 
-			var list = _tasks?.ToList() ?? new List<BaseTask>();
+			var list = _tasks?.ToList() ?? new List<TaskBehaviour>();
 			bool changed = false;
 			foreach (var task in tasks)
 			{
@@ -236,7 +214,7 @@ namespace Rhinox.Magnus.Tasks
 			if (CurrentTask != null)
 				StopCurrentTask();
 
-			_tasks = Array.Empty<BaseTask>();
+			_tasks = Array.Empty<TaskBehaviour>();
 		}
 	}
 }

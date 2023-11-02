@@ -9,15 +9,6 @@
         CleaningUp,
         Finished
     }
-    
-    public enum TaskState
-    {
-        None,
-        Initialized,
-        Running,
-        Paused,
-        Finished
-    }
 
     public static class ProcessStateExtensions
     {
@@ -29,21 +20,6 @@
         public static bool IsFinishingOrFinished(this ProcessState state)
         {
             return state == ProcessState.CleaningUp || state == ProcessState.Finished;
-        }
-    }
-
-    public enum CompletionState
-    {
-        None,
-        Success,
-        Failure
-    }
-
-    public static class CompletionStateExtensions
-    {
-        public static bool HasFailed(this CompletionState state)
-        {
-            return state == CompletionState.Failure;
         }
     }
 }

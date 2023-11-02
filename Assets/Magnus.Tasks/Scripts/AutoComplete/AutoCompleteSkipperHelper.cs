@@ -7,7 +7,8 @@ namespace Rhinox.Magnus.Tasks
     public static class AutoCompleteSkipperHelper
     {
         
-        public static bool ShouldAutoCompleteStep(BaseTask task, SerializableGuid stepIDToSkipTo)
+        
+        public static bool ShouldAutoCompleteStep(ITask task, SerializableGuid stepIDToSkipTo)
         {
             if (!TaskManager.HasInstance || TaskManager.Instance.CurrentTask == null)
                 return false;
@@ -18,7 +19,7 @@ namespace Rhinox.Magnus.Tasks
             return stepIDToSkipTo.IsNullOrEmpty() || TaskManager.Instance.CurrentTask.FindStep(stepIDToSkipTo).State == ProcessState.Finished;
         }
         
-        public static int CalculateCompletionLength(BaseTask task, SerializableGuid idToSkipTo)
+        public static int CalculateCompletionLength(ITask task, SerializableGuid idToSkipTo)
         {
             if (!TaskManager.HasInstance)
                 return 1; // NOTE: Avoid divide by zero

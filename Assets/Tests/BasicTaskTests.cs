@@ -13,7 +13,7 @@ namespace Tests
     public class BasicTaskTests
     {
         private TestCondition _condition;
-        private BaseTask _task;
+        private TaskBehaviour _task;
 
         [OneTimeSetUp]
         public void Setup()

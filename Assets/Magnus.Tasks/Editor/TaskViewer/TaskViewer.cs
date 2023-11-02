@@ -17,7 +17,7 @@ namespace Rhinox.Magnus.Tasks.Editor
     {
         /// ================================================================================================================
         /// PROPERTIES
-        private IList<BaseTask> _tasks;
+        private IList<TaskBehaviour> _tasks;
 
         private static GUIStyle _headerStyle;
 
@@ -213,7 +213,7 @@ namespace Rhinox.Magnus.Tasks.Editor
         tree.Config.SearchFunction = SimpleSearch;
 #endif
 
-            _tasks = new List<BaseTask>();
+            _tasks = new List<TaskBehaviour>();
             Utility.FindSceneObjectsOfTypeAll(_tasks);
             for (var i = 0; i < _tasks.Count; i++)
             {
@@ -233,7 +233,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             return tree;
         }
 
-        private string GenerateSearchString(BaseTask task, BaseStep step)
+        private string GenerateSearchString(TaskBehaviour task, BaseStep step)
         {
             var builder = new StringBuilder();
             builder.Append(task.name);

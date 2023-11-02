@@ -10,21 +10,17 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    public interface ITask
-    {
-    }
-    
     public interface IDataTaskIdentifier
     {
         IReadOnlyList<BaseStep> Steps { get; }
         bool IsActive { get; }
-        TaskObject GetDataTask();
+        TaskObject GetTaskData();
     }
     
     // TODO: do we even need this
     [SerializedGuidProcessor(nameof(LookupOverride))]
     [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
-    public class DataTask : BaseTask, IDataTaskIdentifier, IValueReferenceResolverProvider
+    public class DataTask : TaskBehaviour, IDataTaskIdentifier, IValueReferenceResolverProvider
     {
         [TaskSelector]
         [OnValueChanged(nameof(RefreshTaskData))]
@@ -34,7 +30,7 @@ namespace Rhinox.Magnus.Tasks
         public ValueReferenceLookupOverride LookupOverride;
 
         private IReadOnlyList<BaseStep> _generatedSteps;
-        public override IEnumerable<BaseStep> GetStepNodes()
+        public override IEnumerable<BaseStep> EnumerateStepNodes()
         {
             return _generatedSteps;
         }
@@ -42,8 +38,8 @@ namespace Rhinox.Magnus.Tasks
         public IReadOnlyList<BaseStep> Steps => _generatedSteps;
         public bool IsActive => State == TaskState.Running;
 
-        [StepSelector(nameof(TaskId))]
-        public SerializableGuid EndStep { get; set; } // Destroy everything after this step TODO do it better
+        [StepSelector(nameof(TaskId))] 
+        public SerializableGuid EndStep; // Destroy everything after this step TODO this is a bit weird, but is used in Deceuninck
 
         protected override void OnPreInitialize()
         {
@@ -84,7 +80,7 @@ namespace Rhinox.Magnus.Tasks
                 return Array.Empty<BaseStep>();
             }
 
-            var dataTask = GetDataTask();
+            var dataTask = GetTaskData();
 
             PLog.Info<MagnusLogger>($"Generating Steps for '{this.name}'...");
             var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
@@ -119,7 +115,7 @@ namespace Rhinox.Magnus.Tasks
             RefreshTaskData();
         }
         
-        public TaskObject GetDataTask()
+        public TaskObject GetTaskData()
         {
             var table = DataLayer.GetTable<TaskObject>();
             return table.GetData(TaskId);

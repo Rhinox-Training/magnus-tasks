@@ -53,10 +53,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 _stepById[instanceID] = step;
             }
 
-            if (step == null || step.Container == null)
-                return;
-
-            if (step.State != ProcessState.Finished)
+            if (step == null || step.State != ProcessState.Finished)
                 return;
 
             if (step.CompletionState == CompletionState.Success)

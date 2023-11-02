@@ -12,8 +12,8 @@ namespace Tests
     [TestFixture]
     public class TaskManagerTests
     {
-        private BaseTask _task;
-        private BaseTask _task2;
+        private TaskBehaviour _task;
+        private TaskBehaviour _task2;
         
         [OneTimeSetUp]
         public void Setup()

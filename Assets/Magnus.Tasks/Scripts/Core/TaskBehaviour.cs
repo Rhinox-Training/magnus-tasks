@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    public abstract class BaseTask : StepContainer, ITask
+    public abstract class TaskBehaviour : MonoBehaviour, ITask
     {
         [PropertyOrder(-1)]
         public TagContainer TagContainer = new TagContainer();
@@ -28,10 +28,20 @@ namespace Rhinox.Magnus.Tasks
         
         public CompletionState CompletionState { get; protected set; }
 
+        [SerializeField]
+        private BaseStep _startStep;
+
+        public BaseStep StartStep
+        {
+            get { return _startStep; }
+            set { _startStep = value; }
+        }
+
         public bool IsActive => State == TaskState.Running;
         
         protected bool _initialized;
-        
+        private ITaskManager _taskManager;
+
         //==============================================================================================================
         // Events
 
@@ -47,20 +57,35 @@ namespace Rhinox.Magnus.Tasks
         public event StepEvent StepStarted;
         public event StepEvent StepCompleted;
         
+        public event BaseStep.AwaitStepEvent PreStartStep;
+        public event BaseStep.AwaitStepEvent PreStopStep;
+
+        protected IEnumerable<BaseStep.AwaitStepEvent> GetPreStartStepHandlers()
+        {
+            return PreStartStep?.GetInvocationList()?.OfType<BaseStep.AwaitStepEvent>();
+        }
+        
+        protected IEnumerable<BaseStep.AwaitStepEvent> GetPreStopStepHandlers()
+        {
+            return PreStopStep?.GetInvocationList()?.OfType<BaseStep.AwaitStepEvent>();
+        }
+        
         //==============================================================================================================
         // Methods
         
-        public void Initialize()
+        public void Initialize(ITaskManager taskManager)
         {
             if (_initialized)
                 return;
 
+            _taskManager = taskManager;
+            
             OnPreInitialize();
             
-            foreach (var step in GetStepNodes())
-                step.BindContainer(this);
+            foreach (var step in EnumerateStepNodes())
+                BindContainer(step);
 
-            foreach (var step in GetStepNodes())
+            foreach (var step in EnumerateStepNodes())
                 step.Initialize();
 
             OnInitialize();
@@ -68,7 +93,18 @@ namespace Rhinox.Magnus.Tasks
             State = TaskState.Initialized;
             _initialized = true;
         }
-        
+
+
+        public abstract IEnumerable<BaseStep> EnumerateStepNodes();
+        private void BindContainer(BaseStep step)
+        {
+            step.BindContainer(this);
+            foreach (var invocation in GetPreStartStepHandlers())
+                step.RegisterPreStart(invocation);
+            foreach (var invocation in GetPreStopStepHandlers())
+                step.RegisterPreStop(invocation);
+        }
+
         protected virtual void OnPreInitialize()
         {
             
@@ -91,8 +127,10 @@ namespace Rhinox.Magnus.Tasks
             if (!_initialized)
                 return;
             
-            foreach (var step in GetStepNodes())
+            foreach (var step in EnumerateStepNodes())
                 step.UnbindContainer();
+            
+            _taskManager = null;
             _initialized = false;
         }
 
@@ -136,14 +174,14 @@ namespace Rhinox.Magnus.Tasks
             if (ActiveStep)
                 PLog.Info<MagnusLogger>($"[BasicTask::StopTask] Step {CurrentStepId + 1}: {ActiveStep.name}", ActiveStep);
 
-            foreach (var step in GetStepNodes())
+            foreach (var step in EnumerateStepNodes())
                 step.Terminate();
 
             ActiveStep = null;
 
             OnStop();
             
-            TaskStopped?.Invoke();
+            NotifyTaskStopped();
         }
 
         protected virtual void OnStop()
@@ -161,7 +199,8 @@ namespace Rhinox.Magnus.Tasks
                 if (ActiveStep != null && !ActiveStep.HasNextStep())
                 {
                     bool hasFailed = ActiveStep.CompletionState.HasFailed();
-                    TaskCompleted?.Invoke(hasFailed);
+                    NotifyTaskCompleted(hasFailed);
+
                     OnCompleted(hasFailed);
 
                     State = TaskState.Finished;
@@ -217,22 +256,36 @@ namespace Rhinox.Magnus.Tasks
             // Optimized reset, reset only what has ran
             // for (var i = CurrentStepId; i >= 0; --i)
             //     Steps[i].ResetStep();
-            foreach (var step in GetStepNodes())
+            foreach (var step in EnumerateStepNodes())
                 step.ResetStep();
         }
         
-        public override void NotifyStepStarted(BaseStep baseStep)
+        public void NotifyStepStarted(BaseStep baseStep)
         {
             StepStarted?.Invoke(baseStep);
-            if (TaskManager.HasInstance)
-                TaskManager.Instance.TriggerStepStarted(baseStep);
+            if (_taskManager != null)
+                _taskManager.NotifyStepStarted(this, baseStep);
         }
 
-        public override void NotifyStepCompleted(BaseStep baseStep)
+        public void NotifyStepCompleted(BaseStep baseStep)
         {
             StepCompleted?.Invoke(baseStep);
-            if (TaskManager.HasInstance)
-                TaskManager.Instance.TriggerStepCompleted(baseStep);
+            if (_taskManager != null)
+                _taskManager.NotifyStepCompleted(this, baseStep);
+        }
+
+        private void NotifyTaskCompleted(bool hasFailed)
+        {
+            TaskCompleted?.Invoke(hasFailed);
+            if (_taskManager != null)
+                _taskManager.NotifyTaskCompleted(this, hasFailed);
+        }
+
+        private void NotifyTaskStopped()
+        {
+            TaskStopped?.Invoke();
+            if (_taskManager != null)
+                _taskManager.NotifyTaskStopped(this);
         }
 
         private void OnValidate()

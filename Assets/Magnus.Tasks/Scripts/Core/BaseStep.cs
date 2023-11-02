@@ -11,34 +11,7 @@ using UnityEngine.Scripting;
 
 namespace Rhinox.Magnus.Tasks
 {
-	public abstract class BaseBinaryStep : BaseStep
-	{
-		public BaseStep NextStep;
-		public BaseStep NextStepFailed;
-
-		public override BaseStep GetNextStep()
-		{
-			switch (CompletionState)
-			{
-				case CompletionState.None: // NOTE: when the state was not yet completed assume success for pathing reasons
-				case CompletionState.Success:
-					return NextStep;
-				case CompletionState.Failure:
-					return NextStepFailed;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
-
-		public override bool HasNextStep()
-		{
-			if (State != ProcessState.Finished)
-				return NextStep != null;
-			return CompletionState == CompletionState.Failure ? NextStepFailed != null : NextStep != null;
-		}
-	}
-	
-	[ExecuteAfter(typeof(BaseTask)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
+	[ExecuteAfter(typeof(TaskBehaviour)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
 		[Title("Info"), VerticalGroup("CoreSettings", -100)]
@@ -53,7 +26,7 @@ namespace Rhinox.Magnus.Tasks
 		// TODO probably don't want it to be a public setter
 		public SerializableGuid ID { get; set; }
 		
-		public StepContainer Container { get; private set; }
+		public ITask Container { get; private set; }
 		
 		[PropertySpace, SerializeReference]
 		[ListDrawerSettings(Expanded = true), TabGroup("Settings", order: -100)]
@@ -66,8 +39,10 @@ namespace Rhinox.Magnus.Tasks
 		
 		protected IReferenceResolver _valueResolver;
 		
-		private IEnumerable<StepContainer.AwaitStepEvent> _postStopStepHandlers;
-		private IEnumerable<StepContainer.AwaitStepEvent> _preStartStepHandlers;
+		public delegate IEnumerator AwaitStepEvent(BaseStep step);
+		
+		private List<AwaitStepEvent> _preStopStepHandlers;
+		private List<AwaitStepEvent> _preStartStepHandlers;
 		
 		//==============================================================================================================
 		// Events
@@ -87,7 +62,7 @@ namespace Rhinox.Magnus.Tasks
 		//==============================================================================================================
 		// Methods
 		
-		public void BindContainer(StepContainer container)
+		public void BindContainer(ITask container)
 		{
 			if (container == Container)
 				return;
@@ -96,8 +71,8 @@ namespace Rhinox.Magnus.Tasks
 				UnbindContainer();
 			
 			Container = container;
-			_preStartStepHandlers = container.GetPreStartStepHandlers();
-			_postStopStepHandlers = container.GetPostStopStepHandlers();
+			_preStartStepHandlers = new List<AwaitStepEvent>();
+			_preStopStepHandlers =  new List<AwaitStepEvent>();
 			State = ProcessState.None;
 			CompletionState = CompletionState.None;
 		}
@@ -107,8 +82,8 @@ namespace Rhinox.Magnus.Tasks
 			if (Container == null)
 				return;
 			
-			_postStopStepHandlers = null;
-			_preStartStepHandlers = null;
+			_preStopStepHandlers?.Clear();
+			_preStartStepHandlers?.Clear();
 			Container = null;
 		}
 
@@ -190,9 +165,9 @@ namespace Rhinox.Magnus.Tasks
 			foreach (IStepTimingEvent stepEvent in StepTimingEvents)
 				stepEvent.Initialize(this);
 
-			if (_postStopStepHandlers != null)
+			if (_preStopStepHandlers != null)
 			{
-				foreach (var invocation in _postStopStepHandlers)
+				foreach (var invocation in _preStopStepHandlers)
 					yield return invocation.Invoke(this);
 			}
 			
@@ -231,6 +206,27 @@ namespace Rhinox.Magnus.Tasks
 
 		protected virtual void OnResetStep()
 		{
+		}
+		
+		public bool RegisterPreStart(AwaitStepEvent awaitEvent)
+		{
+			if (Container == null)
+				return false;
+			
+			if (_preStartStepHandlers == null)
+				_preStartStepHandlers = new List<AwaitStepEvent>();
+			_preStartStepHandlers.AddUnique(awaitEvent);
+			return true;
+		}
+		
+		public bool RegisterPreStop(AwaitStepEvent awaitEvent)
+		{
+			if (Container == null)
+				return false;
+			if (_preStopStepHandlers == null)
+				_preStopStepHandlers = new List<AwaitStepEvent>();
+			_preStopStepHandlers.AddUnique(awaitEvent);
+			return true;
 		}
 		
 		//==============================================================================================================

@@ -1,13 +1,8 @@
-using System;
+﻿using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    public class TaskSelectorAttribute : Attribute
-    {
-        public string Exclude;
-    }
-    
-    public class StepSelectorAttribute : Attribute
+    public class StepSelectorAttribute : PropertyAttribute
     {
         public string TaskIdMember;
 

@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     public class AutoCompleteSkipperOnLoad : MonoBehaviour, ILevelLoadHandler
     {
         [ValueDropdown(nameof(GetTasks))]
-        public BaseTask Task;
+        public ITask Task;
         public SerializableGuid StepIDToSkipTo;
 
         public bool KillTaskOnCompleted;
@@ -27,7 +27,7 @@ namespace Rhinox.Magnus.Tasks
                 TaskManager.Instance.ForceStartTask(Task);
             
             int stepCount = AutoCompleteSkipperHelper.CalculateCompletionLength(Task, StepIDToSkipTo);
-            while (AutoCompleteSkipperHelper.ShouldAutoCompleteStep(Task, StepIDToSkipTo))
+            while (Task.DoesActiveStepPrecede(StepIDToSkipTo))
             {
                 // Current task's step is null or completed
                 // the system progresses the task the next frame when done, not immediately

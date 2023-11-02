@@ -7,14 +7,14 @@ namespace Tests.Helpers
 {
     public static class TaskFactory
     {
-        public static BaseTask BuildBasicTask()
+        public static TaskBehaviour BuildBasicTask()
         {
             var taskObject = new GameObject();
             var task = taskObject.AddComponent<BasicTask>();
             return task;
         }
 
-        public static BaseTask BuildBasicTaskFromConditions(params BaseCondition[] conditions)
+        public static TaskBehaviour BuildBasicTaskFromConditions(params BaseCondition[] conditions)
         {
             var task = BuildBasicTask();
 

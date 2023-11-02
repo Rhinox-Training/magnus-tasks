@@ -15,7 +15,7 @@ namespace Rhinox.Magnus.Tasks
     /// </summary>
     [SerializedGuidProcessor(nameof(LookupOverride))]
     [StepDataGenerator(nameof(ToStepData))]
-    public class SubDataTask : MonoBehaviour, IDataTaskIdentifier, IValueReferenceResolverProvider, IIdentifiable
+    public class SubDataTask : MonoBehaviour, IDataTaskIdentifier, IValueReferenceResolverProvider, IIdentifiable // TODO: rework this as a step that waits/registers another task
     {
         [TaskSelector, DisableInPlayMode] [OnValueChanged(nameof(RefreshTaskData))]
         public int TaskId = -1;
@@ -74,7 +74,7 @@ namespace Rhinox.Magnus.Tasks
         {
             if (TaskId < 0) return Array.Empty<BaseStep>();
 
-            var dataTask = GetDataTask();
+            var dataTask = GetTaskData();
             var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
 
             foreach (var step in steps)
@@ -106,7 +106,7 @@ namespace Rhinox.Magnus.Tasks
             };
         }
 
-        public TaskObject GetDataTask()
+        public TaskObject GetTaskData()
         {
             var table = DataLayer.GetTable<TaskObject>();
             return table.GetData(TaskId);
