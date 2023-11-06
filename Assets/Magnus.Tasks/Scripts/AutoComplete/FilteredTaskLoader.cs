@@ -43,7 +43,8 @@ namespace Rhinox.Magnus.Tasks
 
             // return if it skips contained tags & it does not contain it
             // OR when it contains the tag and preserves those tags
-            if (SkipTags && !containsTag || !containsTag) return;
+            if (SkipTags && !containsTag || !containsTag) 
+                return;
 
             // TODO what about other types of steps?
             foreach (var step in task.EnumerateStepNodes().OfType<ConditionStep>()) // TODO: this will break

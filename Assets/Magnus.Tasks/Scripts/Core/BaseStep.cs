@@ -8,14 +8,17 @@ using UnityEngine.Events;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Scripting;
+using UnityEngine.Serialization;
 
 namespace Rhinox.Magnus.Tasks
 {
 	[ExecuteAfter(typeof(TaskBehaviour)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
+		[FormerlySerializedAs("TagContainer"), SerializeField] 
 		[Title("Info"), VerticalGroup("CoreSettings", -100)]
-		public TagContainer TagContainer = new TagContainer();
+		private TagContainer _tagContainer = new TagContainer();
+		public ITagContainer TagContainer => _tagContainer;
 
 		[LabelWidth(50), VerticalGroup("CoreSettings", -100)]
 		public string Title;
@@ -260,9 +263,9 @@ namespace Rhinox.Magnus.Tasks
 		
 		protected virtual void OnValidate()
 		{
-			if (TagContainer == null)
-				TagContainer = new TagContainer();
-			TagContainer.RemoveDoubles();
+			if (_tagContainer == null)
+				_tagContainer = new TagContainer();
+			_tagContainer.RemoveDoubles();
 		}
 
 		public abstract BaseStep GetNextStep();

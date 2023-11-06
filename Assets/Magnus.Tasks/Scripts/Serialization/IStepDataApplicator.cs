@@ -112,7 +112,7 @@ namespace Rhinox.Magnus.Tasks
                 conditionStep.Conditions = new List<BaseCondition>();
 
             if (!Data.TagContainer.IsNullOrEmpty())
-                conditionStep.TagContainer = new TagContainer(Data.TagContainer.Tags);
+                conditionStep._tagContainer = new TagContainer(Data.TagContainer.Tags);
 
             conditionStep.OrderedConditions = Data.OrderedConditions;
 
@@ -179,10 +179,10 @@ namespace Rhinox.Magnus.Tasks
                 for (var i = 0; i < task.Steps.Count; i++)
                 {
                     var subStep = task.Steps[i];
-                    if (subStep.TagContainer == null)
-                        subStep.TagContainer = new TagContainer();
+                    if (subStep._tagContainer == null)
+                        subStep._tagContainer = new TagContainer();
                     
-                    subStep.TagContainer.AddRange(Data.TagContainer.Tags);
+                    subStep._tagContainer.AddRange(Data.TagContainer.Tags);
                 }
             }
         }

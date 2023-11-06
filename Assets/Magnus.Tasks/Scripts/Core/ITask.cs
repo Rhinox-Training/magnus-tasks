@@ -8,6 +8,7 @@ namespace Rhinox.Magnus.Tasks
     {
         BaseStep StartStep { get; }
         IEnumerable<BaseStep> EnumerateStepNodes();
+        ITagContainer TagContainer { get; }
 
         // State? TODO: migrate to separate thing?
         TaskState State { get; }

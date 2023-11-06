@@ -6,13 +6,16 @@ using Rhinox.Perceptor;
 using Rhinox.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Rhinox.Magnus.Tasks
 {
     public abstract class TaskBehaviour : MonoBehaviour, ITask
     {
+        [FormerlySerializedAs("TagContainer"), SerializeField] 
         [PropertyOrder(-1)]
-        public TagContainer TagContainer = new TagContainer();
+        private TagContainer _tagContainer = new TagContainer();
+        public ITagContainer TagContainer => _tagContainer;
 
         [ShowInInspector, ReadOnly, HideInEditorMode]
         [TabGroup("State")]
@@ -290,9 +293,9 @@ namespace Rhinox.Magnus.Tasks
 
         private void OnValidate()
         {
-            if (TagContainer == null)
-                TagContainer = new TagContainer();
-            TagContainer.RemoveDoubles();
+            if (_tagContainer == null)
+                _tagContainer = new TagContainer();
+            _tagContainer.RemoveDoubles();
         }
 
         public BaseStep FindStep(SerializableGuid stepIDToSkipTo)
