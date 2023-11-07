@@ -6,5 +6,7 @@ namespace Rhinox.Magnus.Tasks
     {
         bool HasTag(string tag, bool tagMustBeGlobal = true);
         bool HasAnyTag(ICollection<string> tags, bool tagMustBeGlobal = true);
+        void Validate();
+        void AddRange(ICollection<string> tagContainerTags);
     }
 }

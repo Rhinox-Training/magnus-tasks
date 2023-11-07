@@ -23,8 +23,8 @@ namespace Rhinox.Magnus.Tasks
         {
             yield return 0.0f;
             
-            if (Task.State != TaskState.Running)
-                TaskManager.Instance.ForceStartTask(Task);
+            if (Task.State != TaskState.Running && Task is TaskBehaviour tb)
+                TaskManager.Instance.ForceStartTask(tb);
             
             int stepCount = AutoCompleteSkipperHelper.CalculateCompletionLength(Task, StepIDToSkipTo);
             while (Task.DoesActiveStepPrecede(StepIDToSkipTo))
@@ -47,8 +47,8 @@ namespace Rhinox.Magnus.Tasks
             
             AutoCompleted?.Invoke();
 
-            if (KillTaskOnCompleted)
-                Utility.Destroy(Task);
+            if (KillTaskOnCompleted && Task is TaskBehaviour taskBehaviour)
+                Utility.Destroy(taskBehaviour);
 
             yield return 1.0f;
         }

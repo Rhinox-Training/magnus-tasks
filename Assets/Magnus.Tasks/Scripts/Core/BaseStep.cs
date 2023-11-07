@@ -15,10 +15,14 @@ namespace Rhinox.Magnus.Tasks
 	[ExecuteAfter(typeof(TaskBehaviour)), RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
 	public abstract class BaseStep : MonoBehaviour, IReadOnlyReferenceResolver, IIdentifiable
 	{
-		[FormerlySerializedAs("TagContainer"), SerializeField] 
+		[FormerlySerializedAs("TagContainer"), SerializeReference] 
 		[Title("Info"), VerticalGroup("CoreSettings", -100)]
-		private TagContainer _tagContainer = new TagContainer();
-		public ITagContainer TagContainer => _tagContainer;
+		private ITagContainer _tagContainer = new TagContainer();
+		public ITagContainer TagContainer
+		{
+			get => _tagContainer;
+			set => _tagContainer = value;
+		}
 
 		[LabelWidth(50), VerticalGroup("CoreSettings", -100)]
 		public string Title;
@@ -265,7 +269,7 @@ namespace Rhinox.Magnus.Tasks
 		{
 			if (_tagContainer == null)
 				_tagContainer = new TagContainer();
-			_tagContainer.RemoveDoubles();
+			_tagContainer.Validate();
 		}
 
 		public abstract BaseStep GetNextStep();

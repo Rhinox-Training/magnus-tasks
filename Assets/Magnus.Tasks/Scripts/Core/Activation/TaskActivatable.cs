@@ -56,11 +56,15 @@ namespace Rhinox.Magnus.Tasks
         {
             if (task is DataTask dataTask && dataTask == task)
                 return true;
-            
-            foreach (var subtask in task.GetComponentsInChildren<SubDataTask>()) // TODO: how not to depend on GetComponent here?
+
+            if (task is TaskBehaviour taskBehaviour)
             {
-                if (subtask.TaskId == DataTask)
-                    return true;
+                foreach (var subtask in
+                         taskBehaviour.GetComponentsInChildren<SubDataTask>()) // TODO: how not to depend on GetComponent here?
+                {
+                    if (subtask.TaskId == DataTask)
+                        return true;
+                }
             }
 
             return false;

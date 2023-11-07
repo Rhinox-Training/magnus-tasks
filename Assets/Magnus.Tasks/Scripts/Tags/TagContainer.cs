@@ -77,7 +77,7 @@ namespace Rhinox.Magnus.Tasks
                 Changed?.Invoke();
         }
         
-        public void RemoveDoubles()
+        public void Validate()
         {
             if (Tags == null)
             {

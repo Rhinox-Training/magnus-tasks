@@ -77,51 +77,6 @@ namespace Rhinox.Magnus.Tasks
             return true;
         }
 
-        private static void AppendToUnityEvent(IReadOnlyReferenceResolver resolver, ValueReferenceEvent e, ref UnityEvent target)
-        {
-            if (e.Events == null) return;
-            
-            for (int i = 0; i < e.Events.Count; ++i)
-                AppendToUnityEvent(resolver, e.Events[i], ref target);
-        }
-        
-        private static void AppendToUnityEvent(IReadOnlyReferenceResolver resolver, ValueReferenceEventEntry entry, ref UnityEvent target)
-        {
-            // TODO Should we wait until usage of the event to resolve this variable?
-            resolver.Resolve(entry.Target, out object resolvedTarget);
-            
-            var del = entry.Action.CreateDelegate(resolvedTarget);
-            var parameters = entry.Action.GetParameters();
-            
-            target.AddListener(() => del?.DynamicInvoke(parameters));
-        }
-        
-        private static void AppendToUnityEvent<T>(IReadOnlyReferenceResolver resolver, ValueReferenceEvent e, ref UnityEvent<T> target)
-        {
-            if (e.Events == null) return;
-            
-            for (int i = 0; i < e.Events.Count; ++i)
-                AppendToUnityEvent(resolver, e.Events[i], ref target);
-        }
-        
-        private static void AppendToUnityEvent<T>(IReadOnlyReferenceResolver resolver, ValueReferenceEventEntry entry, ref UnityEvent<T> target)
-        {
-            // TODO Should we wait until usage of the event to resolve this variable?
-            resolver.Resolve(entry.Target, out T resolvedTarget);
-            
-            var del = entry.Action.CreateDelegate(resolvedTarget);
-            var parameters = entry.Action.GetParameters();
-            
-            target.AddListener(x => del?.DynamicInvoke(parameters));
-        }
-        
-        private static BetterEventEntry ConvertToBetterEventEntry(IReadOnlyReferenceResolver resolver, ValueReferenceEventEntry entry)
-        {
-            // TODO Should we wait until usage of the event to resolve this variable?
-            resolver.Resolve(entry.Target, out object resolvedTarget);
-            var convertedEntry = new BetterEventEntry(entry.Action.CreateDelegate(resolvedTarget), entry.Action.GetParameters());
-            
-            return convertedEntry;
-        }
+     
     }
 }

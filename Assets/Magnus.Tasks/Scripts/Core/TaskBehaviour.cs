@@ -295,7 +295,7 @@ namespace Rhinox.Magnus.Tasks
         {
             if (_tagContainer == null)
                 _tagContainer = new TagContainer();
-            _tagContainer.RemoveDoubles();
+            _tagContainer.Validate();
         }
 
         public BaseStep FindStep(SerializableGuid stepIDToSkipTo)

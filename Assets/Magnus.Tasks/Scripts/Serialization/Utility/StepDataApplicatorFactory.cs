@@ -7,16 +7,6 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    public class RegisterApplicatorAttribute : Attribute
-    {
-        public Type DataType;
-
-        public RegisterApplicatorAttribute(Type dataType)
-        {
-            DataType = dataType;
-        }
-    }
-    
     /// <summary>
     /// Unfortunately the StepData is located in an assembly where there is no reference of BaseStep etc
     /// This makes it harder to create an overridable apply data thing; This is a workaround for that
