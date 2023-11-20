@@ -18,6 +18,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
     {
         private IReferenceResolver _referenceResolver;
         private TypedHostInfoWrapper<ParamData[]> _paramsValueEntry;
+        private IEditorDrawable _paramsDrawer;
 
         protected override void OnUpdateActiveData()
         {
@@ -32,6 +33,12 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             float height = base.GetPropertyHeight(label, in data);
             if (SmartValue == null)
                 return height;
+
+            if (_paramsDrawer != null)
+            {
+                return height + _paramsDrawer.ElementHeight;
+            }
+            
             int rowCount = SmartValue.Params != null ? SmartValue.Params.Length + 1 : 2;
             return rowCount * height;
         }
@@ -58,69 +65,84 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 EditorGUI.LabelField(rect, "<No parameters>", EditorStyles.miniLabel);
                 return;
             }
+
+            if (_paramsDrawer != null)
+            {
+                _paramsDrawer.Draw(dataRow, GUIContent.none);
+                return;
+            }
             
             for (int i = 0; i < _paramsValueEntry.SmartValue.Length; ++i)
             {
                 var paramData = _paramsValueEntry.SmartValue[i];
-            
-                Type paramType = SmartValue.GetParamType(paramData);
-                if (paramType == null)
+
+                var childDrawer = GetChildDrawer(nameof(ConditionData.Params), i);
+                if (childDrawer == null)
                     continue;
                 
-                if (ReflectionUtility.IsSimpleType(paramType))
-                {
-                    var rect = dataRow;
-                    if (typeof(float) == paramType)
-                    {
-                        paramData.MemberData = EditorGUI.FloatField(rect, paramData.Name, (float) paramData.MemberData);
-                    }
-                    else if (typeof(bool) == paramType)
-                    {
-                        paramData.MemberData = EditorGUI.Toggle(rect, paramData.Name, (bool) paramData.MemberData);
-                    }
-                    else if (typeof(int) == paramType)
-                    {
-                        paramData.MemberData = EditorGUI.IntField(rect, paramData.Name, (int) paramData.MemberData);
-                    }
-                    else if (typeof(string) == paramType)
-                    {
-                        paramData.MemberData = EditorGUI.TextField(rect, paramData.Name, (string) paramData.MemberData);
-                    }
-                }
-                else if (TypeExtensions.InheritsFrom(typeof(UnityEngine.Object), paramType))
-                {
-                    var rect = dataRow;
-                    EditorGUI.ObjectField(rect, paramData.Name, (UnityEngine.Object)paramData.MemberData, paramType, false);
-                }
-                else if (typeof(SerializableGuid) == paramType)
-                {
-                    if (paramData.MemberData == null)
-                        paramData.MemberData = SerializableGuid.Empty;
-                    DrawSerializedGuid(dataRow, i, paramData);
-                }
-                // else if (CheckValue(_paramsProperty.Children[i], out var dataType))
+                childDrawer.Draw(dataRow, new GUIContent(paramData.Name));
+                // Type paramType = SmartValue.GetParamType(paramData);
+                // if (paramType == null)
+                //     continue;
+                //
+                // if (ReflectionUtility.IsSimpleType(paramType))
                 // {
-                //     var editorDataProperty = _paramsProperty.Children[i];
-                //     if (dataType.ImplementsOrInherits(typeof(ValueReferenceEvent)))
-                //         editorDataProperty.Draw(null);
-                //     else
-                //         editorDataProperty.Draw(new GUIContent(paramData.Name));
+                //     if (paramData.MemberData == null)
+                //         paramData.MemberData = Activator.CreateInstance(paramType);
+                //     var rect = dataRow;
+                //     if (typeof(float) == paramType)
+                //     {
+                //         paramData.MemberData = EditorGUI.FloatField(rect, paramData.Name, (float) paramData.MemberData);
+                //     }
+                //     else if (typeof(bool) == paramType)
+                //     {
+                //         paramData.MemberData = EditorGUI.Toggle(rect, paramData.Name, (bool) paramData.MemberData);
+                //     }
+                //     else if (typeof(int) == paramType)
+                //     {
+                //         paramData.MemberData = EditorGUI.IntField(rect, paramData.Name, (int) paramData.MemberData);
+                //     }
+                //     else if (typeof(string) == paramType)
+                //     {
+                //         paramData.MemberData = EditorGUI.TextField(rect, paramData.Name, (string) paramData.MemberData);
+                //     }
                 // }
-                // else
+                // else if (TypeExtensions.InheritsFrom(typeof(UnityEngine.Object), paramType))
                 // {
-                //     GetChildProperty("MemberData", _paramsProperty.Children[i])
-                //         .Draw(new GUIContent(paramData.Name));
+                //     var rect = dataRow;
+                //     EditorGUI.ObjectField(rect, paramData.Name, (UnityEngine.Object)paramData.MemberData, paramType, false);
                 // }
-                
-                
-                _paramsValueEntry.SmartValue[i] = paramData;
+                // else if (typeof(SerializableGuid) == paramType)
+                // {
+                //     if (paramData.MemberData == null)
+                //         paramData.MemberData = SerializableGuid.Empty;
+                //     DrawSerializedGuid(dataRow, i, paramData);
+                // }
+                // // else if (CheckValue(_paramsProperty.Children[i], out var dataType))
+                // // {
+                // //     var editorDataProperty = _paramsProperty.Children[i];
+                // //     if (dataType.ImplementsOrInherits(typeof(ValueReferenceEvent)))
+                // //         editorDataProperty.Draw(null);
+                // //     else
+                // //         editorDataProperty.Draw(new GUIContent(paramData.Name));
+                // // }
+                // // else
+                // // {
+                // //     GetChildProperty("MemberData", _paramsProperty.Children[i])
+                // //         .Draw(new GUIContent(paramData.Name));
+                // // }
+                //
+                //
+                // _paramsValueEntry.SmartValue[i] = paramData;
                 dataRow = dataRow.AddY(EditorGUIUtility.singleLineHeight);
             }
         }
 
+        
+
         private void CleanParams()
         {
-            var wantedFields = ConditionDataHelper.GetParamDataFields(SmartValue.ConditionType.Type, true);
+            var wantedFields = ConditionDataHelper.GetParamDataFields(SmartValue.ConditionType.Type);
             var currentData = SmartValue.Params;
         
             List<ParamData> result = new List<ParamData>();
@@ -135,7 +157,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 }
         
                 var paramData = ParamData.CreateWithValue(info, info.GetReturnType().GetDefault());
-                paramData = EditorParamDataHelper.Convert(paramData);
+                //paramData = EditorParamDataHelper.Convert(paramData);
                 result.Add(paramData);
             }
         
@@ -202,15 +224,26 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 GUI.Label(typeRect, info.ReferenceType.Name, CustomGUIStyles.MiniLabelRight);
 
                 // Default Button
-                var defaultButtonRect = r.AlignRight(100);
+                if (_referenceResolver == null)
                 {
-                    SerializableGuid selectedGuid = paramData.MemberData as SerializableGuid;
-                    SerializableGuid defaultGuid = _referenceResolver.GetDefault(new SerializableType(info.ReferenceType), memberInfo as FieldInfo);
-                    bool isDefault = selectedGuid != null && selectedGuid.Equals(defaultGuid);
-                    EditorGUI.BeginDisabledGroup(isDefault);
-                    if (GUI.Button(defaultButtonRect, "Mark Default"))
-                        _referenceResolver.RegisterDefault(memberInfo as FieldInfo, selectedGuid);
+                    EditorGUI.BeginDisabledGroup(true);
+                    GUI.Label(r.AlignRight(170), "Resolver missing");
                     EditorGUI.EndDisabledGroup();
+                }
+                else
+                {
+                    var defaultButtonRect = r.AlignRight(100);
+                    {
+                        SerializableGuid selectedGuid = paramData.MemberData as SerializableGuid;
+                        SerializableGuid defaultGuid =
+                            _referenceResolver.GetDefault(new SerializableType(info.ReferenceType),
+                                memberInfo as FieldInfo);
+                        bool isDefault = selectedGuid != null && selectedGuid.Equals(defaultGuid);
+                        EditorGUI.BeginDisabledGroup(isDefault);
+                        if (GUI.Button(defaultButtonRect, "Mark Default"))
+                            _referenceResolver.RegisterDefault(memberInfo as FieldInfo, selectedGuid);
+                        EditorGUI.EndDisabledGroup();
+                    }
                 }
             }
         }

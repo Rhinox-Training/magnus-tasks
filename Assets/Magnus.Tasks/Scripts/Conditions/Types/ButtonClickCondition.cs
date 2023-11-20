@@ -7,15 +7,15 @@ namespace Rhinox.Magnus.Tasks
     [RefactoringOldNamespace("", "com.rhinox.volt.domain")]
     public class ButtonClickCondition : BaseCondition
     {
-        [NotConvertedToDataLayer] public Button ButtonToPress;
-        private IValueResolver ImportButtonToPress() => UnityValueResolver<Button>.Create(ButtonToPress);
-
-        [ValueReference(typeof(Button), "Button")] [ImportValueForValueReference(nameof(ImportButtonToPress))]
-        public SerializableGuid ButtonIdentifier;
+        public Button ButtonToPress;
+        // private IValueResolver ImportButtonToPress() => UnityValueResolver<Button>.Create(ButtonToPress);
+        //
+        // [ValueReference(typeof(Button), "Button")] [ImportValueForValueReference(nameof(ImportButtonToPress))]
+        // public SerializableGuid ButtonIdentifier;
 
         protected override bool OnInit()
         {
-            Resolve(ButtonIdentifier, ref ButtonToPress);
+            //Resolve(ButtonIdentifier, ref ButtonToPress);
             return ButtonToPress != null;
         }
 

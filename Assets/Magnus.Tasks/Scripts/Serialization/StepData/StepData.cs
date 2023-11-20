@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Rhinox.Lightspeed;
-using Sirenix.OdinInspector;
 
 namespace Rhinox.Magnus.Tasks
 {
     [Serializable]
     public abstract class StepData : IUseReferenceGuid
     {
-        [PropertyOrder(6)] public TagContainer TagContainer;
+        public TagContainer TagContainer;
         
-        [DisplayAsString, ReadOnly]
         public SerializableGuid ID;
         
         public string Name;
@@ -19,6 +17,8 @@ namespace Rhinox.Magnus.Tasks
         
         public List<BaseSubStepData> SubStepData = new List<BaseSubStepData>();
 
+        public List<IStepTimingEvent> StepTimingEvents;
+        
         public ValueReferenceEvent OnStarted;
         public ValueReferenceEvent OnCompleted;
         

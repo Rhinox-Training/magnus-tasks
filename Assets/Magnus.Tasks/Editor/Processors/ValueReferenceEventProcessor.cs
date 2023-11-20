@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Rhinox.GUIUtils.Editor;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 
-namespace Rhinox.Magnus.Tasks.Editor.Odin
+namespace Rhinox.Magnus.Tasks.Editor
 {
-    public class ValueReferenceEventProcessor : OdinAttributeProcessor<ValueReferenceEvent>
+    public class ValueReferenceEventProcessor : BaseAttributeProcessor<ValueReferenceEvent>
     {
-        public override void ProcessSelfAttributes(InspectorProperty property, List<Attribute> attributes)
+        public override void ProcessType(ref List<Attribute> attributes)
         {
             attributes.Add(new HideReferenceObjectPickerAttribute());
             attributes.Add(new HideDuplicateReferenceBoxAttribute());

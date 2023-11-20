@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Rhinox.GUIUtils.Attributes;
 using Rhinox.Utilities;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
+using Rhinox.Perceptor;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
@@ -17,19 +20,24 @@ namespace Rhinox.Magnus.Tasks
         public string Name;
         public BindingFlags Flags;
         public MemberTypes MemberType;
-        [DoNotDrawAsReference]
+        [DoNotDrawAsReference, HostInfoTypeHint(nameof(Type))]
+        [SerializeReference]
         public object MemberData;
         public SerializableType Type;
 
         public static ParamData CreateWithValue(MemberInfo info, object value)
         {
+            var returnType = info.GetReturnType();
+            if (value == null && !returnType.IsClass)
+                value = returnType.GetDefault();
+                
             return new ParamData()
             {
                 Name = info.Name,
                 Flags = info.GetFlags(),
                 MemberType = info.MemberType,
                 MemberData = value,
-                Type = new SerializableType(info.GetReturnType())
+                Type = new SerializableType(returnType)
             };
         }
         
@@ -88,17 +96,29 @@ namespace Rhinox.Magnus.Tasks
                                           && Type == fieldInfo.FieldType;
         }
 
-        public MemberInfo FindOn(object target, out string errorMessage)
+        public bool TryFindMemberInfoOn(Type targetType, out MemberInfo memberInfo, out string errorMessage)
         {
             errorMessage = string.Empty;
-            var targetType = target.GetType();
-            if (MemberType == MemberTypes.Field)
-                return targetType.GetField(Name);
-            if (MemberType == MemberTypes.Property)
-                return targetType.GetProperty(Name);
-
-            errorMessage = $"Member '{Name}' not found on '{targetType.Name}'";
-            return null;
+            switch (MemberType)
+            {
+                case MemberTypes.Field:
+                    var fieldInfo = targetType.GetField(Name, Flags);
+                    if (fieldInfo == null)
+                        errorMessage = $"Failed to find Field {Name} with flags {Flags} on Type {targetType.Name}";
+                    memberInfo = fieldInfo;
+                    break;
+                case MemberTypes.Property: 
+                    var propertyInfo = targetType.GetProperty(Name, Flags);
+                    if (propertyInfo == null)
+                        errorMessage = $"Failed to find Property {Name} with flags {Flags} on Type {targetType.Name}";
+                    memberInfo = propertyInfo;
+                    break;
+                default:
+                    errorMessage = $"Member '{Name}' not found on '{targetType.Name}'";
+                    memberInfo = null;
+                    break;
+            }
+            return memberInfo != null;
         }
 
     }
@@ -149,7 +169,8 @@ namespace Rhinox.Magnus.Tasks
 
             foreach (var param in Params)
             {
-                if (param.MemberData == null) continue;
+                if (param.MemberData == null) 
+                    continue;
 
                 if (param.MemberData.Equals(guid))
                     return true;

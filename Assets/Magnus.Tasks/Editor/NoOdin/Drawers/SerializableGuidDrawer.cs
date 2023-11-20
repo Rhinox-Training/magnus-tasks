@@ -32,15 +32,6 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         protected override void DrawProperty(Rect position, ref GenericHostInfo data, GUIContent label)
         {
             TryInitializeResolver();
-
-            if (_referenceResolver == null)
-            {
-                // no way to resolve things so just hide it
-                if (_referenceAttribute != null)
-                    return;
-                CallInnerDrawer(position, label);
-                return;
-            }
             
             // Get Rects
             Rect rect = position;

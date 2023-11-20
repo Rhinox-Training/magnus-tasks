@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 
-namespace Rhinox.Magnus.Tasks.Editor.Odin
+namespace Rhinox.Magnus.Tasks.Editor
 {
     public class TaskDataStepObjectProcessor : StepDataProcessor<TaskDataStepObject>
     {
-        public override void ProcessChildMemberAttributes(InspectorProperty parentProperty, MemberInfo member, List<Attribute> attributes)
+        public override void ProcessMember(MemberInfo memberInfo, ref List<Attribute> attributes)
         {
-            base.ProcessChildMemberAttributes(parentProperty, member, attributes);
-            switch (member.Name)
+            base.ProcessMember(memberInfo, ref attributes);
+            switch (memberInfo.Name)
             {
                 case nameof(TaskDataStepObject.LookupOverride):
                     attributes.Add(new HideIfAttribute($"@{nameof(TaskDataStepObject.TaskId)} < 0"));

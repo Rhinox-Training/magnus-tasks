@@ -15,16 +15,18 @@ namespace Rhinox.Magnus.Tasks
     {
         private static bool IsBlackListed(Type t)
         {
-            return typeof(UnityEvent) == t;
+            return typeof(UnityEvent) == t ||
+                   typeof(BetterEvent) == t;//||
+                   //t.InheritsFrom(typeof(UnityEngine.Object));
         }
 
-        public static ConditionData FromCondition<T>(T condition, bool checkValueImporter = false, bool database = true)
+        public static ConditionData FromCondition<T>(T condition, bool checkValueImporter = false)
             where T : BaseCondition
         {
             Type cType = condition.GetType();
             List<ParamData> parameterData = new List<ParamData>();
 
-            foreach (var info in GetParamDataFields(cType, database))
+            foreach (var info in GetParamDataFields(cType))
             {
                 bool imported = false;
                 ParamData pd = default;
@@ -47,35 +49,19 @@ namespace Rhinox.Magnus.Tasks
             return new ConditionData(cType, parameterData);
         }
 
-        public static IEnumerable<MemberInfo> GetParamDataFields(Type t, bool database)
+        public static IEnumerable<MemberInfo> GetParamDataFields(Type t)
         {
-            foreach (var member in FilterMembersForParamData(t.GetFieldOptions(), database))
+            foreach (var member in FilterMembersForParamData(t.GetFieldOptions()))
                 yield return member;
             
-            foreach (var member in FilterMembersForParamData(t.GetPropertyOptions(), database))
+            foreach (var member in FilterMembersForParamData(t.GetPropertyOptions()))
                 yield return member;
         }
 
-        private static IEnumerable<MemberInfo> FilterMembersForParamData(ICollection<MemberInfo> infos, bool database)
+        private static IEnumerable<MemberInfo> FilterMembersForParamData(ICollection<MemberInfo> infos)
         {
             foreach (var info in infos)
             {
-                if (database && info.GetCustomAttribute<NotConvertedToDataLayerAttribute>() != null)
-                    continue;
-                
-                if (database && info.ReturnsUnityObject())
-                    continue;
-
-                if (info.GetReturnType() == typeof(BetterEvent) &&
-                    info.Name.Equals(nameof(BaseCondition.OnConditionMet), StringComparison.InvariantCulture))
-                {
-                    // Needs to be handled separately (by having another ValueReferenceEvent) 
-                    continue;
-                }
-                
-                if (info is PropertyInfo propertyInfo && (!propertyInfo.CanRead || !propertyInfo.CanWrite))
-                    continue;
-                
                 if (!info.IsSerialized())
                     continue;
                 
@@ -104,29 +90,10 @@ namespace Rhinox.Magnus.Tasks
             BaseCondition condition = Activator.CreateInstance(conditionType) as BaseCondition;
             foreach (var param in data.Params)
             {
-                switch (param.MemberType)
-                {
-                    case MemberTypes.Field:
-                        var fieldInfo = conditionType.GetField(param.Name, param.Flags);
-                        if (fieldInfo == null)
-                        {
-                            PLog.Trace<MagnusLogger>($"Failed to find Field {param.Name} with flags {param.Flags} on Type {conditionType.Name}");
-                            continue;
-                        }
-
-                        fieldInfo.SetValue(condition, param.MemberData);
-                        break;
-                    case MemberTypes.Property: 
-                        var propertyInfo = conditionType.GetProperty(param.Name, param.Flags);
-                        if (propertyInfo == null)
-                        {
-                            PLog.Trace<MagnusLogger>($"Failed to find Property {param.Name} with flags {param.Flags} on Type {conditionType.Name}");
-                            continue;
-                        }
-
-                        propertyInfo.SetValue(condition, param.MemberData);
-                        break;
-                }
+                if (param.TryFindMemberInfoOn(conditionType, out var member, out string error))
+                    member.SetValue(condition, param.MemberData);
+                else
+                    PLog.Trace<MagnusLogger>(error);
             }
 
             return condition;
