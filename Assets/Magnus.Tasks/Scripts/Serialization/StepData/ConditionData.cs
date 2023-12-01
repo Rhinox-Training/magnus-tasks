@@ -10,137 +10,30 @@ using Rhinox.Lightspeed.Reflection;
 using Rhinox.Perceptor;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [HideReferenceObjectPicker, Serializable]
-    [RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
-    public class ParamData
-    {
-        public string Name;
-        public BindingFlags Flags;
-        public MemberTypes MemberType;
-        [DoNotDrawAsReference, HostInfoTypeHint(nameof(Type))]
-        [SerializeReference]
-        public object MemberData;
-        public SerializableType Type;
 
-        public static ParamData CreateWithValue(MemberInfo info, object value)
-        {
-            var returnType = info.GetReturnType();
-            if (value == null && !returnType.IsClass)
-                value = returnType.GetDefault();
-                
-            return new ParamData()
-            {
-                Name = info.Name,
-                Flags = info.GetFlags(),
-                MemberType = info.MemberType,
-                MemberData = value,
-                Type = new SerializableType(returnType)
-            };
-        }
-        
-        public static ParamData CreateFromInstance(MemberInfo info, object instance)
-            => CreateWithValue(info, info.GetValue(instance));
-        
-        protected bool Equals(ParamData other)
-        {
-            return Name == other.Name && Flags == other.Flags 
-                                      && MemberType == other.MemberType 
-                                      && Equals(MemberData, other.MemberData) 
-                                      && Equals(Type, other.Type);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((ParamData) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) Flags;
-                hashCode = (hashCode * 397) ^ (int) MemberType;
-                hashCode = (hashCode * 397) ^ (MemberData != null ? MemberData.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-        
-        public ParamData Clone()
-        {
-            var pd = new ParamData()
-            {
-                Name = Name,
-                Flags = Flags,
-                MemberType = MemberType,
-                Type = Type,
-                MemberData = MemberData,
-            };
-            return pd;
-        }
-
-        public bool IsField(SerializableFieldInfo fieldInfo)
-        {
-            var bindingFlags = fieldInfo.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
-            bindingFlags |= (fieldInfo.IsStatic ? BindingFlags.Static : BindingFlags.Instance);
-            
-            return Name == fieldInfo.Name && ((Flags & bindingFlags) != 0)
-                                          && MemberType == MemberTypes.Field 
-                                          && Type == fieldInfo.FieldType;
-        }
-
-        public bool TryFindMemberInfoOn(Type targetType, out MemberInfo memberInfo, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-            switch (MemberType)
-            {
-                case MemberTypes.Field:
-                    var fieldInfo = targetType.GetField(Name, Flags);
-                    if (fieldInfo == null)
-                        errorMessage = $"Failed to find Field {Name} with flags {Flags} on Type {targetType.Name}";
-                    memberInfo = fieldInfo;
-                    break;
-                case MemberTypes.Property: 
-                    var propertyInfo = targetType.GetProperty(Name, Flags);
-                    if (propertyInfo == null)
-                        errorMessage = $"Failed to find Property {Name} with flags {Flags} on Type {targetType.Name}";
-                    memberInfo = propertyInfo;
-                    break;
-                default:
-                    errorMessage = $"Member '{Name}' not found on '{targetType.Name}'";
-                    memberInfo = null;
-                    break;
-            }
-            return memberInfo != null;
-        }
-
-    }
-    
     [Serializable]
     [RefactoringOldNamespace("Rhinox.VOLT.Data", "com.rhinox.volt")]
+    [Obsolete]
     public class ConditionData : IUseReferenceGuid
     {
         public SerializableType ConditionType;
-        public ParamData[] Params;
+        public List<ObjectMemberData> Params;
 
-        public ConditionData(Type t, IEnumerable<ParamData> data)
+        public ConditionData(Type t)
         {
             ConditionType = new SerializableType(t);
-            Params = data.ToArray();
+            Params = new List<ObjectMemberData>();
         }
         
         public T GetParam<T>(SerializableFieldInfo field)
         {
-            for (int i = 0; i < Params.Length; ++i)
+            for (int i = 0; i < Params.Count; ++i)
             {
-                if (Params[i].IsField(field))
+                if (Params[i].MemberInfo.Equals(field))
                 {
                     return (T) Params[i].MemberData;
                 }
@@ -151,11 +44,12 @@ namespace Rhinox.Magnus.Tasks
 
         public bool SetParam(SerializableFieldInfo field, object data)
         {
-            for (int i = 0; i < Params.Length; ++i)
+            for (int i = 0; i < Params.Count; ++i)
             {
-                if (Params[i].IsField(field))
+                if (Params[i].MemberInfo.Equals(field))
                 {
-                    Params[i].MemberData = data;
+                    throw new NotImplementedException();
+                    //Params[i].MemberData = data; // TODO:
                     return true;
                 }
             }
@@ -190,11 +84,46 @@ namespace Rhinox.Magnus.Tasks
                 if (param.MemberData == null) continue;
 
                 if (param.MemberData.Equals(guid))
-                    param.MemberData = replacement;
+                {
+                    throw new NotImplementedException();
+                    //param.MemberData = replacement; // TODO:
+                }
 
                 if (param.MemberData is IUseReferenceGuid e)
                     e.ReplaceGuid(guid, replacement);
             }
+        }
+
+        public bool Register(ObjectMemberData member)
+        {
+            if (member == null)
+                return false;
+            
+            if (Params == null)
+                Params = new List<ObjectMemberData>();
+
+            Params.AddUnique(member);
+            return true;
+        }
+
+        public bool CopyDataTo(object instance)
+        {
+            if (instance == null)
+                return false;
+
+            if (Params == null)
+                return true;
+
+            var instanceType = instance.GetType();
+            if (!ConditionType.Type.IsAssignableFrom(instanceType))
+                return false;
+            
+            foreach (var param in Params)
+            {
+                var memberInfo = param.MemberInfo.GetMemberInfo();
+                memberInfo.SetValue(instance, param.MemberData.GetValue()); // TODO: this won't work for containered data
+            }
+            return true;
         }
     }
 }

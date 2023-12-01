@@ -7,29 +7,28 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [RegisterApplicator(typeof(ConditionStepObject))]
-    public class ConditionStepDataApplicator : BaseStepDataApplicator<ConditionStepObject>
+    [RegisterApplicator(typeof(ConditionStepData))]
+    public class ConditionStepDataApplicator : BaseStepDataApplicator<ConditionStepData>
     {
-        public override void Apply(GameObject host, IReferenceResolver hostResolver, ref BaseStep step)
+        public override void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState)
         {
-            var conditionStep = host.AddComponent<ConditionStep>();
-            step = conditionStep;
+            var conditionStepState = new ConditionStepState();
             
-            if (conditionStep.Conditions == null)
-                conditionStep.Conditions = new List<BaseCondition>();
+            if (conditionStepState.Conditions == null)
+                conditionStepState.Conditions = new List<BaseCondition>();
 
-            conditionStep.OrderedConditions = Data.OrderedConditions;
+            conditionStepState.OrderedConditions = Data.OrderedConditions;
 
             foreach (var conditionData in Data.Conditions)
             {
-                var condition = ConditionDataHelper.ToCondition(conditionData);
+                var condition = ObjectDataContainer.BuildInstance<BaseCondition>(conditionData);
                 if (condition == null)
                     continue;
 
-                conditionStep.Conditions.Add(condition);
+                conditionStepState.Conditions.Add(condition);
             }
             
-            SetBaseData(conditionStep);
+            SetBaseData(conditionStepState);
         }
     }
 }

@@ -79,6 +79,20 @@ MonoBehaviour:
       _baseType:
         _assemblyName: com.rhinox.open.magnus, Version=0.0.0.0, Culture=neutral,
           PublicKeyToken=null
+        _assemblyQualifiedName: Rhinox.Magnus.HapticsManager, com.rhinox.open.magnus,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        _name: HapticsManager
+      _servicePriority: -1
+      ServiceType:
+        _assemblyName: com.rhinox.open.magnus, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        _assemblyQualifiedName: Rhinox.Magnus.HapticsManager, com.rhinox.open.magnus,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        _name: HapticsManager
+    - Toggled: 1
+      _baseType:
+        _assemblyName: com.rhinox.open.magnus, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
         _assemblyQualifiedName: Rhinox.Magnus.GameModeManager, com.rhinox.open.magnus,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
         _name: GameModeManager
@@ -103,3 +117,28 @@ MonoBehaviour:
         _assemblyQualifiedName: Rhinox.Magnus.LayerManager, com.rhinox.open.magnus,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
         _name: LayerManager
+    - Toggled: 0
+      _baseType:
+        _assemblyName: com.rhinox.open.magnus.console, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        _assemblyQualifiedName: Rhinox.Magnus.CommandSystem.RemoteConsoleCommandService,
+          com.rhinox.open.magnus.console, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        _name: RemoteConsoleCommandService
+      _servicePriority: 0
+      ServiceType:
+        _assemblyName: com.rhinox.open.magnus.console, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        _assemblyQualifiedName: Rhinox.Magnus.CommandSystem.RemoteConsoleCommandService,
+          com.rhinox.open.magnus.console, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        _name: RemoteConsoleCommandService
+  GenerationSettings:
+    AdditionalTypes: []
+    TypeFactories:
+    - id: 0
+    - id: 1
+  references:
+    version: 1
+    00000000:
+      type: {class: DefaultDynamicTypeBuilder, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+    00000001:
+      type: {class: DefaultDynamicTypeBuilder, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}

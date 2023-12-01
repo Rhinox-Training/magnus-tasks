@@ -20,7 +20,7 @@ namespace Tests.Helpers
 
             foreach (var condition in conditions)
             {
-                var conditionStep = task.gameObject.AddChildWithComponent<ConditionStep>();
+                var conditionStep = task.gameObject.AddChildWithComponent<ConditionStepState>();
                 conditionStep.Conditions = new List<BaseCondition>();
                 conditionStep.Conditions.Add(condition);
             }

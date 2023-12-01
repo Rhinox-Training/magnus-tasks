@@ -43,7 +43,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             if (_components != null) return;
             var allComponents = new List<Component>();
 
-            var comp = _targetWrapper.Target as BaseStep;
+            var comp = _targetWrapper.Target as BaseStepState;
 
             if (comp == null)
             {
@@ -55,7 +55,7 @@ namespace Rhinox.Magnus.Tasks.Editor
 
             foreach (var l in TaskViewerSettings.All)
             {
-                if (typeof(BaseStep).IsAssignableFrom(l.Type))
+                if (typeof(BaseStepState).IsAssignableFrom(l.Type))
                     continue;
 
                 var comps = go.GetComponentsInChildren(l.Type);

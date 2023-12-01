@@ -9,9 +9,9 @@ namespace Rhinox.Magnus.Tasks
     {
         public StepTiming Timing = StepTiming.OnStart_EndOnComplete;
 
-        protected BaseStep _step;
+        protected BaseStepState _step;
 
-        public virtual void Initialize(BaseStep step)
+        public virtual void Initialize(BaseStepState step)
         {
             _step = step;
 

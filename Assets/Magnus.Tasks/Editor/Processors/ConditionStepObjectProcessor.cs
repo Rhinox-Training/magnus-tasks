@@ -5,17 +5,17 @@ using Sirenix.OdinInspector;
 
 namespace Rhinox.Magnus.Tasks.Editor
 {
-    public class ConditionStepObjectProcessor : StepDataProcessor<ConditionStepObject>
+    public class ConditionStepObjectProcessor : StepDataProcessor<ConditionStepData>
     {
         public override void ProcessMember(MemberInfo member, ref List<Attribute> attributes)
         {
             base.ProcessMember(member, ref attributes);
             switch (member.Name)
             {
-                case nameof(ConditionStepObject.OrderedConditions):
+                case nameof(ConditionStepData.OrderedConditions):
                     attributes.Add(new TabGroupAttribute("Settings"));
                     break;
-                case nameof(ConditionStepObject.Conditions):
+                case nameof(ConditionStepData.Conditions):
                     attributes.Add(new TabGroupAttribute("Settings"));
                     attributes.Add(new ListDrawerSettingsAttribute()
                     {

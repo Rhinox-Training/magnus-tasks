@@ -98,7 +98,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         // private InspectorProperty _defaultsProperty;
         // private IPropertyValueEntry<Dictionary<SerializableType, DefaultTypeReferenceKey[]>> _defaultsValueEntry;
 
-        private Dictionary<ReferenceKey, DrawablePropertyView> _resolverPropertyByKey;
+        private Dictionary<ReferenceKey, IEditorDrawable> _resolverPropertyByKey;
 
         private List<int> _validKeyIds;
         private bool _requiresRefresh;
@@ -111,7 +111,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 
             _activeTab = Tabs.Initial;
 
-            _resolverPropertyByKey = new Dictionary<ReferenceKey, DrawablePropertyView>();
+            _resolverPropertyByKey = new Dictionary<ReferenceKey, IEditorDrawable>();
 
             _pager = new SearchablePagedDrawerHelper(10, true);
             _pager.SearchTextChanged += UpdateKeyFilter;
@@ -175,10 +175,26 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         //     });
         // }
 
-        private DrawablePropertyView FindResolverPropertyForKey(ReferenceKey key)
+        private IEditorDrawable FindResolverPropertyForKey(ReferenceKey key)
         {
             HostInfo.TryGetChild(nameof(ValueReferenceLookup.ValueResolversByKey),
                 out TypedHostInfoWrapper<Dictionary<SerializableGuid, IValueResolver>> valueResolversByKey);
+            valueResolversByKey.HostInfo.TryGetChild("Values", out var horribleHack);
+
+            if (!valueResolversByKey.SmartValue.ContainsKey(key.Guid))
+                return null;
+            
+            var actualValue = valueResolversByKey.SmartValue[key.Guid];
+            for (int i = 0; i < valueResolversByKey.SmartValue.Count; ++i)
+            {
+                if (horribleHack.TryGetChild<IValueResolver>(i, out var horribleHackChild))
+                {
+                    if (!ReferenceEquals(horribleHackChild.SmartValue, actualValue))
+                        continue;
+                    return GetChildDrawer(horribleHackChild.HostInfo);
+                }
+                
+            }
 
             return null;
             // valueResolversByKey.SmartValue.
@@ -261,7 +277,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                     using (new EditorGUILayout.VerticalScope())
                     {
                         //_keysProperty.Children[i].Draw();
-                        resolverProp.Draw();
+                        resolverProp.Draw(GUIContent.none);
                     }
 
                     using (new EditorGUILayout.VerticalScope(GUILayout.Width(20)))
@@ -274,18 +290,18 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                         }
 
                         // Check usages
-                        var hasUsageData = HostInfo.Parent.GetReturnType()
-                            .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
-                        if (hasUsageData && host != null &&
-                            CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Asterisk")))
-                        {
-                            var usagesInfo = new ValueReferenceInfo(host, _keysValueEntry.SmartValue[i].Guid);
-                            usagesInfo.MakeUsages();
-                            // TODO: how to inspect
-#if ODIN_INSPECTOR
-                        OdinEditorWindow.InspectObjectInDropDown(usagesInfo);
-#endif
-                        }
+//                         var hasUsageData = HostInfo.Parent.GetReturnType()
+//                             .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
+//                         if (hasUsageData && host != null &&
+//                             CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Asterisk")))
+//                         {
+//                             var usagesInfo = new ValueReferenceInfo(host, _keysValueEntry.SmartValue[i].Guid);
+//                             usagesInfo.MakeUsages();
+//                             // TODO: how to inspect
+// #if ODIN_INSPECTOR
+//                         OdinEditorWindow.InspectObjectInDropDown(usagesInfo);
+// #endif
+//                         }
                     }
                 }
 

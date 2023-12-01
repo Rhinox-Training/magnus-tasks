@@ -14,6 +14,7 @@ namespace Rhinox.Magnus.Tasks
         public string Name;
         public List<StepData> Steps;
         public ValueReferenceLookup Lookup;
+        public TagContainer TagContainer;
         
         // Serialization
         public TaskObject() : this(0)
@@ -37,7 +38,9 @@ namespace Rhinox.Magnus.Tasks
             Lookup = new ValueReferenceLookup();
         }
 
-        public void Add(ConditionStepObject o) => Steps.Add(o);
+        public StepData StartStep { get; set; }
+
+        public void Add(ConditionStepData o) => Steps.Add(o);
 
         public StepData GetStep(SerializableGuid id)
         {

@@ -11,17 +11,10 @@ namespace Rhinox.Magnus.Tasks
             Data = data;
         }
 
-        public abstract void Apply(GameObject host, IReferenceResolver hostResolver, ref BaseStep step);
+        public abstract void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState);
 
-        protected void SetBaseData(BaseStep step)
+        protected void SetBaseData(BaseStepState step)
         {
-            step.ID = Data.ID;
-            step.Title = Data.Name;
-            step.Description = Data.Description;
-            
-            if (!Data.TagContainer.IsNullOrEmpty())
-                step.TagContainer = new TagContainer(Data.TagContainer.Tags);
-            
             UnityEventDataUtility.AppendToUnityEvent(step, Data.OnStarted, ref step.StepStarted);
             UnityEventDataUtility.AppendToUnityEvent(step, Data.OnCompleted, ref step.StepCompleted);
         }

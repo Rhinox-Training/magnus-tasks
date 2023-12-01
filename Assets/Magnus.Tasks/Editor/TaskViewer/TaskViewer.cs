@@ -220,7 +220,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 var task = _tasks[i];
                 tree.Add(task.name, task);
 
-                foreach (var step in task.GetComponentsInChildren<BaseStep>())
+                foreach (var step in task.GetComponentsInChildren<BaseStepState>())
                 {
                     var item = new UIMenuItem(tree, task.name + "/" + step.name, step);
                     //TODO : support search string
@@ -233,13 +233,13 @@ namespace Rhinox.Magnus.Tasks.Editor
             return tree;
         }
 
-        private string GenerateSearchString(TaskBehaviour task, BaseStep step)
+        private string GenerateSearchString(TaskBehaviour task, BaseStepState step)
         {
             var builder = new StringBuilder();
             builder.Append(task.name);
             foreach (var searchList in TaskViewerSettings.All)
             {
-                if (searchList.Type == typeof(BaseStep))
+                if (searchList.Type == typeof(BaseStepState))
                     searchList.AddToBuilder(builder, step);
                 else
                     searchList.FindAndAddToBuilder(builder, step.gameObject);

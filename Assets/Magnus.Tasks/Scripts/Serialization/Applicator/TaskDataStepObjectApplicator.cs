@@ -16,7 +16,7 @@ namespace Rhinox.Magnus.Tasks
             data.RefreshTaskData();
         }
         
-        public void Apply(GameObject host, IReferenceResolver hostResolver, ref BaseStep step)
+        public void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState)
         {
             var task = host.AddComponentWithInit<SubDataTask>(x =>
             {

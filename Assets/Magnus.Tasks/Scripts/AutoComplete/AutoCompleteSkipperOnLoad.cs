@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     public class AutoCompleteSkipperOnLoad : MonoBehaviour, ILevelLoadHandler
     {
         [ValueDropdown(nameof(GetTasks))]
-        public ITask Task;
+        public ITaskState Task;
         public SerializableGuid StepIDToSkipTo;
 
         public bool KillTaskOnCompleted;

@@ -22,8 +22,8 @@ namespace Rhinox.Magnus.Tasks
 
         [HideIf("@TaskId < 0")] public ValueReferenceLookupOverride LookupOverride;
 
-        private IReadOnlyList<BaseStep> _generatedSteps;
-        public IReadOnlyList<BaseStep> Steps => _generatedSteps;
+        private IReadOnlyList<BaseStepState> _generatedSteps;
+        public IReadOnlyList<BaseStepState> Steps => _generatedSteps;
 
         public SerializableGuid ID { get; set; }
 
@@ -70,9 +70,9 @@ namespace Rhinox.Magnus.Tasks
                 .ToArray();
         }
 
-        private IReadOnlyList<BaseStep> GenerateSteps()
+        private IReadOnlyList<BaseStepState> GenerateSteps()
         {
-            if (TaskId < 0) return Array.Empty<BaseStep>();
+            if (TaskId < 0) return Array.Empty<BaseStepState>();
 
             var dataTask = GetTaskData();
             var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
@@ -89,7 +89,7 @@ namespace Rhinox.Magnus.Tasks
                 RefreshTaskData();
         }
 
-        public bool HasPassed(BaseStep step)
+        public bool HasPassed(BaseStepState step)
         {
             var stepI = Steps.IndexOf(step);
             var currentStepI = Steps.FindIndex(x => x.State == ProcessState.Running);

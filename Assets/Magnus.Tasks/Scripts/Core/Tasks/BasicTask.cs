@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
+using Rhinox.Perceptor;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -13,82 +14,134 @@ namespace Rhinox.Magnus.Tasks
     [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class BasicTask : TaskBehaviour
     {
-        [TabGroup("Configuration")]
-        public ValueReferenceLookup ValueReferenceLookup;
+        public PopulationMode AutoPopulate;
 
-        [ShowInInspector, ReadOnly, HideInEditorMode, TabGroup("Configuration"), Space] 
-        private BaseStep[] _steps;
+        [HideIf(nameof(_nonePopulation))]
+        public bool ClearStepsInTaskData = false;
 
-        public override IEnumerable<BaseStep> EnumerateStepNodes()
+        private bool _nonePopulation => AutoPopulate == PopulationMode.None;
+
+        protected virtual void Awake()
         {
-            return  _initialized ? _steps : GetComponentsInChildren<BaseStep>();
+            CheckTaskObject();
+            switch (AutoPopulate)
+            {
+                case PopulationMode.LoadStepsFromChildren:
+                    LoadStepsFromChildren();
+                    break;
+                case PopulationMode.LinearAssemblerFromChildren:
+                    LoadStepsFromChildren();
+                    SetStepSequenceLinear();
+                    break;
+            }
         }
-        
-        protected override void OnPreInitialize()
+
+        private void CheckTaskObject()
         {
-            base.OnPreInitialize();
-            _steps = GetComponentsInChildren<BaseStep>();
+            if (TaskData == null)
+                TaskData = new TaskObject();
+            else
+            {
+                if (ClearStepsInTaskData)
+                    TaskData.Steps = new List<StepData>();
+            }
         }
-        
-        [Button, ShowIf("@ValueReferenceLookup != null")]
-        [TabGroup("Configuration")]
-        private void RefreshValueReferencesInStep()
+
+        private void LoadStepsFromChildren()
         {
-            var conditionSteps = EnumerateStepNodes()
-                .OfType<ConditionStep>()
-                .Where(x => x.gameObject.activeSelf)
-                .ToArray();
+            if (TaskData.Steps == null)
+                TaskData.Steps = new List<StepData>();
             
-            Dictionary<string, object> constantOverridesToImport = new Dictionary<string, object>();
-            foreach (var conditionStep in conditionSteps)
+            foreach (var step in GetComponentsInChildren<StepBehaviour>())
             {
-                foreach (var condition in conditionStep.Conditions)
+                if (step == null)
+                    continue;
+
+                if (step.StepData == null)
                 {
-                    var condType = condition.GetType();
-                    var valueReferenceData = ValueReferenceHelper.GetValueReferenceDataForCondition(condType);
-                    if (valueReferenceData.Length == 0)
-                        continue;
-
-                    foreach (var field in valueReferenceData)
-                    {
-                        object fieldValue = field.FindImportData(condition);
-                        
-                        var key = FindKeyOrCreateOverride(constantOverridesToImport, field, fieldValue);
-                        constantOverridesToImport.Add(key, fieldValue);
-                    }
-                }
-            }
-
-            foreach (var key in constantOverridesToImport.Keys)
-            {
-                object fieldValue = constantOverridesToImport[key];
-
-                if (fieldValue != null)
-                {
-                    var resolverType = typeof(ConstValueResolver<>).MakeGenericType(fieldValue.GetType());
-                    var resolverInstance = Activator.CreateInstance(resolverType);
-                    var setterField = resolverType.GetField("Value", BindingFlags.Instance | BindingFlags.Public);
-                    setterField.SetValue(resolverInstance, fieldValue);
-
-                    fieldValue = resolverInstance;
+                    PLog.Warn<MagnusLogger>($"Step '{step.name}' has no {nameof(StepBehaviour.StepData)} configured, skipping...");
+                    continue;
                 }
 
-                this.ValueReferenceLookup.Register(key, fieldValue as IValueResolver);
+                TaskData.Steps.Add(step.StepData);
             }
         }
 
-        private static string FindKeyOrCreateOverride(Dictionary<string, object> constantOverridesToImport, ValueReferenceFieldData field, object fieldValue)
+        private void SetStepSequenceLinear()
         {
-            string baseKey = field.DefaultKey;
-            string key = baseKey;
-            int overrideNumber = 2;
-            while (constantOverridesToImport.ContainsKey(key) && constantOverridesToImport[key] != fieldValue)
+            if (TaskData.StartStep == null)
+                TaskData.StartStep = TaskData.Steps.FirstOrDefault();
+            for (int i = 0; i < TaskData.Steps.Count; ++i)
             {
-                key = baseKey + overrideNumber;
-                overrideNumber++;
+                var step = TaskData.Steps[i];
+                if (step is BinaryStepData binaryStep)
+                {
+                    if (i < TaskData.Steps.Count - 1)
+                        binaryStep.NextStep = TaskData.Steps[i + 1];
+                }
             }
-
-            return key;
         }
+        
+        // TODO: Button support needs be handled differently
+        //
+        // [Button, ShowIf("@ValueReferenceLookup != null")]
+        // [TabGroup("Configuration")]
+        // private void RefreshValueReferencesInStep()
+        // {
+        //     var conditionSteps = TaskData.Steps
+        //         .OfType<ConditionStepData>()
+        //         .ToArray();
+        //     
+        //     Dictionary<string, object> constantOverridesToImport = new Dictionary<string, object>();
+        //     foreach (var conditionStep in conditionSteps)
+        //     {
+        //         foreach (var condition in conditionStep.Conditions)
+        //         {
+        //             var condType = condition.GetType();
+        //             var valueReferenceData = ValueReferenceHelper.GetValueReferenceDataForCondition(condType);
+        //             if (valueReferenceData.Length == 0)
+        //                 continue;
+        //
+        //             foreach (var field in valueReferenceData)
+        //             {
+        //                 object fieldValue = field.FindImportData(condition);
+        //                 
+        //                 var key = FindKeyOrCreateOverride(constantOverridesToImport, field, fieldValue);
+        //                 constantOverridesToImport.Add(key, fieldValue);
+        //             }
+        //         }
+        //     }
+        //
+        //     foreach (var key in constantOverridesToImport.Keys)
+        //     {
+        //         object fieldValue = constantOverridesToImport[key];
+        //
+        //         if (fieldValue != null)
+        //         {
+        //             var resolverType = typeof(ConstValueResolver<>).MakeGenericType(fieldValue.GetType());
+        //             var resolverInstance = Activator.CreateInstance(resolverType);
+        //             var setterField = resolverType.GetField("Value", BindingFlags.Instance | BindingFlags.Public);
+        //             setterField.SetValue(resolverInstance, fieldValue);
+        //
+        //             fieldValue = resolverInstance;
+        //         }
+        //
+        //         this.ValueReferenceLookup.Register(key, fieldValue as IValueResolver);
+        //     }
+        // }
+        //
+        // private static string FindKeyOrCreateOverride(Dictionary<string, object> constantOverridesToImport, ValueReferenceFieldData field, object fieldValue)
+        // {
+        //     string baseKey = field.DefaultKey;
+        //     string key = baseKey;
+        //     int overrideNumber = 2;
+        //     while (constantOverridesToImport.ContainsKey(key) && constantOverridesToImport[key] != fieldValue)
+        //     {
+        //         key = baseKey + overrideNumber;
+        //         overrideNumber++;
+        //     }
+        //
+        //     return key;
+        // }
     }
 }

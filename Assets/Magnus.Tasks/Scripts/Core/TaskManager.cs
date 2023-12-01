@@ -29,19 +29,19 @@ namespace Rhinox.Magnus.Tasks
 		//==============================================================================================================
 		// Events
 		
-		public delegate void TaskEvent(ITask task);
+		public delegate void TaskEvent(ITaskState task);
 
 		public event TaskEvent TaskSelected;
 		public event TaskEvent TaskStarted;
 		public event TaskEvent TaskStopped;
 		public event TaskEvent TaskCompleted;
 
-		public delegate void StepEvent(BaseStep step);
+		public delegate void StepEvent(BaseStepState step);
 
 		public event StepEvent StepStarted;
 		public event StepEvent StepCompleted;
 
-		public delegate void GlobalStepEvent(TaskManager sender, BaseStep step);
+		public delegate void GlobalStepEvent(TaskManager sender, BaseStepState step);
 
 		public static event GlobalStepEvent GlobalStepStarted;
 		public static event GlobalStepEvent GlobalStepCompleted;
@@ -138,25 +138,25 @@ namespace Rhinox.Magnus.Tasks
 			StartCurrentTask();
 		}
 
-		public void NotifyStepStarted(ITask task, BaseStep step)
+		public void NotifyStepStarted(ITaskState task, BaseStepState step)
 		{
 			StepStarted?.Invoke(step);
 			GlobalStepStarted?.Invoke(this, step);
 		}
 
-		public void NotifyStepCompleted(ITask task, BaseStep step)
+		public void NotifyStepCompleted(ITaskState task, BaseStepState step)
 		{
 			StepCompleted?.Invoke(step);
 			GlobalStepCompleted?.Invoke(this, step);
 		}
 
-		public void NotifyTaskCompleted(ITask task, bool hasFailed)
+		public void NotifyTaskCompleted(ITaskState task, bool hasFailed)
 		{
 			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) has {(hasFailed ? "failed" : "completed")}.");
 			TaskCompleted?.Invoke(task);
 		}
 
-		public void NotifyTaskStopped(ITask task)
+		public void NotifyTaskStopped(ITaskState task)
 		{
 			PLog.Info<MagnusLogger>($"Task ({task}) Stopped.");
 			TaskStopped?.Invoke(task);

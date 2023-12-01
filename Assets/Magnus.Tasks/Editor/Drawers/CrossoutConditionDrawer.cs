@@ -14,13 +14,13 @@ namespace Rhinox.Magnus.Tasks.Editor
     public static class CrossoutConditionDrawer
     {
         private static bool _needsRefresh = true;
-        private static Dictionary<int, BaseStep> _stepById;
+        private static Dictionary<int, BaseStepState> _stepById;
 
         private static TickDelay _delay;
 
         static CrossoutConditionDrawer()
         {
-            _stepById = new Dictionary<int, BaseStep>();
+            _stepById = new Dictionary<int, BaseStepState>();
 
             EditorApplication.update += OnEditorUpdate;
             EditorApplication.hierarchyWindowItemOnGUI += DrawCrossOutCondition;
@@ -39,7 +39,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             if (_needsRefresh)
                 _stepById.Clear();
 
-            BaseStep step;
+            BaseStepState step;
 
             if (_stepById.ContainsKey(instanceID))
             {
@@ -49,7 +49,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             {
                 var currentObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
                 if (currentObject == null) return;
-                step = currentObject?.GetComponent<BaseStep>();
+                step = currentObject?.GetComponent<BaseStepState>();
                 _stepById[instanceID] = step;
             }
 

@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     public class AutoCompleteSkipperHandler : ILevelLoadHandler
     {
         [ValueDropdown(nameof(GetTasks))]
-        public ITask Task;
+        public ITaskState Task;
 
         public SerializableGuid StepIDToSkipTo;
 

@@ -1035,7 +1035,7 @@ Transform:
   m_Father: {fileID: 121692909}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1773084199
+--- !u!1 &1869751122
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1043,9 +1043,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1773084201}
-  - component: {fileID: 1773084200}
-  - component: {fileID: 1773084202}
+  - component: {fileID: 1869751124}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1053,144 +1051,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1773084200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773084199}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9977623255243c4ac692705a0f61b24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Step:
-    id: 0
-  references:
-    version: 1
-    00000000:
-      type: {class: ConditionStepObject, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
-      data:
-        TagContainer:
-          Tags: []
-        ID:
-          SerializedBytes: d6837c0974aa624595c9134456cbd66f
-        Name: Unnamed ConditionStep
-        Description: 
-        OnStarted:
-          Events: []
-        OnCompleted:
-          Events: []
-        OrderedConditions: 0
-        Conditions:
-        - ConditionType:
-            _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
-              PublicKeyToken=null
-            _assemblyQualifiedName: Rhinox.Magnus.Tasks.ObjectProximityCondition,
-              com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-            _name: ObjectProximityCondition
-          Params:
-          - Name: Object1
-            Flags: 20
-            MemberType: 4
-            MemberData:
-              id: 1
-            Type:
-              _assemblyName: UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
-                PublicKeyToken=null
-              _assemblyQualifiedName: UnityEngine.Transform, UnityEngine.CoreModule,
-                Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-              _name: Transform
-          - Name: Object2
-            Flags: 20
-            MemberType: 4
-            MemberData:
-              id: 1
-            Type:
-              _assemblyName: UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
-                PublicKeyToken=null
-              _assemblyQualifiedName: UnityEngine.Transform, UnityEngine.CoreModule,
-                Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-              _name: Transform
-          - Name: Distance
-            Flags: 20
-            MemberType: 4
-            MemberData:
-              id: 2
-            Type:
-              _assemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-              _assemblyQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
-                PublicKeyToken=b77a5c561934e089
-              _name: Single
-    00000001:
-      type: {class: , ns: , asm: }
-    00000002:
-      type: {class: Single, ns: System, asm: mscorlib}
---- !u!4 &1773084201
+--- !u!4 &1869751124
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773084199}
+  m_GameObject: {fileID: 1869751122}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 319.56992, y: 295.17444, z: 19.889023}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1773084202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773084199}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9977623255243c4ac692705a0f61b24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Step:
-    id: 0
-  references:
-    version: 1
-    00000000:
-      type: {class: ConditionStepObject, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
-      data:
-        TagContainer:
-          Tags: []
-        ID:
-          SerializedBytes: 1e10832d36617c45860b3f71267147d4
-        Name: Unnamed ConditionStep
-        Description: 
-        OnStarted:
-          Events: []
-        OnCompleted:
-          Events: []
-        OrderedConditions: 0
-        Conditions:
-        - ConditionType:
-            _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
-              PublicKeyToken=null
-            _assemblyQualifiedName: Rhinox.Magnus.Tasks.ButtonClickCondition, com.rhinox.open.magnus.tasks,
-              Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-            _name: ButtonClickCondition
-          Params:
-          - Name: ButtonToPress
-            Flags: 20
-            MemberType: 4
-            MemberData:
-              id: 1
-            Type:
-              _assemblyName: UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-              _assemblyQualifiedName: UnityEngine.UI.Button, UnityEngine.UI, Version=1.0.0.0,
-                Culture=neutral, PublicKeyToken=null
-              _name: Button
-    00000001:
-      type: {class: , ns: , asm: }
 --- !u!1 &1948525999
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,8 +9,8 @@ using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
-    [CustomPropertyDrawer(typeof(ConditionStepObject))]
-    public class ConditionStepObjectDrawer : BasePropertyDrawer<ConditionStepObject, ConditionStepObjectDrawer.DrawerData>
+    [CustomPropertyDrawer(typeof(ConditionStepData))]
+    public class ConditionStepObjectDrawer : BasePropertyDrawer<ConditionStepData, ConditionStepObjectDrawer.DrawerData>
     {
         public class DrawerData
         {
@@ -76,13 +76,13 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 conditionObj.OnBetterConditionMet.Events = new List<ValueReferenceEventEntry>();
             var conditionData = ConditionDataHelper.FromCondition(conditionObj);
 
-            var stepObject = hostInfo.GetSmartValue<ConditionStepObject>();
+            var stepObject = hostInfo.GetSmartValue<ConditionStepData>();
             // TODO: enable conversion
             //EditorParamDataHelper.ConvertToEditor(ref conditionData);
             if (stepObject.Conditions == null)
-                stepObject.Conditions = new List<ConditionData>();
+                stepObject.Conditions = new List<BaseObjectDataContainer>();
             stepObject.Conditions.Add(conditionData);
-            hostInfo.Apply();
+            hostInfo.ForceNotifyValueChanged();
             // var conditionsProperty = Property.FindChild(x => x.Name == nameof(ConditionStepObject.Conditions), false);
             // var conditionsValueEntry = conditionsProperty != null ? conditionsProperty.ValueEntry as IPropertyValueEntry<List<ConditionData>> : null;
             //

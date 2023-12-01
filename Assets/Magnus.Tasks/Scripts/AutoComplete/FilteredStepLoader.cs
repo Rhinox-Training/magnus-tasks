@@ -25,7 +25,7 @@ namespace Rhinox.Magnus.Tasks
             _task.StepStarted += OnStepStarted;
         }
 
-        private void OnStepStarted(BaseStep step)
+        private void OnStepStarted(BaseStepState step)
         {
             _checkAutoComplete = true;
         }

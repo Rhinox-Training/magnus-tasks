@@ -22,7 +22,7 @@ namespace Rhinox.Magnus.Tasks
         
         public CompletionState CompletionState { get; private set; }
 
-        public BaseStep Step { get; set; }
+        public BaseStepState Step { get; set; }
 
         public bool IsStarted { get; private set; }
 
@@ -112,12 +112,12 @@ namespace Rhinox.Magnus.Tasks
 
         public T[] GetSiblingConditions<T>()
         {
-            return ((ConditionStep)Step).Conditions.OfType<T>().ToArray();
+            return ((ConditionStepState)Step).Conditions.OfType<T>().ToArray();
         }
 
         public T GetSiblingCondition<T>() where T : BaseCondition
         {
-            foreach (var condition in ((ConditionStep)Step).Conditions)
+            foreach (var condition in ((ConditionStepState)Step).Conditions)
                 if (condition is T typedCondition)
                     return typedCondition;
             return null;

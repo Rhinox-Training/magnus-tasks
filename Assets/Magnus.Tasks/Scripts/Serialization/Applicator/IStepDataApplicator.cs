@@ -12,7 +12,7 @@ namespace Rhinox.Magnus.Tasks
 {
     public interface IStepDataApplicator
     {
-        void Apply(GameObject host, IReferenceResolver hostResolver, ref BaseStep step);
+        void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState);
     }
 
     public interface IStepDataApplicator<T> : IStepDataApplicator

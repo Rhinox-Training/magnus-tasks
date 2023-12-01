@@ -31,7 +31,7 @@ namespace Rhinox.Magnus.Tasks
             _taskManager.TaskStarted -= OnTaskStarted;
         }
 
-        private void OnTaskStarted(ITask task)
+        private void OnTaskStarted(ITaskState task)
         {
             if (!AutoCompletor.HasInstance)
             {
@@ -47,7 +47,7 @@ namespace Rhinox.Magnus.Tasks
                 return;
 
             // TODO what about other types of steps?
-            foreach (var step in task.EnumerateStepNodes().OfType<ConditionStep>()) // TODO: this will break
+            foreach (var step in task.EnumerateStepNodes().OfType<ConditionStepState>()) // TODO: this will break
             {
                 PLog.TraceDetailed<MagnusLogger>($"Enqueuing Autocomplete for step '{step}'");
                 AutoCompletor.Instance.Autocomplete(step);

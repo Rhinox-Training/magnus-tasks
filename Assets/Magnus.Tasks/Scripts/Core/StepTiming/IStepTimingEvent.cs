@@ -16,7 +16,7 @@ namespace Rhinox.Magnus.Tasks
     [AssignableTypeFilter]
     public interface IStepTimingEvent
     {
-        void Initialize(BaseStep step);
+        void Initialize(BaseStepState step);
     }
 
  

@@ -12,7 +12,7 @@ namespace Rhinox.Magnus.Tasks
 {
     public interface IDataTaskIdentifier
     {
-        IReadOnlyList<BaseStep> Steps { get; }
+        IReadOnlyList<BaseStepState> Steps { get; }
         bool IsActive { get; }
         TaskObject GetTaskData();
     }
@@ -29,13 +29,13 @@ namespace Rhinox.Magnus.Tasks
         [HideIf("@TaskId < 0")]
         public ValueReferenceLookupOverride LookupOverride;
 
-        private IReadOnlyList<BaseStep> _generatedSteps;
-        public override IEnumerable<BaseStep> EnumerateStepNodes()
+        private IReadOnlyList<BaseStepState> _generatedSteps;
+        public override IEnumerable<BaseStepState> EnumerateStepNodes()
         {
             return _generatedSteps;
         }
 
-        public IReadOnlyList<BaseStep> Steps => _generatedSteps;
+        public IReadOnlyList<BaseStepState> Steps => _generatedSteps;
         public bool IsActive => State == TaskState.Running;
 
         [StepSelector(nameof(TaskId))] 
@@ -72,12 +72,12 @@ namespace Rhinox.Magnus.Tasks
             };
         }
 
-        private IReadOnlyList<BaseStep> GenerateSteps()
+        private IReadOnlyList<BaseStepState> GenerateSteps()
         {
             if (TaskId < 0)
             {
                 PLog.Warn<MagnusLogger>($"Skipped GenerateSteps due to TaskId == 'TaskId'");
-                return Array.Empty<BaseStep>();
+                return Array.Empty<BaseStepState>();
             }
 
             var dataTask = GetTaskData();
@@ -92,7 +92,7 @@ namespace Rhinox.Magnus.Tasks
             // Not all steps generated may be returned directly, some steps may be generated seperatly
             // Therefore, return all children here instead of our list
             // i.e. SubDataTask - this generates its own steps and manages their ValueResolver, we do not want to know of them here.
-            var taskSteps = transform.GetComponentsInChildren<BaseStep>();
+            var taskSteps = transform.GetComponentsInChildren<BaseStepState>();
 
             if (!EndStep.IsNullOrEmpty())
             {
@@ -134,7 +134,7 @@ namespace Rhinox.Magnus.Tasks
             
             // Resolve all guids
             // TODO: manage this properly
-            foreach (var step in steps.OfType<ConditionStep>())
+            foreach (var step in steps.OfType<ConditionStepState>())
             {
                 foreach (var condition in step.Conditions)
                 {

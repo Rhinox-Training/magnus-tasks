@@ -13,7 +13,7 @@ using UnityEngine;
 public class AutoCompleteSkipper : MonoBehaviour
 {
     [ValueDropdown(nameof(GetTasks))]
-    public ITask Task;
+    public ITaskState Task;
     public SerializableGuid StepIDToSkipTo;
     private const int _frameWait = 5;
 

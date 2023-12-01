@@ -8,5 +8,5 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
     
-    public ConditionStepObject conditionStepObject = new ConditionStepObject();
+    public ConditionStepData conditionStepObject = new ConditionStepData();
 }
