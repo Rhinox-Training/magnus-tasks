@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Rhinox.GUIUtils;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus.Tasks;
@@ -14,13 +15,13 @@ namespace Rhinox.Magnus.Tasks.Editor
     public static class CrossoutConditionDrawer
     {
         private static bool _needsRefresh = true;
-        private static Dictionary<int, BaseStepState> _stepById;
+        private static Dictionary<int, StepBehaviour> _stepById;
 
         private static TickDelay _delay;
 
         static CrossoutConditionDrawer()
         {
-            _stepById = new Dictionary<int, BaseStepState>();
+            _stepById = new Dictionary<int, StepBehaviour>();
 
             EditorApplication.update += OnEditorUpdate;
             EditorApplication.hierarchyWindowItemOnGUI += DrawCrossOutCondition;
@@ -34,12 +35,13 @@ namespace Rhinox.Magnus.Tasks.Editor
 
         private static void DrawCrossOutCondition(int instanceID, Rect selectionRect)
         {
-            if (!Application.isPlaying || !TaskManager.HasInstance) return;
+            if (!Application.isPlaying || !TaskManager.HasInstance) 
+                return;
 
             if (_needsRefresh)
                 _stepById.Clear();
 
-            BaseStepState step;
+            StepBehaviour step;
 
             if (_stepById.ContainsKey(instanceID))
             {
@@ -48,15 +50,20 @@ namespace Rhinox.Magnus.Tasks.Editor
             else
             {
                 var currentObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-                if (currentObject == null) return;
-                step = currentObject?.GetComponent<BaseStepState>();
+                if (currentObject == null) 
+                    return;
+                step = currentObject.GetComponent<StepBehaviour>();
                 _stepById[instanceID] = step;
             }
 
-            if (step == null || step.State != ProcessState.Finished)
+            if (step == null || step.StepData == null)
                 return;
 
-            if (step.CompletionState == CompletionState.Success)
+            var stepState = TaskManager.Instance.GetStateForStep(step.StepData);
+            if (stepState == null || stepState.State != ProcessState.Finished)
+                return;
+
+            if (stepState.CompletionState == CompletionState.Success)
             {
                 var rect = selectionRect.SetHeight(1);
                 rect = RectExtensions.AddY(rect, selectionRect.height / 2 - 1);
@@ -64,7 +71,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 EditorGUI.DrawRect(rect, CustomGUIStyles.HoverColor);
             }
 
-            if (step.CompletionState == CompletionState.Failure)
+            if (stepState.CompletionState == CompletionState.Failure)
             {
                 var rect = selectionRect.SetHeight(1);
                 rect = RectExtensions.AddY(rect, selectionRect.height - 1);

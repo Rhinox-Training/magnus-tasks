@@ -18,7 +18,7 @@ namespace Rhinox.Magnus.Tasks
         
         public void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState)
         {
-            var task = host.AddComponentWithInit<SubDataTask>(x =>
+            var task = new GameObject().AddComponentWithInit<SubDataTask>(x =>
             {
                 x.TaskId = Data.TaskId;
                 // TODO use same reference? create new?
@@ -30,8 +30,9 @@ namespace Rhinox.Magnus.Tasks
 
             if (task.Steps.Any())
             {
-                UnityEventDataUtility.AppendToUnityEvent(hostResolver, Data.OnStarted, ref task.Steps.First().StepStarted);
-                UnityEventDataUtility.AppendToUnityEvent(hostResolver, Data.OnCompleted, ref task.Steps.Last().StepCompleted);
+                // TODO:
+                // UnityEventDataUtility.AppendToUnityEvent(hostResolver, Data.OnStarted, ref task.Steps.First().StepStarted);
+                // UnityEventDataUtility.AppendToUnityEvent(hostResolver, Data.OnCompleted, ref task.Steps.Last().StepCompleted);
             }
             else
                 PLog.Warn<MagnusLogger>("SubDataTask initialized without steps, some events may not be called.");

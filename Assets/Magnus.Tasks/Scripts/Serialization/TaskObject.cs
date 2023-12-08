@@ -40,20 +40,25 @@ namespace Rhinox.Magnus.Tasks
 
         public StepData StartStep { get; set; }
 
-        public void Add(ConditionStepData o) => Steps.Add(o);
+        public void Add(StepData o) => Steps.Add(o);
 
-        public StepData GetStep(SerializableGuid id)
+        public StepData GetStep(SerializableGuid stepId)
         {
-            if (id == null) return null;
+            if (stepId == null) return null;
 
             for (var i = 0; i < Steps.Count; i++)
             {
                 var x = Steps[i];
-                if (id.Equals(x.ID))
+                if (stepId.Equals(x.ID))
                     return x;
             }
 
             return null;
+        }
+
+        public bool HasStep(SerializableGuid stepId)
+        {
+            return GetStep(stepId) != null;
         }
     }
     

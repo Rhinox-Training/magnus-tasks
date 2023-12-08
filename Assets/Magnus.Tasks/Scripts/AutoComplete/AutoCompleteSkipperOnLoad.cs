@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     public class AutoCompleteSkipperOnLoad : MonoBehaviour, ILevelLoadHandler
     {
         [ValueDropdown(nameof(GetTasks))]
-        public ITaskState Task;
+        public ITaskObjectState Task;
         public SerializableGuid StepIDToSkipTo;
 
         public bool KillTaskOnCompleted;
@@ -22,9 +22,10 @@ namespace Rhinox.Magnus.Tasks
         public IEnumerator<float> OnLevelLoad()
         {
             yield return 0.0f;
-            
-            if (Task.State != TaskState.Running && Task is TaskBehaviour tb)
-                TaskManager.Instance.ForceStartTask(tb);
+
+            // TODO: forcestart task
+            // if (Task.State != TaskState.Running && Task is TaskBehaviour tb)
+            //     TaskManager.Instance.ForceStartTask(tb);
             
             int stepCount = AutoCompleteSkipperHelper.CalculateCompletionLength(Task, StepIDToSkipTo);
             while (Task.DoesActiveStepPrecede(StepIDToSkipTo))
@@ -55,13 +56,10 @@ namespace Rhinox.Magnus.Tasks
         
         private float GetProgress(int totalLength)
         {
-            if (!TaskManager.HasInstance || TaskManager.Instance.CurrentTask == null)
-                return 0;
-            
-            if (TaskManager.Instance.CurrentTask != Task)
+            if (!TaskManager.HasInstance)
                 return 0;
 
-            return StepPathPlanner.CalculateDistance(Task.StartStep, Task.ActiveStep) / (float) totalLength;
+            return StepPathPlanner.CalculateDistance(null /*Task.StartStep*/, Task.ActiveStepState) / (float) totalLength;
         }
 
         private ICollection<ValueDropdownItem> GetTasks()
@@ -69,7 +67,7 @@ namespace Rhinox.Magnus.Tasks
             if (!TaskManager.HasInstance)
                 return Array.Empty<ValueDropdownItem>();
 
-            return TaskManager.Instance.GetTasks().Select(x => new ValueDropdownItem(x.name, x)).ToArray();
+            return TaskManager.Instance.GetTasks().Select(x => new ValueDropdownItem(x.Name, x)).ToArray();
         }
     }
 }

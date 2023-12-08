@@ -13,7 +13,7 @@ using UnityEngine;
 public class AutoCompleteSkipper : MonoBehaviour
 {
     [ValueDropdown(nameof(GetTasks))]
-    public ITaskState Task;
+    public ITaskObjectState Task;
     public SerializableGuid StepIDToSkipTo;
     private const int _frameWait = 5;
 
@@ -37,6 +37,6 @@ public class AutoCompleteSkipper : MonoBehaviour
         if (!TaskManager.HasInstance)
             return Array.Empty<ValueDropdownItem>();
 
-        return TaskManager.Instance.GetTasks().Select(x => new ValueDropdownItem(x.name, x)).ToArray();
+        return TaskManager.Instance.GetTasks().Select(x => new ValueDropdownItem(x.Name, x)).ToArray();
     }
 }

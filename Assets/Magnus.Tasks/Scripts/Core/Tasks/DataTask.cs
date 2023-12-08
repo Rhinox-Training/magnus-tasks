@@ -13,14 +13,14 @@ namespace Rhinox.Magnus.Tasks
     public interface IDataTaskIdentifier
     {
         IReadOnlyList<BaseStepState> Steps { get; }
-        bool IsActive { get; }
+        //bool IsActive { get; }
         TaskObject GetTaskData();
     }
     
     // TODO: do we even need this
     [SerializedGuidProcessor(nameof(LookupOverride))]
     [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
-    public class DataTask : TaskBehaviour, IDataTaskIdentifier, IValueReferenceResolverProvider
+    public class DataTask : TaskBehaviour, /*IDataTaskIdentifier,*/ IValueReferenceResolverProvider
     {
         [TaskSelector]
         [OnValueChanged(nameof(RefreshTaskData))]
@@ -29,24 +29,13 @@ namespace Rhinox.Magnus.Tasks
         [HideIf("@TaskId < 0")]
         public ValueReferenceLookupOverride LookupOverride;
 
-        private IReadOnlyList<BaseStepState> _generatedSteps;
-        public override IEnumerable<BaseStepState> EnumerateStepNodes()
-        {
-            return _generatedSteps;
-        }
-
-        public IReadOnlyList<BaseStepState> Steps => _generatedSteps;
-        public bool IsActive => State == TaskState.Running;
-
         [StepSelector(nameof(TaskId))] 
         public SerializableGuid EndStep; // Destroy everything after this step TODO this is a bit weird, but is used in Deceuninck
 
-        protected override void OnPreInitialize()
+        protected virtual void Awake()
         {
-            base.OnPreInitialize();
             // Generate the steps based on the DataTask
             RefreshTaskData();
-            _generatedSteps = GenerateSteps();
         }
 
         private void RefreshTaskData()
@@ -72,43 +61,7 @@ namespace Rhinox.Magnus.Tasks
             };
         }
 
-        private IReadOnlyList<BaseStepState> GenerateSteps()
-        {
-            if (TaskId < 0)
-            {
-                PLog.Warn<MagnusLogger>($"Skipped GenerateSteps due to TaskId == 'TaskId'");
-                return Array.Empty<BaseStepState>();
-            }
-
-            var dataTask = GetTaskData();
-
-            PLog.Info<MagnusLogger>($"Generating Steps for '{this.name}'...");
-            var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
-            PLog.Info<MagnusLogger>($"Generated {steps.Count} Steps for '{this.name}'");
-
-            foreach (var step in steps)
-                step.SetValueResolver(LookupOverride);
-            
-            // Not all steps generated may be returned directly, some steps may be generated seperatly
-            // Therefore, return all children here instead of our list
-            // i.e. SubDataTask - this generates its own steps and manages their ValueResolver, we do not want to know of them here.
-            var taskSteps = transform.GetComponentsInChildren<BaseStepState>();
-
-            if (!EndStep.IsNullOrEmpty())
-            {
-                for (var i = taskSteps.Length - 1; i >= 0; i--)
-                {
-                    var step = taskSteps[i];
-                    if (step.ID == EndStep)
-                        break;
-                    
-                    // Disable or DestroyImmediate; otherwise GetComponentsInChildren will still pick them up
-                    step.gameObject.SetActive(false);
-                }
-            }
-
-            return taskSteps;
-        }
+        
 
         private void OnValidate()
         {
@@ -164,6 +117,46 @@ namespace Rhinox.Magnus.Tasks
             }
             
             DestroyImmediate(this);
+        }
+        
+        private IReadOnlyList<StepData> GenerateSteps()
+        {
+            if (TaskId < 0)
+            {
+                PLog.Warn<MagnusLogger>($"Skipped GenerateSteps due to TaskId == 'TaskId'");
+                return Array.Empty<StepData>();
+            }
+        
+            var dataTask = GetTaskData();
+        
+            PLog.Info<MagnusLogger>($"Generating Steps for '{this.name}'...");
+            
+            
+            var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
+            // TODO: How to pass lookupoverride
+            // foreach (StepData step in steps)
+            //     step.SetValueResolver(LookupOverride);
+            
+            // TODO: how did this work?
+            // // Not all steps generated may be returned directly, some steps may be generated seperatly
+            // // Therefore, return all children here instead of our list
+            // // i.e. SubDataTask - this generates its own steps and manages their ValueResolver, we do not want to know of them here.
+            // var taskSteps = transform.GetComponentsInChildren<BaseStepState>();
+            //
+            // if (!EndStep.IsNullOrEmpty())
+            // {
+            //     for (var i = taskSteps.Length - 1; i >= 0; i--)
+            //     {
+            //         var step = taskSteps[i];
+            //         if (step.ID == EndStep)
+            //             break;
+            //         
+            //         // Disable or DestroyImmediate; otherwise GetComponentsInChildren will still pick them up
+            //         step.gameObject.SetActive(false);
+            //     }
+            // }
+            //
+            return steps;
         }
 #endif
     }

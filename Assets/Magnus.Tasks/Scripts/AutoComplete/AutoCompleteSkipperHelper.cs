@@ -8,33 +8,34 @@ namespace Rhinox.Magnus.Tasks
     {
         
         
-        public static bool ShouldAutoCompleteStep(ITaskState task, SerializableGuid stepIDToSkipTo)
-        {
-            if (!TaskManager.HasInstance || TaskManager.Instance.CurrentTask == null)
-                return false;
-
-            if (TaskManager.Instance.CurrentTask != task)
-                return false;
-
-            return stepIDToSkipTo.IsNullOrEmpty() || TaskManager.Instance.CurrentTask.FindStep(stepIDToSkipTo).State == ProcessState.Finished;
-        }
+        // public static bool ShouldAutoCompleteStep(ITaskObjectState task, SerializableGuid stepIDToSkipTo)
+        // {
+        //     if (!TaskManager.HasInstance || TaskManager.Instance.CurrentTask == null)
+        //         return false;
+        //
+        //     if (TaskManager.Instance.CurrentTask != task)
+        //         return false;
+        //
+        //     return stepIDToSkipTo.IsNullOrEmpty() || TaskManager.Instance.CurrentTask.FindStep(stepIDToSkipTo).State == ProcessState.Finished;
+        // }
         
-        public static int CalculateCompletionLength(ITaskState task, SerializableGuid idToSkipTo)
+        public static int CalculateCompletionLength(ITaskObjectState task, SerializableGuid idToSkipTo)
         {
             if (!TaskManager.HasInstance)
                 return 1; // NOTE: Avoid divide by zero
 
             int count = 0;
-            if (TaskManager.Instance.GetTasks().Contains(task))
+            //if (TaskManager.Instance.GetTasks()(task))
             {
+                // TODO:
                 
-                if (idToSkipTo != null)
-                    count = StepPathPlanner.CalculateDistance(task.StartStep, task.FindStep(idToSkipTo));
-                else
+                // if (idToSkipTo != null)
+                //     count = StepPathPlanner.CalculateDistance(task.StartStep, task.FindStep(idToSkipTo));
+                // else
                     count = StepPathPlanner.GetTaskLength(task);
             }
-            else
-                count = 1;
+            //else
+            //    count = 1;
             
             return Mathf.Max(count, 1); // NOTE: Avoid divide by zero
         }

@@ -22,7 +22,7 @@ namespace Rhinox.Magnus.Tasks
             _checkAutoComplete = false;
 
             _task = GetComponent<TaskBehaviour>();
-            _task.StepStarted += OnStepStarted;
+            //_task.StepStarted += OnStepStarted;
         }
 
         private void OnStepStarted(BaseStepState step)
@@ -32,7 +32,7 @@ namespace Rhinox.Magnus.Tasks
 
         private void AutoCompleteStep()
         {
-            var step = _task.ActiveStep;
+            var step = _task.TaskData; // TODO: should be active step
             var containsTag = step.TagContainer.HasAnyTag(Tags);
 
             // return if it skips contained tags & it does not contain it

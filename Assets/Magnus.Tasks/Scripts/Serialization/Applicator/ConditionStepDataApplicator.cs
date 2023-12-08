@@ -13,6 +13,7 @@ namespace Rhinox.Magnus.Tasks
         public override void Apply(IReferenceResolver hostResolver, ref BaseStepState stepState)
         {
             var conditionStepState = new ConditionStepState();
+            conditionStepState.Data = Data;
             
             if (conditionStepState.Conditions == null)
                 conditionStepState.Conditions = new List<BaseCondition>();
@@ -29,6 +30,7 @@ namespace Rhinox.Magnus.Tasks
             }
             
             SetBaseData(conditionStepState);
+            stepState = conditionStepState;
         }
     }
 }

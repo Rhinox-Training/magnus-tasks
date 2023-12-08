@@ -18,7 +18,7 @@ namespace Rhinox.Magnus.Tasks
         
         public SerializableGuid StartStepIndex { get; }
         public SerializableGuid EndStepIndex { get; }
-        public abstract bool IsForTask(ITaskState task);
+        public abstract bool IsForTask(ITaskObjectState task);
     }
 
     [Serializable]
@@ -32,7 +32,7 @@ namespace Rhinox.Magnus.Tasks
 
         public SerializableGuid StartStepIndex => StartStep != null ? StartStep.ID : SerializableGuid.Empty;
         public SerializableGuid EndStepIndex => EndStep != null ? EndStep.ID : SerializableGuid.Empty;
-        public override bool IsForTask(ITaskState task)
+        public override bool IsForTask(ITaskObjectState task)
         {
             return ReferenceEquals(task, Task);
         }
@@ -52,7 +52,7 @@ namespace Rhinox.Magnus.Tasks
 
         public SerializableGuid StartStepIndex => _startStepIndex;
         public SerializableGuid EndStepIndex => _endStepIndex;
-        public override bool IsForTask(ITaskState task)
+        public override bool IsForTask(ITaskObjectState task)
         {
             if (task is DataTask dataTask && dataTask == task)
                 return true;
@@ -86,8 +86,8 @@ namespace Rhinox.Magnus.Tasks
         // Other
         public ProgressEvent OnStepChainProgress;
 
-        private List<BaseStepState> _validStartSteps;
-        private List<BaseStepState> _validEndSteps;
+        private List<StepData> _validStartSteps;
+        private List<StepData> _validEndSteps;
 
         [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode]
         private BaseStepState _currentStart;
@@ -95,7 +95,7 @@ namespace Rhinox.Magnus.Tasks
         [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode]
         private BaseStepState _currentEnd;
 
-        protected ITaskState _activeTask;
+        protected ITaskObjectState _activeTask;
 
         [FoldoutContainer("Debug"), ShowReadOnlyInPlayMode]
         [HorizontalGroup("Debug/State"), ToggleLeft]
@@ -117,8 +117,8 @@ namespace Rhinox.Magnus.Tasks
             SceneReadyHandler.YieldToggleControl(this);
 
             // lists are needed as we can have the same datatask multiple times
-            _validStartSteps = new List<BaseStepState>();
-            _validEndSteps = new List<BaseStepState>();
+            _validStartSteps = new List<StepData>();
+            _validEndSteps = new List<StepData>();
         }
 
         private void Start()
@@ -139,7 +139,7 @@ namespace Rhinox.Magnus.Tasks
             Deactivate();
 
             // Reactive in case we have an already active step (would not pass by StartStep and activate then)
-            if (activeStartStep)
+            if (activeStartStep != null)
             {
                 RegisterStartAndFindEndStep(activeStartStep);
 
@@ -147,7 +147,7 @@ namespace Rhinox.Magnus.Tasks
             }
         }
 
-        private BaseStepState FindStartStepForConfiguration(TaskBehaviour[] tasks)
+        private BaseStepState FindStartStepForConfiguration(ICollection<TaskObject> tasks)
         {
             BaseStepState activeStartStep = null;
             foreach (var task in tasks)
@@ -163,37 +163,38 @@ namespace Rhinox.Magnus.Tasks
             return activeStartStep;
         }
 
-        private BaseStepState ConfigureForTask(ITaskState task, BaseStepRegion stepRegion)
+        private BaseStepState ConfigureForTask(TaskObject task, BaseStepRegion stepRegion)
         {
-            if (!stepRegion.IsForTask(task))
-                return null;
+            // if (!stepRegion.IsForTask(task))
+            //     return null;
 
-            if (stepRegion.Always)
-            {
-                var firstStep = task.EnumerateStepNodes().First();
-                // Add the steps to the valid ones
-                _validStartSteps.Add(firstStep);
-                _validEndSteps.Add(task.EnumerateStepNodes().Last());
-
-                return task.State == TaskState.Running ? firstStep : null;
-            }
-
-            var steps = task.EnumerateStepNodes();
-            var startStep = steps.FirstOrDefault(x => stepRegion.StartStepIndex == x.ID);
-            var endStep = steps.FirstOrDefault(x => stepRegion.EndStepIndex == x.ID);
-
-            if (startStep == null) 
-                startStep = task.EnumerateStepNodes().First();
-            if (endStep == null) 
-                endStep = task.EnumerateStepNodes().Last();
-
-            _validStartSteps.Add(startStep);
-            _validEndSteps.Add(endStep);
-
-            return task.State == TaskState.Running ? startStep : null;
+            return null;
+            // if (stepRegion.Always)
+            // {
+            //     var firstStep = task.EnumerateStepNodes().First();
+            //     // Add the steps to the valid ones
+            //     _validStartSteps.Add(firstStep);
+            //     _validEndSteps.Add(task.EnumerateStepNodes().Last());
+            //
+            //     return task.State == TaskState.Running ? firstStep : null;
+            // }
+            //
+            // var steps = task.EnumerateStepNodes();
+            // var startStep = steps.FirstOrDefault(x => stepRegion.StartStepIndex == x.ID);
+            // var endStep = steps.FirstOrDefault(x => stepRegion.EndStepIndex == x.ID);
+            //
+            // if (startStep == null) 
+            //     startStep = task.EnumerateStepNodes().First();
+            // if (endStep == null) 
+            //     endStep = task.EnumerateStepNodes().Last();
+            //
+            // _validStartSteps.Add(startStep);
+            // _validEndSteps.Add(endStep);
+            //
+            // return task.State == TaskState.Running ? startStep : null;
         }
 
-        private void OnTaskCompleted(ITaskState task)
+        private void OnTaskCompleted(ITaskObjectState task)
         {
             if (ReferenceEquals(task, _activeTask))
                 Deactivate();
@@ -248,12 +249,12 @@ namespace Rhinox.Magnus.Tasks
 
         private bool ShouldActivate(BaseStepState step)
         {
-            if (!_validStartSteps.Contains(step))
+            if (!_validStartSteps.Contains(step.Data))
                 return false;
 
             RegisterStartAndFindEndStep(step);
 
-            if (!_currentEnd)
+            if (_currentEnd == null)
                 PLog.Error<MagnusLogger>("Could not resolve an End for TaskActivatable!", this);
             return true;
         }
@@ -274,7 +275,7 @@ namespace Rhinox.Magnus.Tasks
                 if (!_validEndSteps.Contains(potentialEndStep)) 
                     continue;
 
-                _currentEnd = potentialEndStep;
+                _currentEnd.Data = potentialEndStep;
                 break;
             }
         }

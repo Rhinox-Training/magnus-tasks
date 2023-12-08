@@ -12,6 +12,8 @@ namespace Rhinox.Magnus.Tasks
         
         public SerializableGuid ID;
         
+        public StepData NextStep;
+        
         public string Name;
         public string Description;
         

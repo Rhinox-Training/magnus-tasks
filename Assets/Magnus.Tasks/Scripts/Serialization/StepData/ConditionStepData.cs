@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Rhinox.Magnus.Tasks
 {    
     [Serializable]
-    public class ConditionStepData : StepData
+    public class ConditionStepData : BinaryStepData
     {
         [PropertyOrder(5)] public bool OrderedConditions;
         [PropertyOrder(7), ListDrawerSettings(HideAddButton = true), SerializeReference] 

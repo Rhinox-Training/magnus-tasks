@@ -20,12 +20,13 @@ namespace Tests.Helpers
 
             foreach (var condition in conditions)
             {
-                var conditionStep = task.gameObject.AddChildWithComponent<ConditionStepState>();
-                conditionStep.Conditions = new List<BaseCondition>();
-                conditionStep.Conditions.Add(condition);
+                var conditionStep = task.gameObject.AddChildWithComponent<StepBehaviour>();
+                var stepData = new ConditionStepData();
+                stepData.Conditions = new List<BaseObjectDataContainer>();
+                stepData.Conditions.Add(ConditionDataHelper.FromCondition(condition));
+                
+                conditionStep.StepData = stepData;
             }
-
-            task.GetOrAddComponent<LinearTaskAssembler>();
 
             return task;
         }

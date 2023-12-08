@@ -68,7 +68,7 @@ namespace Rhinox.Magnus.Tasks
         
         public static T BuildInstance<T>(BaseObjectDataContainer data)
         {
-            if (data.TryGetObjectType(out Type instanceType, out string error))
+            if (!data.TryGetObjectType(out Type instanceType, out string error))
             {
                 PLog.Warn<MagnusLogger>(error);
                 return default(T);

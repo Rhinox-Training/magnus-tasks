@@ -12,29 +12,21 @@ using UnityEngine.Serialization;
 
 namespace Rhinox.Magnus.Tasks
 {
-	[SmartFallbackDrawn(false)]
 	public class TaskManager : Singleton<TaskManager>, ITaskManager
 	{
-		[InlineIconButton("Refresh", nameof(RefreshTasks))]
-		public bool AutoLoadTasks;
-
-		[SerializeField, HideIf(nameof(AutoLoadTasks)), FormerlySerializedAs("Tasks"), SerializeReference]
-		private TaskBehaviour[] _tasks;
-
-		[ShowInInspector, ReadOnly] 
-		public TaskBehaviour CurrentTask { get; private set; }
-
-		public bool RunTaskOnStart = true;
+		private List<TaskObject> _tasks;
+		private Dictionary<TaskObject, ITaskObjectState> _taskState;
 
 		//==============================================================================================================
 		// Events
 		
-		public delegate void TaskEvent(ITaskState task);
+		public delegate void TaskStateEvent(ITaskObjectState task);
+		public delegate void TaskEvent(TaskObject task);
 
-		public event TaskEvent TaskSelected;
-		public event TaskEvent TaskStarted;
-		public event TaskEvent TaskStopped;
-		public event TaskEvent TaskCompleted;
+		public event TaskEvent TaskAdded;
+		public event TaskStateEvent TaskStarted;
+		public event TaskStateEvent TaskStopped;
+		public event TaskStateEvent TaskCompleted;
 
 		public delegate void StepEvent(BaseStepState step);
 
@@ -61,160 +53,229 @@ namespace Rhinox.Magnus.Tasks
 			base.OnDestroy();
 		}
 
-		private void Start()
+		public IList<TaskObject> GetTasks()
 		{
-			if (AutoLoadTasks)
-				RefreshTasks();
-
-			if (RunTaskOnStart)
-				StartCurrentTask();
+			return (IList<TaskObject>) _tasks ?? Array.Empty<TaskObject>();
 		}
-
-		private void RefreshTasks()
-		{
-			_tasks = GetComponentsInChildren<TaskBehaviour>();
-		}
-
-		public TaskBehaviour[] GetTasks()
-		{
-			if (AutoLoadTasks)
-				return GetComponentsInChildren<TaskBehaviour>();
-			return _tasks ?? Array.Empty<TaskBehaviour>();
-		}
-
-		[Button(ButtonSizes.Medium)]
-		public bool StartCurrentTask()
-		{
-			if (CurrentTask != null && CurrentTask.State == TaskState.Running)
-			{
-				PLog.Warn<MagnusLogger>($"Cannot start task, task {CurrentTask.name} already running");
-				return false;
-			}
-
-			PLog.TraceDetailed<MagnusLogger>("Triggered");
-
-			if (CurrentTask == null)
-				CurrentTask = _tasks?.FirstOrDefault();
-
-			TaskSelected?.Invoke(CurrentTask);
-
-			if (CurrentTask == null)
-				return false;
-			
-			CurrentTask.Initialize(this);
-
-			if (!CurrentTask.StartTask())
-			{
-				PLog.Warn<MagnusLogger>($"Cannot start task {CurrentTask.name}...");
-				return false;
-			}
-			
-			TaskStarted?.Invoke(CurrentTask);
-			return true;
-		}
-
-		[Button(ButtonSizes.Medium)]
-		public void StopCurrentTask()
-		{
-			PLog.Info<MagnusLogger>($"[{nameof(TaskManager)}::{nameof(StopCurrentTask)}] Triggered");
-
-			if (CurrentTask == null)
-				return;
-
-			//TaskSelected?.Invoke(null); // TODO: Can this call be fired with null ? (Since we are switching to empty)
-
-			CurrentTask.StopTask();
-
-			CurrentTask = null;
-		}
-
+		
 		/// <summary>
 		/// Use with caution and only when you know what you're doing
 		/// </summary>
-		public void ForceStartTask(TaskBehaviour task)
+		public bool StartTask(TaskObject taskData, bool registerIfNotListed = false)
 		{
-			PLog.Info<MagnusLogger>($"Forcefully starting task '{task}'", associatedObject: task);
-			CurrentTask = task;
-			StartCurrentTask();
+			if (taskData == null)
+			{
+				PLog.Warn<MagnusLogger>($"Cannot start task which is null, skipping...");
+			}
+			
+			if (_tasks == null)
+				_tasks = new List<TaskObject>();
+
+			if (!_tasks.Contains(taskData))
+			{
+				if (registerIfNotListed)
+					RegisterTasks(taskData);
+				else
+				{
+					PLog.Error<MagnusLogger>($"Cannot start task {taskData.Name}, not listed in registered tasks...");
+					return false;
+				}
+			}
+			
+			if (_taskState == null)
+				_taskState = new Dictionary<TaskObject, ITaskObjectState>();
+
+			if (_taskState.ContainsKey(taskData))
+			{
+				var taskState = _taskState[taskData];
+				if (taskState.State == TaskState.None || taskState.State == TaskState.Initialized)
+				{
+					return taskState.StartTask();
+				}
+
+				PLog.Warn<MagnusLogger>($"Task '{taskData.Name}' is already in state '{taskState.State}', cannot start task...");
+				return false;
+			}
+
+			if (!TryStartTask(taskData, out var taskObjectState))
+			{
+				PLog.Error<MagnusLogger>($"Cannot start task {taskData.Name}...");
+				return false;
+			}
+
+			_taskState.Add(taskData, taskObjectState);
+
+			return true;
 		}
 
-		public void NotifyStepStarted(ITaskState task, BaseStepState step)
+		public bool RegisterTasks(params TaskObject[] tasks)
+		{
+			if (tasks == null || tasks.Length == 0)
+				return false;
+			
+			if (_tasks == null)
+				_tasks = new List<TaskObject>();
+			
+			PLog.TraceDetailed<MagnusLogger>($"Appending {tasks.Length} tasks to TaskManager with already had {_tasks.Count} active tasks.");
+
+			bool changed = false;
+			foreach (var task in tasks)
+			{
+				if (_tasks.AddUnique(task))
+				{
+					TaskAdded?.Invoke(task);
+					changed = true;
+				}
+			}
+			return changed;
+		}
+
+		public void ClearTasks()
+		{
+			PLog.TraceDetailed<MagnusLogger>($"Clearing tasks from TaskManager which had {_tasks?.Count ?? 0} tasks.");
+			if (_taskState != null)
+			{
+				foreach (var taskState in _taskState.Values)
+				{
+					if (taskState == null)
+						continue;
+					taskState.StopTask();
+				}
+				_taskState.Clear();
+			}
+
+			if (_tasks != null)
+				_tasks.Clear();
+		}
+
+		public bool CancelTask(TaskObject taskData)
+		{
+			if (taskData == null)
+			{
+				// Clear all none tasks
+				int removedStates = _taskState != null ? _taskState.RemoveAll(x => x.Key == null) : 0;
+				int removed = _tasks != null ? _tasks.RemoveAll(x => x == null) : 0;
+				return (removed + removedStates) > 0;
+			}
+
+			if (_tasks == null || !_tasks.Contains(taskData))
+			{
+				PLog.Warn<MagnusLogger>($"Cannot cancel task, task was not managed by TaskManager {this.name}...");
+				return false;
+			}
+
+			if (_taskState != null && _taskState.ContainsKey(taskData))
+			{
+				_taskState[taskData].StopTask();
+				_taskState.Remove(taskData);
+			}
+			_tasks.Remove(taskData);
+			return true;
+		}
+		
+		private bool TryStartTask(TaskObject taskData, out ITaskObjectState state)
+		{
+			if (taskData == null)
+			{
+				PLog.Warn<MagnusLogger>($"Cannot start task, taskData was null...");
+				state = null;
+				return false;
+			}
+			
+			var tso = new TaskStateObject(taskData);
+			tso.Initialize(this);
+
+			if (!tso.StartTask())
+			{
+				PLog.Error<MagnusLogger>($"Could not start task '{taskData.Name}'...");
+				state = null;
+				return false;
+			}
+			
+			state = tso;
+			return true;
+		}
+
+		public void NotifyStepStarted(ITaskObjectState task, BaseStepState step)
 		{
 			StepStarted?.Invoke(step);
 			GlobalStepStarted?.Invoke(this, step);
 		}
 
-		public void NotifyStepCompleted(ITaskState task, BaseStepState step)
+		public void NotifyStepCompleted(ITaskObjectState task, BaseStepState step)
 		{
 			StepCompleted?.Invoke(step);
 			GlobalStepCompleted?.Invoke(this, step);
 		}
 
-		public void NotifyTaskCompleted(ITaskState task, bool hasFailed)
+		public void NotifyTaskCompleted(ITaskObjectState task, bool hasFailed)
 		{
-			PLog.Info<MagnusLogger>($"Task ({CurrentTask}) has {(hasFailed ? "failed" : "completed")}.");
+			PLog.Info<MagnusLogger>($"Task ({task.Name}) has {(hasFailed ? "failed" : "completed")}.");
 			TaskCompleted?.Invoke(task);
 		}
 
-		public void NotifyTaskStopped(ITaskState task)
+		public void NotifyTaskStopped(ITaskObjectState task)
 		{
 			PLog.Info<MagnusLogger>($"Task ({task}) Stopped.");
 			TaskStopped?.Invoke(task);
 		}
 
-		public bool LoadTasks(params TaskBehaviour[] tasks)
+		public ITaskObjectState GetTaskState(TaskObject task)
 		{
-			if (tasks == null || tasks.Length == 0)
-				return false;
-			
-			PLog.TraceDetailed<MagnusLogger>($"Loading {tasks.Length} tasks");
+			if (_taskState == null || !_taskState.ContainsKey(task))
+				return null;
 
-			if (CurrentTask != null)
-				StopCurrentTask();
-
-			_tasks = tasks;
-			CurrentTask = _tasks.FirstOrDefault();
-
-			TaskSelected?.Invoke(CurrentTask);
-			return true;
+			return _taskState[task];
 		}
 
-		public bool AppendTasks(params TaskBehaviour[] tasks)
+		public BaseStepState GetStateForStep(StepData stepData)
 		{
-			if (tasks == null || tasks.Length == 0)
-				return false;
-			
-			PLog.TraceDetailed<MagnusLogger>($"Appending {tasks.Length} tasks to TaskManager with already had {_tasks?.Length ?? 0} active tasks.");
-
-			if (CurrentTask != null)
-				StopCurrentTask();
-
-			var list = _tasks?.ToList() ?? new List<TaskBehaviour>();
-			bool changed = false;
-			foreach (var task in tasks)
+			if (stepData == null)
 			{
-				if (list.AddUnique(task))
-					changed = true;
+				PLog.Warn<MagnusLogger>($"Cannot get state for null step, returning null...");
+				return null;
+			}
+			
+			if (_tasks == null)
+			{
+				PLog.Warn<MagnusLogger>($"No tasks registered in TaskManager, no state could be found for step {stepData.ID}/'{stepData.Name}'...");
+				return null;
 			}
 
-			if (!changed)
-				return false;
-			
-			_tasks = list.ToArray();
-			if (CurrentTask == null || !_tasks.Contains(CurrentTask))
-				CurrentTask = _tasks.FirstOrDefault();
+			foreach (var task in _tasks)
+			{
+				if (task == null)
+					continue;
 
-			TaskSelected?.Invoke(CurrentTask);
-			return true;
+				if (!task.HasStep(stepData.ID))
+					continue;
+
+				var taskState = GetTaskState(task);
+				if (taskState == null)
+				{
+					PLog.Debug<MagnusLogger>($"No active state available for step {stepData.ID}/'{stepData.Name}' from task {task.Name}...");
+					break;
+				}
+
+				var stepState = taskState.GetStepState(stepData.ID);
+				return stepState;
+			}
+
+			// NOTE: nothing found
+			return null;
 		}
 
-		public void ClearTasks()
+		private void Update()
 		{
-			PLog.TraceDetailed<MagnusLogger>($"Clearing tasks from TaskManager which had {_tasks?.Length ?? 0} tasks.");
-			if (CurrentTask != null)
-				StopCurrentTask();
-
-			_tasks = Array.Empty<TaskBehaviour>();
+			if (_taskState != null)
+			{
+				foreach (var state in _taskState.Values)
+				{
+					if (state == null)
+						continue;
+					state.Update();
+				}
+			}
 		}
 	}
 }

@@ -11,12 +11,11 @@ namespace Rhinox.Magnus.Tasks
 {
     public static class TaskObjectUtility
     {
-        [Obsolete]
-        public static List<BaseStepState> GenerateSteps(TaskObject dataTask, Transform parent)
+        public static List<StepData> GenerateSteps(TaskObject dataTask, Transform parent)
         {
             PLog.Trace<VortexLogger>($"Generating steps from '{dataTask.Name}'. {dataTask.Steps?.Count} Steps found.");
 
-            var list = new List<BaseStepState>();
+            var list = new List<StepData>();
 
             if (dataTask.Steps == null)
                 return list;
@@ -30,13 +29,11 @@ namespace Rhinox.Magnus.Tasks
                     idName = "Sub";
                 var stepGo = Utility.Create($"{idName}-{i + 1:000} - {stepData.Name}", parent);
                 var stepBeh = stepGo.AddComponent<StepBehaviour>();
-                
-                var stepState = CreateStepState(stepData, dataTask.Lookup);
+                stepBeh.StepData = stepData;
 
                 stepBeh.StepData = stepData;
 
-                if (stepState != null)
-                    list.Add(stepState);
+                list.Add(stepData);
             }
             SceneHierarchyTree.UnFreeze();
 

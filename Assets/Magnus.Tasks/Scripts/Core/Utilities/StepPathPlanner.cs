@@ -11,8 +11,11 @@ namespace Rhinox.Magnus.Tasks
             return -1;
         }
 
-        public static int GetTaskLength(ITaskState task)
+        public static int GetTaskLength(ITaskObjectState task)
         {
+            // TODO: 
+            // 1. Get current step length? Maybe add deduplication (by fetching state list from task)
+            // 2. Project stepData objects forward till the end
             if (task == null || task.StartStep == null)
                 return 0;
 
@@ -20,7 +23,7 @@ namespace Rhinox.Magnus.Tasks
             int i = 0;
             while (curStep != null)
             {
-                curStep = curStep.GetNextStep();
+                curStep = curStep.NextStep;
                 ++i;
             }
             return i;

@@ -31,7 +31,7 @@ namespace Rhinox.Magnus.Tasks
             _taskManager.TaskStarted -= OnTaskStarted;
         }
 
-        private void OnTaskStarted(ITaskState task)
+        private void OnTaskStarted(ITaskObjectState task)
         {
             if (!AutoCompletor.HasInstance)
             {

@@ -1,56 +1,81 @@
 ﻿using System;
+using System.Linq;
 using Rhinox.GUIUtils.Editor;
+using Rhinox.Lightspeed;
 using UnityEditor;
 using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
-    [CustomPropertyDrawer(typeof(TaskManager))]
-    public class TaskManagerDrawer : BasePropertyDrawer<TaskManager, TaskManagerDrawer.TaskManagerState>
+    [CustomEditor(typeof(TaskManager))]
+    public class TaskManagerDrawer : DefaultEditorExtender<TaskManager>
     {
-        public class TaskManagerState
+        private SimpleTableView _tableView;
+
+        // public class TaskManagerState
+        // {
+        //     public GenericHostInfo HostInfo;
+        //     public SimpleTableView TableView;
+        // }
+
+        public override void OnInspectorGUI()
         {
-            public GenericHostInfo HostInfo;
-            public SimpleTableView TableView;
-        }
+            //base.OnInspectorGUI();
 
+            var SmartValue = this.target as TaskManager;
 
-        protected override void DrawProperty(Rect position, ref TaskManagerState data, GUIContent label)
-        {
-            CallInnerDrawer(position, label);
-
-            var tableView = data.TableView;
+            if (_tableView == null)
+                _tableView = new SimpleTableView("ID", "Name", "State", "");
             
-            tableView.BeginDraw();
+            _tableView.BeginDraw();
 
             var tasks = SmartValue.GetTasks();
-            for (int index = 0; index < tasks.Length; ++index)
+            for (int index = 0; index < tasks.Count; ++index)
             {
                 var task = tasks[index];
-                tableView.DrawRow(index, task.name, task.State, new Action<GUILayoutOption[]>((layout) =>
+                if (task == null)
                 {
-                    if (GUILayout.Button("Start", layout))
+                    _tableView.DrawRow(index, "<null>", TaskState.None, null);
+                    continue;
+                }
+                _tableView.DrawRow(index, task.Name, SmartValue.GetTaskState(task)?.State ?? TaskState.None, new Action<GUILayoutOption[]>((layout) =>
+                {
+                    var state = SmartValue.GetTaskState(task);
+                    EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                    if (state == null || state.State == TaskState.Initialized || state.State == TaskState.None)
                     {
-                        Debug.Log("Foobar");
+                        if (GUILayout.Button("Start", layout))
+                        {
+                            SmartValue.StartTask(task);
+                        }
                     }
+                    else if (state.State == TaskState.Running || state.State == TaskState.Paused)
+                    {
+                           
+                        if (GUILayout.Button("Stop", layout))
+                        {
+                            SmartValue.CancelTask(task);
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
                 }));
             }
 
-            tableView.EndDraw();
+            _tableView.EndDraw();
         }
 
-        protected override TaskManagerState CreateData(GenericHostInfo info)
-        {
-            return new TaskManagerState()
-            {
-                HostInfo = info,
-                TableView = new SimpleTableView("ID", "Name", "State", "");
-            };
-        }
-
-        protected override GenericHostInfo GetHostInfo(TaskManagerState data)
-        {
-            return data.HostInfo;
-        }
+        // protected override TaskManagerState CreateData(GenericHostInfo info)
+        // {
+        //     return new TaskManagerState()
+        //     {
+        //         HostInfo = info,
+        //         TableView = new SimpleTableView("ID", "Name", "State", "")
+        //     };
+        // }
+        //
+        // protected override GenericHostInfo GetHostInfo(TaskManagerState data)
+        // {
+        //     return data.HostInfo;
+        // }
     }
 }

@@ -15,19 +15,19 @@ namespace Rhinox.Magnus.Tasks
     /// </summary>
     [SerializedGuidProcessor(nameof(LookupOverride))]
     [StepDataGenerator(nameof(ToStepData))]
-    public class SubDataTask : MonoBehaviour, IDataTaskIdentifier, IValueReferenceResolverProvider, IIdentifiable // TODO: rework this as a step that waits/registers another task
+    public class SubDataTask : MonoBehaviour, /*IDataTaskIdentifier,*/ IValueReferenceResolverProvider, IIdentifiable // TODO: rework this as a step that waits/registers another task
     {
         [TaskSelector, DisableInPlayMode] [OnValueChanged(nameof(RefreshTaskData))]
         public int TaskId = -1;
 
         [HideIf("@TaskId < 0")] public ValueReferenceLookupOverride LookupOverride;
 
-        private IReadOnlyList<BaseStepState> _generatedSteps;
-        public IReadOnlyList<BaseStepState> Steps => _generatedSteps;
+        private IReadOnlyList<StepData> _generatedSteps;
+        public IReadOnlyList<StepData> Steps => _generatedSteps;
 
         public SerializableGuid ID { get; set; }
 
-        public bool IsActive => !Steps.IsNullOrEmpty() && Steps.Any(x => x.State == ProcessState.Running);
+        //public bool IsActive => !Steps.IsNullOrEmpty() && Steps.Any(x => x.State == ProcessState.Running);
 
         protected void Awake()
         {
@@ -70,15 +70,15 @@ namespace Rhinox.Magnus.Tasks
                 .ToArray();
         }
 
-        private IReadOnlyList<BaseStepState> GenerateSteps()
+        private IReadOnlyList<StepData> GenerateSteps()
         {
-            if (TaskId < 0) return Array.Empty<BaseStepState>();
+            if (TaskId < 0) return Array.Empty<StepData>();
 
             var dataTask = GetTaskData();
             var steps = TaskObjectUtility.GenerateSteps(dataTask, transform);
-
-            foreach (var step in steps)
-                step.SetValueResolver(LookupOverride);
+            // TODO: how to handle value resolver
+            // foreach (var step in steps)
+            //     step.SetValueResolver(LookupOverride);
 
             return steps;
         }
@@ -89,12 +89,12 @@ namespace Rhinox.Magnus.Tasks
                 RefreshTaskData();
         }
 
-        public bool HasPassed(BaseStepState step)
-        {
-            var stepI = Steps.IndexOf(step);
-            var currentStepI = Steps.FindIndex(x => x.State == ProcessState.Running);
-            return currentStepI >= stepI;
-        }
+        // public bool HasPassed(BaseStepState step)
+        // {
+        //     // var stepI = Steps.IndexOf(step);
+        //     // var currentStepI = Steps.FindIndex(x => x.State == ProcessState.Running);
+        //     // return currentStepI >= stepI;
+        // }
 
         private StepData ToStepData()
         {

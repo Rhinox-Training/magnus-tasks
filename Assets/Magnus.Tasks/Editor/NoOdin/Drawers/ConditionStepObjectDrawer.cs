@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Rhinox.GUIUtils;
 using Rhinox.GUIUtils.Editor;
 using Rhinox.Lightspeed;
+using Rhinox.Lightspeed.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,6 +19,45 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             public GenericHostInfo HostInfo;
             public TypePicker Picker;
             public Type SelectedType;
+        }
+
+        protected override float GetPropertyHeight(GUIContent label, in DrawerData data)
+        {
+            return GetInnerDrawerHeight(label) + CustomGUIUtility.Padding + EditorGUIUtility.singleLineHeight;
+        }
+
+        protected override void DrawProperty(Rect position, ref DrawerData data, GUIContent label)
+        {
+            var shiftedRect = CallInnerDrawer(position, label);
+
+            var buttonRect = shiftedRect.AlignTop(EditorGUIUtility.singleLineHeight);
+            if (GUI.Button(buttonRect, "Add Condition"))
+            {
+                data.Picker.Show(buttonRect);
+            }
+
+            if (Event.current.type == EventType.Layout)
+            {
+                if (data.SelectedType != null)
+                {
+                    AddEntry(data.HostInfo, data.SelectedType);
+                    data.SelectedType = null;
+                }
+            }
+
+            var parentHost = data.HostInfo.Parent;
+            var isUnityInspectorContext =
+                parentHost != null && parentHost.GetReturnType().InheritsFrom(typeof(StepBehaviour));
+            if (isUnityInspectorContext && SmartValue.Conditions != null & SmartValue.Conditions.Count > 1)
+            {
+                var secondOption = buttonRect.MoveDownLine();
+                if (GUI.Button(secondOption, "Split Conditions Into Separate Steps"))
+                {
+                    var stepBehaviour = parentHost.GetSmartValue<StepBehaviour>();
+                    SplitConditionsIntoSteps(stepBehaviour.gameObject, ref SmartValue.Conditions);
+                    HostInfo.ForceNotifyValueChanged();
+                }
+            }
         }
 
         protected override DrawerData CreateData(GenericHostInfo info)
@@ -46,26 +87,6 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             return data.HostInfo;
         }
 
-        protected override void DrawProperty(Rect position, ref DrawerData data, GUIContent label)
-        {
-            var shiftedRect = CallInnerDrawer(position, label);
-
-            var buttonRect = shiftedRect.AlignTop(EditorGUIUtility.singleLineHeight);
-            if (GUI.Button(buttonRect, "Add Condition"))
-            {
-                data.Picker.Show(buttonRect);
-            }
-
-            if (Event.current.type == EventType.Layout)
-            {
-                if (data.SelectedType != null)
-                {
-                    AddEntry(data.HostInfo, data.SelectedType);
-                    data.SelectedType = null;
-                }
-            }
-        }
-
         private void AddEntry(GenericHostInfo hostInfo, Type type)
         {
             if (type == null)
@@ -77,26 +98,54 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             var conditionData = ConditionDataHelper.FromCondition(conditionObj);
 
             var stepObject = hostInfo.GetSmartValue<ConditionStepData>();
-            // TODO: enable conversion
-            //EditorParamDataHelper.ConvertToEditor(ref conditionData);
             if (stepObject.Conditions == null)
                 stepObject.Conditions = new List<BaseObjectDataContainer>();
+            
             stepObject.Conditions.Add(conditionData);
             hostInfo.ForceNotifyValueChanged();
-            // var conditionsProperty = Property.FindChild(x => x.Name == nameof(ConditionStepObject.Conditions), false);
-            // var conditionsValueEntry = conditionsProperty != null ? conditionsProperty.ValueEntry as IPropertyValueEntry<List<ConditionData>> : null;
-            //
-            // if (conditionsValueEntry.SmartValue == null)
-            //     conditionsValueEntry.SmartValue = new List<ConditionData>();
-            //
-            // EditorParamDataHelper.ConvertToEditor(ref conditionData);
-            //
-            // conditionsValueEntry.SmartValue.Add(conditionData);
         }
-
-        protected override float GetPropertyHeight(GUIContent label, in DrawerData data)
+        
+        private void SplitConditionsIntoSteps(GameObject go, ref List<BaseObjectDataContainer> conditions)
         {
-            return GetInnerDrawerHeight(label) + CustomGUIUtility.Padding + EditorGUIUtility.singleLineHeight;
+            var siblingIndex = go.transform.GetSiblingIndex();
+            var newObjects = new GameObject[conditions.Count - 1];
+
+            var foundNumberings = Utility.FindAlphabetNumbering(go.name);
+            int baseNumber = 1;
+            Group regexGroup = null;
+            if (foundNumberings.Length == 1)
+            {
+                regexGroup = foundNumberings[0];
+                baseNumber = Utility.AlphabetToNum(regexGroup.Value);
+            }
+            // 1 cause we skip the first condition (it is kept on this go)
+            for (var i = 1; i < conditions.Count; ++i)
+            {
+                var nextName = go.name;
+                if (regexGroup != null)
+                {
+                    var alphaNum = Utility.NumToAlphabet(baseNumber + i);
+                    nextName = nextName.Replace(regexGroup.Index, regexGroup.Length, alphaNum);
+                }
+
+                var newGo = Utility.Create(nextName, go.transform.parent);
+#if UNITY_EDITOR
+                Undo.RegisterCreatedObjectUndo(newGo, "Split Step Conditions");
+#endif
+                newGo.transform.SetSiblingIndex(siblingIndex + i);
+                var newStep = newGo.AddComponent<StepBehaviour>();
+                var conditionStepData = new ConditionStepData();
+                conditionStepData.Conditions.Add(conditions[i]);
+
+                newObjects[i - 1] = newGo;
+            }
+            
+#if UNITY_EDITOR
+            Undo.RegisterCompleteObjectUndo(go, "Split Step Conditions");
+#endif
+            
+            // remove conditions from original (don't do it earlier to leave for loop in peace
+            conditions.RemoveRange(1, newObjects.Length);
         }
     }
 }

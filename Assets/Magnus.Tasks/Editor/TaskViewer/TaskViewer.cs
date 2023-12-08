@@ -222,7 +222,7 @@ namespace Rhinox.Magnus.Tasks.Editor
 
                 foreach (var step in task.GetComponentsInChildren<BaseStepState>())
                 {
-                    var item = new UIMenuItem(tree, task.name + "/" + step.name, step);
+                    var item = new UIMenuItem(tree, task.name + "/" + step.Data.Name, step);
                     //TODO : support search string
                     //item.SearchString = GenerateSearchString(task, step);
                     tree.AddCustom(item);
@@ -233,20 +233,20 @@ namespace Rhinox.Magnus.Tasks.Editor
             return tree;
         }
 
-        private string GenerateSearchString(TaskBehaviour task, BaseStepState step)
-        {
-            var builder = new StringBuilder();
-            builder.Append(task.name);
-            foreach (var searchList in TaskViewerSettings.All)
-            {
-                if (searchList.Type == typeof(BaseStepState))
-                    searchList.AddToBuilder(builder, step);
-                else
-                    searchList.FindAndAddToBuilder(builder, step.gameObject);
-            }
-
-            return builder.ToString();
-        }
+        // private string GenerateSearchString(TaskBehaviour task, BaseStepState step)
+        // {
+        //     var builder = new StringBuilder();
+        //     builder.Append(task.name);
+        //     foreach (var searchList in TaskViewerSettings.All)
+        //     {
+        //         if (searchList.Type == typeof(BaseStepState))
+        //             searchList.AddToBuilder(builder, step);
+        //         else
+        //             searchList.FindAndAddToBuilder(builder, step.gameObject);
+        //     }
+        //
+        //     return builder.ToString();
+        // }
 
         private void OnSelectionChanged(Rhinox.GUIUtils.Editor.SelectionChangedType type)
         {

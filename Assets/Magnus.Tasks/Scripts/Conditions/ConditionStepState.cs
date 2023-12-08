@@ -22,7 +22,7 @@ namespace Rhinox.Magnus.Tasks
         public bool OrderedConditions = false;
         
         [OnValueChanged(nameof(OnConditionsChanged)), ListDrawerSettings(Expanded = true)]
-        [CustomContextMenu("Split into Steps", nameof(SplitConditionsIntoSteps)), TabGroup("Settings")]
+        [TabGroup("Settings")]
         [SerializeReference]
         public List<BaseCondition> Conditions = new List<BaseCondition>();
 
@@ -43,7 +43,7 @@ namespace Rhinox.Magnus.Tasks
                 var condition = Conditions[i];
                 if (condition == null)
                 {
-                    PLog.Error<MagnusLogger>($"Condition is null!", associatedObject: gameObject);
+                    PLog.Error<MagnusLogger>($"Condition is null!");
                     continue;
                 }
 
@@ -60,7 +60,7 @@ namespace Rhinox.Magnus.Tasks
                 
                 Conditions[i].Init(_valueResolver); 
                 if (!Conditions[i].Initialized)
-                    PLog.Error<MagnusLogger>($"! Condition {i} failed to initialize -> Condition will be skipped!", associatedObject: gameObject);
+                    PLog.Error<MagnusLogger>($"! Condition {i} failed to initialize -> Condition will be skipped!");
             }
         }
 
@@ -74,13 +74,6 @@ namespace Rhinox.Magnus.Tasks
             
             _activeConditions.Clear();
             ActiveConditionsChanged?.Invoke();
-        }
-
-        protected override void OnResetStep()
-        {
-            base.OnResetStep();
-            foreach (var condition in Conditions)
-                condition.ResetCondition();
         }
 
         protected override void OnStepStarted()
@@ -180,48 +173,6 @@ namespace Rhinox.Magnus.Tasks
                 if (condition.OnConditionMet.Events == null)
                     condition.OnConditionMet.Events = new List<BetterEventEntry>();
             }
-        }
-
-        private void SplitConditionsIntoSteps()
-        {
-            var siblingIndex = transform.GetSiblingIndex();
-            var newObjects = new GameObject[Conditions.Count - 1];
-
-            var foundNumberings = Utility.FindAlphabetNumbering(name);
-            int baseNumber = 1;
-            Group regexGroup = null;
-            if (foundNumberings.Length == 1)
-            {
-                regexGroup = foundNumberings[0];
-                baseNumber = Utility.AlphabetToNum(regexGroup.Value);
-            }
-            // 1 cause we skip the first condition (it is kept on this go)
-            for (var i = 1; i < Conditions.Count; ++i)
-            {
-                var nextName = name;
-                if (regexGroup != null)
-                {
-                    var alphaNum = Utility.NumToAlphabet(baseNumber + i);
-                    nextName = nextName.Replace(regexGroup.Index, regexGroup.Length, alphaNum);
-                }
-
-                var newGo = Utility.Create(nextName, transform.parent);
-#if UNITY_EDITOR
-                Undo.RegisterCreatedObjectUndo(newGo, "Split Step Conditions");
-#endif
-                newGo.transform.SetSiblingIndex(siblingIndex + i);
-                var newStep = newGo.AddComponent<ConditionStepState>();
-                newStep.Conditions.Add(Conditions[i]);
-
-                newObjects[i - 1] = newGo;
-            }
-            
-#if UNITY_EDITOR
-            Undo.RegisterCompleteObjectUndo(this, "Split Step Conditions");
-#endif
-            
-            // remove conditions from original (don't do it earlier to leave for loop in peace
-            Conditions.RemoveRange(1, newObjects.Length);
         }
 
 #if UNITY_EDITOR

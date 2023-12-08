@@ -17,25 +17,11 @@ namespace Rhinox.Magnus.Tasks
 	{
 		public StepData Data;
 		
-		[FormerlySerializedAs("TagContainer"), SerializeReference] 
-		[Title("Info"), VerticalGroup("CoreSettings", -100)]
-		private ITagContainer _tagContainer = new TagContainer();
-		public ITagContainer TagContainer
-		{
-			get => _tagContainer;
-			set => _tagContainer = value;
-		}
+		public ITagContainer TagContainer => Data.TagContainer;
 
-		[LabelWidth(50), VerticalGroup("CoreSettings", -100)]
-		public string Title;
-		[TextArea(1,3), VerticalGroup("CoreSettings", -100)]
-		public string Description;
+		public SerializableGuid ID => Data != null ? Data.ID : SerializableGuid.Empty;
 		
-		// Currently only filled in from TaskObject (to keep a reference from where it came)
-		// TODO probably don't want it to be a public setter
-		public SerializableGuid ID { get; set; }
-		
-		public ITaskState Container { get; private set; }
+		public ITaskObjectState Container { get; private set; }
 		
 		[PropertySpace, SerializeReference]
 		[ListDrawerSettings(Expanded = true), TabGroup("Settings", order: -100)]
@@ -71,7 +57,7 @@ namespace Rhinox.Magnus.Tasks
 		//==============================================================================================================
 		// Methods
 		
-		public void BindContainer(ITaskState container)
+		public void BindContainer(ITaskObjectState container)
 		{
 			if (container == Container)
 				return;
@@ -203,19 +189,6 @@ namespace Rhinox.Magnus.Tasks
 			StepCompleted?.Invoke();
 			Container.NotifyStepCompleted(this);
 		}
-
-		public void ResetStep()
-		{
-			if (State == ProcessState.None)
-				return;
-
-			State = ProcessState.Initialized;
-			OnResetStep();
-		}
-
-		protected virtual void OnResetStep()
-		{
-		}
 		
 		public bool RegisterPreStart(AwaitStepEvent awaitEvent)
 		{
@@ -269,12 +242,15 @@ namespace Rhinox.Magnus.Tasks
 		
 		protected virtual void OnValidate()
 		{
-			if (_tagContainer == null)
-				_tagContainer = new TagContainer();
-			_tagContainer.Validate();
+			if (TagContainer != null)
+				TagContainer.Validate();
 		}
 
-		public abstract BaseStepState GetNextStep();
-		public abstract bool HasNextStep();
+		public virtual StepData GetNextStep()
+		{
+			return Data != null ? Data.NextStep : null;
+		}
+
+		public bool HasNextStep() => GetNextStep() != null;
 	}
 }

@@ -51,16 +51,16 @@ namespace Rhinox.Magnus.Tasks.Editor
                 return;
             }
 
-            var go = comp.gameObject;
+            // TODO
 
-            foreach (var l in TaskViewerSettings.All)
-            {
-                if (typeof(BaseStepState).IsAssignableFrom(l.Type))
-                    continue;
-
-                var comps = go.GetComponentsInChildren(l.Type);
-                allComponents.AddRange(comps);
-            }
+            // foreach (var l in TaskViewerSettings.All)
+            // {
+            //     if (typeof(BaseStepState).IsAssignableFrom(l.Type))
+            //         continue;
+            //
+            //     var comps = go.GetComponentsInChildren(l.Type);
+            //     allComponents.AddRange(comps);
+            // }
 
             _components = allComponents.Distinct().Select(x => new EditorWrapper(x)).ToArray();
         }

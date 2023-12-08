@@ -9,7 +9,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
-{
+{    
+    public enum PopulationMode
+    {
+        None,
+        LoadStepsFromChildren,
+        LinearAssemblerFromChildren
+    }
+    
     [SmartFallbackDrawn(false)]
     [RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
     public class BasicTask : TaskBehaviour
@@ -51,8 +58,9 @@ namespace Rhinox.Magnus.Tasks
         {
             if (TaskData.Steps == null)
                 TaskData.Steps = new List<StepData>();
-            
-            foreach (var step in GetComponentsInChildren<StepBehaviour>())
+
+            var steps = GetComponentsInChildren<StepBehaviour>();
+            foreach (var step in steps)
             {
                 if (step == null)
                     continue;

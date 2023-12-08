@@ -38,8 +38,7 @@ namespace Rhinox.Magnus.Tasks
             if (!Data.ButtonToPress.isActiveAndEnabled)
             {
                 SetConditionMet();
-                PLog.Error<MagnusLogger>("Autocompleted ButtonClickCondition due to unavailable button.",
-                    associatedObject: Step);
+                PLog.Error<MagnusLogger>("Autocompleted ButtonClickCondition due to unavailable button.");
                 return;
             }
 
