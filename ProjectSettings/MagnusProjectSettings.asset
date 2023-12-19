@@ -136,9 +136,12 @@ MonoBehaviour:
     TypeFactories:
     - id: 0
     - id: 1
+    - id: 2
   references:
     version: 1
     00000000:
       type: {class: DefaultDynamicTypeBuilder, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
     00000001:
-      type: {class: DefaultDynamicTypeBuilder, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      type: {class: ConstValueResolverFactory, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+    00000002:
+      type: {class: UnityValueResolverFactory, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}

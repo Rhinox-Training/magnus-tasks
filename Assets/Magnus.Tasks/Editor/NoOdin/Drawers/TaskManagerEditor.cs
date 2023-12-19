@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 {
     [CustomEditor(typeof(TaskManager))]
-    public class TaskManagerDrawer : DefaultEditorExtender<TaskManager>
+    public class TaskManagerEditor : DefaultEditorExtender<TaskManager>
     {
         private SimpleTableView _tableView;
 

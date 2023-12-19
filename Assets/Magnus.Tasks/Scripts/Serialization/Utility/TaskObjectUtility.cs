@@ -40,18 +40,19 @@ namespace Rhinox.Magnus.Tasks
             return list;
         }
 
-        public static BaseStepState CreateStepState(StepData stepData, IReferenceResolver referenceResolver)
+        public static bool TryCreateStepState(StepData stepData, IReferenceResolver referenceResolver, out BaseStepState stepState)
         {
             BaseStepState step = null;
             TryApplyStepData(stepData, referenceResolver, ref step);
-
+            
             if (stepData.SubStepData != null)
             {
                 foreach (var subData in stepData.SubStepData)
                     TryApplyStepData(subData, referenceResolver, ref step);
             }
 
-            return step;
+            stepState = step;
+            return step != null;
         }
 
         private static bool TryApplyStepData(object stepData, IReferenceResolver hostResolver, ref BaseStepState step)

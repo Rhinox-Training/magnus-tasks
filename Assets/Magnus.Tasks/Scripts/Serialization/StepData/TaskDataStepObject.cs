@@ -5,7 +5,6 @@ namespace Rhinox.Magnus.Tasks
     // Does not need a SerializedGuidProcessor Attribute, due to never being used to do anything
     public class TaskDataStepObject : StepData
     {
-        public TagContainer TagContainer;
         public int TaskId = -1;
         public ValueReferenceLookupOverride LookupOverride;
 

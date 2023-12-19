@@ -193,7 +193,12 @@ namespace Rhinox.Magnus.Tasks
 
         protected BaseStepState BuildStepState(StepData data)
         {
-            var stepState = TaskObjectUtility.CreateStepState(data, TaskData.Lookup);
+            if (!TaskObjectUtility.TryCreateStepState(data, TaskData.Lookup, out var stepState))
+            {
+                PLog.Error<MagnusLogger>($"Failed to create stepState for data: {data.Name}");
+                return null;
+            }
+            
             BindContainer(stepState);
             stepState.Initialize();
             return stepState;
@@ -242,15 +247,16 @@ namespace Rhinox.Magnus.Tasks
             if (_stepStates == null)
                 _stepStates = new List<BaseStepState>();
             
-            if (ActiveStepState == null)
+            if (ActiveStepState == null && _stepStates.Count == 0)
             {
-                ActiveStepState = BuildStepState(TaskData.StartStep);
-                _stepStates.Add(ActiveStepState);
-                if (ActiveStepState == null)
+                var stepState = BuildStepState(TaskData.StartStep);
+                if (stepState == null)
                 {
-                    PLog.Trace<MagnusLogger>($"CurrentStep is null for Task '{TaskData.Name}'.");
+                    PLog.Trace<MagnusLogger>($"Start step failed to build state for Task '{TaskData.Name}'.");
                     return;
                 }
+                ActiveStepState = stepState;
+                _stepStates.Add(ActiveStepState);
                 ActiveStepState.StartStep();
             }
             else if (ActiveStepState != null && ActiveStepState.State == ProcessState.Finished)
@@ -259,15 +265,17 @@ namespace Rhinox.Magnus.Tasks
 
                 CloseStep(ActiveStepState);
                 
-                ActiveStepState = BuildStepState(stepData);
-                _stepStates.Add(ActiveStepState);
-                PLog.Info<MagnusLogger>($"Moving on to next step ({ActiveStepState.ID})....");
-
-                if (ActiveStepState == null)
+                var nextStepState = BuildStepState(stepData);
+                if (nextStepState == null)
                 {
-                    PLog.Trace<MagnusLogger>($"CurrentStep is null for Task '{TaskData.Name}'.");
+                    ActiveStepState = null; // Set active step to null, to prevent loops in this logic tree
+                    PLog.Debug<MagnusLogger>($"Next proposed active step state is null for Task '{TaskData.Name}'.");
                     return;
                 }
+
+                ActiveStepState = nextStepState;
+                _stepStates.Add(ActiveStepState);
+                PLog.Info<MagnusLogger>($"Moving on to next step ({ActiveStepState.ID})....");
                 
                 ActiveStepState.StartStep();
             }

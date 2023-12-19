@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
+using Rhinox.Lightspeed.Collections;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
@@ -33,14 +34,27 @@ namespace Rhinox.Magnus.Tasks
 
     [Serializable]
 // [ShowOdinSerializedPropertiesInInspector]
-    public class ValueReferenceLookup : IReferenceResolver
+    public class ValueReferenceLookup : IReferenceResolver, ISerializationCallbackReceiver
     {
+        #region Serialization
+        [Serializable]
+        public class DefaultTypeReferenceKeyList : List<DefaultTypeReferenceKey> 
+        {
+            public DefaultTypeReferenceKeyList() { }
+            public DefaultTypeReferenceKeyList(IEnumerable<DefaultTypeReferenceKey> entries)
+            {
+                this.AddRange(entries);
+            } 
+        }
+        [Serializable]
+        public class TypeDefaultsDictionary : SerializableDictionary<SerializableType, DefaultTypeReferenceKeyList> { }
+        [Serializable]
+        public class ValueResolversDictionary : SerializableDictionary<SerializableGuid, IValueResolver> { }
+        #endregion
+        
+        public TypeDefaultsDictionary DefaultsByType = new TypeDefaultsDictionary();
 
-        public Dictionary<SerializableType, DefaultTypeReferenceKey[]> DefaultsByType =
-            new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
-
-        public Dictionary<SerializableGuid, IValueResolver> ValueResolversByKey =
-            new Dictionary<SerializableGuid, IValueResolver>();
+        public ValueResolversDictionary ValueResolversByKey = new ValueResolversDictionary();
 
         public List<ReferenceKey> Keys = new List<ReferenceKey>();
 
@@ -89,14 +103,13 @@ namespace Rhinox.Magnus.Tasks
 
             var keyType = new SerializableType(valRefAttr.ReferenceType);
             if (!DefaultsByType.ContainsKey(keyType))
-                DefaultsByType.Add(keyType, new[] {defaultRefKey});
+                DefaultsByType.Add(keyType, new DefaultTypeReferenceKeyList() {defaultRefKey});
             else
             {
                 var entryIndex = DefaultsByType[keyType].FindIndex(x => x.FieldData.Field.Equals(field));
                 if (entryIndex == -1)
                 {
-                    var arr = DefaultsByType[keyType].Union(new[] {defaultRefKey}).ToArray();
-                    DefaultsByType[keyType] = arr;
+                    DefaultsByType[keyType].AddUnique(defaultRefKey);
                 }
                 else
                 {
@@ -198,9 +211,7 @@ namespace Rhinox.Magnus.Tasks
 
         public SerializableGuid Register<T>(string defaultName)
         {
-            if (typeof(T).InheritsFrom<UnityEngine.Object>())
-                return Register(defaultName, ValueResolverHelper.Create(typeof(T)));
-            return Register(defaultName, new ConstValueResolver<T>());
+            return Register(defaultName, ValueResolverHelper.Create(typeof(T)));
         }
 
         public SerializableGuid Register(string defaultName, Type objectType)
@@ -329,11 +340,21 @@ namespace Rhinox.Magnus.Tasks
             var defaultTypeReferenceKeys = DefaultsByType[keyType];
             if (defaultTypeReferenceKeys == null)
                 return false;
-            int count = defaultTypeReferenceKeys.Length;
-            defaultTypeReferenceKeys = defaultTypeReferenceKeys.Where(x => !x.FieldData.Field.Equals(field)).ToArray();
-            int newCount = defaultTypeReferenceKeys.Length;
+            int count = defaultTypeReferenceKeys.Count;
+            defaultTypeReferenceKeys = new DefaultTypeReferenceKeyList(defaultTypeReferenceKeys.Where(x => !x.FieldData.Field.Equals(field)));
+            int newCount = defaultTypeReferenceKeys.Count;
             DefaultsByType[keyType] = defaultTypeReferenceKeys;
             return newCount != count;
+        }
+
+        public void OnBeforeSerialize()
+        {
+            
+        }
+
+        public void OnAfterDeserialize()
+        {
+            
         }
     }
 }

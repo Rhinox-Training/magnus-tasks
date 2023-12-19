@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -150,7 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9dc0d3caaf8c364ba6e8f37ee246065, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunTaskOnStart: 1
 --- !u!4 &121692909
 Transform:
   m_ObjectHideFlags: 0
@@ -690,12 +689,20 @@ MonoBehaviour:
     ID: 0
     Name: Data Task Test
     Lookup:
+      DefaultsByType:
+        _keyData: []
+        _valueData: []
+      ValueResolversByKey:
+        _keyData: []
+        _valueData: []
       Keys: []
     TagContainer:
       Tags: []
   TaskId: -1
   EndStep:
     SerializedBytes: 
+  references:
+    version: 1
 --- !u!1 &1284236223
 GameObject:
   m_ObjectHideFlags: 0
@@ -1020,11 +1027,36 @@ MonoBehaviour:
     ID: 0
     Name: Basic Task
     Lookup:
-      Keys: []
+      DefaultsByType:
+        _keyData: []
+        _valueData: []
+      ValueResolversByKey:
+        _keyData:
+        - SerializedBytes: 3ad0234e185f184998fbb690b342553c
+        _valueData:
+        - id: 0
+      Keys:
+      - Guid:
+          SerializedBytes: 3ad0234e185f184998fbb690b342553c
+        Name: asdfsaf
+        ValueType:
+          _assemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+          _assemblyQualifiedName: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+          _name: Boolean
+        OverrideIndex: 0
+        CustomName: 
     TagContainer:
       Tags: []
   AutoPopulate: 2
   ClearStepsInTaskData: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: System_Boolean_Rhinox_Magnus_Tasks_ConstValueResolver_Generated,
+        ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        Value: 0
 --- !u!4 &1651541342
 Transform:
   m_ObjectHideFlags: 0

@@ -12,8 +12,6 @@ namespace Rhinox.Magnus.Tasks.Editor
     /// </summary>
     public class PagedDrawerHelper
     {
-        public bool IsEnabled { get; set; }
-
         public int NumberOfItemsPerPage => _itemsPerPage;
 
         public int CurrentPage
@@ -49,21 +47,21 @@ namespace Rhinox.Magnus.Tasks.Editor
             this._itemsPerPage = itemsPerPage;
         }
 
-        public void DrawHeaderPagingButtons(ref Rect toolbarRect, bool showPaging, bool showItemCount,
-            int btnWidth = 23)
+        public void DrawHeaderPagingButtons(ref Rect toolbarRect, bool showPaging, bool showItemCount, int btnWidth = 23)
         {
-            if ((double) this._prevRect.height == 0.0)
+            if (!toolbarRect.IsValid())
+                return;
+            
+            // if (!_prevRect.IsValid())
+            // {
+            //     if (Event.current.type == UnityEngine.EventType.Repaint)
+            //         this._prevRect = toolbarRect;
+            // }
+            // else
             {
-                if (Event.current.type != UnityEngine.EventType.Repaint)
-                    return;
-                this._prevRect = toolbarRect;
-            }
-            else
-            {
-                if (this.IsEnabled && this._pageCount > 1)
+                if (this._pageCount > 1)
                 {
-                    Rect rect = toolbarRect.AlignRight((float) btnWidth, true);
-                    toolbarRect.xMax = rect.xMin;
+                    toolbarRect.SplitX(toolbarRect.width - btnWidth, out toolbarRect, out Rect rect);
                     if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarButtonCentered))
                     {
                         CustomEditorGUI.RemoveFocusControl();
@@ -71,95 +69,90 @@ namespace Rhinox.Magnus.Tasks.Editor
                     }
                 }
 
-                int? nextPageNumber;
-                bool flag1 = ((this.IsEnabled ? (this.ExpandAllPages ? 0 : 1) : 0)
-                              & (showPaging ? 1 : 0)) != 0 &&
-                             this._pageCount > 1;
-                if (flag1)
+                bool drawPagerButtons = !this.ExpandAllPages && showPaging && _pageCount > 1;
+                if (drawPagerButtons)
+                    DrawPagerButtons(toolbarRect, btnWidth);
+
+                if (showItemCount)
                 {
-                    Rect rect = toolbarRect.AlignRight((float) btnWidth, true);
-                    if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarButtonCentered))
-                    {
-                        CustomEditorGUI.RemoveFocusControl();
-                        if (Event.current.button == 1) // Right mouse click
-                        {
-                            this._nextPageNumber = new int?(this.PageCount - 1);
-                        }
-                        else
-                        {
-                            this._nextPageNumber = new int?(this._currentPage + 1);
-                            nextPageNumber = this._nextPageNumber;
-                            int pageCount = this._pageCount;
-                            if (nextPageNumber.GetValueOrDefault() >= pageCount & nextPageNumber.HasValue)
-                                this._nextPageNumber = new int?(0);
-                        }
-                    }
-                    toolbarRect.xMax = rect.xMin;
-                }
-                
-                if (flag1)
-                {
-                    int pageCount = this.PageCount;
-                    string text = "/ " + pageCount.ToString();
-
-                    // Rect rect1 = toolbarRect.AlignRightForText(text, CustomGUIStyles.Label, 5f);
-                    // toolbarRect.xMax = rect1.xMin;
-                    // Rect rect2 = toolbarRect.AlignRightBefore(x, rect1);
-                    // toolbarRect.xMax = rect2.xMin;
-                    
-                    float x = CustomGUIStyles.Label.CalcSize(new GUIContent(text)).x;
-                    Rect rect1 = toolbarRect.AlignRight(x + 5f, true);
-                    toolbarRect.xMax = rect1.xMin;
-                    Rect rect2 = toolbarRect.AlignRight(x - 4f, true);
-                    toolbarRect.xMax = rect2.xMin;
-                    rect2.xMin += 4f;
-                    --rect2.y;
-                    GUI.Label(rect1, text, CustomGUIStyles.CenteredLabel);
-                    int pageIndex = CustomEditorGUI.TrackMouseDragForIntegerChange(rect1, 0, this.CurrentPage);
-                    if (pageIndex != this.CurrentPage)
-                        this._nextPageNumber = new int?(pageIndex);
-                    int num3 = EditorGUI.IntField(rect2.AlignCenterVertical(15f), this.CurrentPage + 1) - 1;
-                    if (num3 != this.CurrentPage)
-                        this._nextPageNumber = new int?(num3);
-
-                    Rect rect = toolbarRect.AlignRight((float) btnWidth, true);
-                    if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarTab))
-                    {
-                        CustomEditorGUI.RemoveFocusControl();
-                        if (Event.current.button == 1)
-                        {
-                            this._nextPageNumber = new int?(0);
-                        }
-                        else
-                        {
-                            this._nextPageNumber = new int?(this._currentPage - 1);
-                            nextPageNumber = this._nextPageNumber;
-                            pageCount = 0;
-                            if (nextPageNumber.GetValueOrDefault() < pageCount & nextPageNumber.HasValue)
-                                this._nextPageNumber = new int?(this._pageCount - 1);
-                        }
-                    }
-
-                    Texture t = UnityIcon.AssetIcon("Fa_AngleLeft");
-                    EditorGUI.DrawTextureTransparent(rect, t);
-                    toolbarRect.xMax = rect.xMin;
+                    var content = GUIContentHelper.TempContent(ElementCount != 0 ? $"{ElementCount} items" : "Empty");
+                    float lblWidth = CustomGUIStyles.MiniLabel.CalcSize(content).x + 5f;
+                    toolbarRect.SplitX(toolbarRect.width - lblWidth, out toolbarRect, out Rect lblRect);
+                    GUI.Label(lblRect, content, CustomGUIStyles.MiniLabel);
                 }
 
-                if (showItemCount && Event.current.type != UnityEngine.EventType.Layout)
-                {
-                    string text = ElementCount != 0 ? $"{ElementCount} items" : "Empty";
-
-                    GUIContent content = new GUIContent(text);
-                    float width = CustomGUIStyles.MiniLabel.CalcSize(content).x + 5f;
-                    Rect position = toolbarRect.AlignRight(width);
-                    GUI.Label(position, content, CustomGUIStyles.MiniLabel);
-                    toolbarRect.xMax = position.xMin;
-                }
-
-                if (Event.current.type != UnityEngine.EventType.Repaint)
-                    return;
-                this._prevRect = toolbarRect;
+                // if (Event.current.type != UnityEngine.EventType.Repaint)
+                //     return;
+                // this._prevRect = toolbarRect;
             }
+        }
+
+        private void DrawPagerButtons(Rect toolbarRect, int btnWidth)
+        {
+            int? nextPageNumber;
+            Rect rect = toolbarRect.AlignRight((float) btnWidth, true);
+            if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarButtonCentered))
+            {
+                CustomEditorGUI.RemoveFocusControl();
+                if (Event.current.button == 1) // Right mouse click
+                {
+                    this._nextPageNumber = new int?(this.PageCount - 1);
+                }
+                else
+                {
+                    this._nextPageNumber = new int?(this._currentPage + 1);
+                    nextPageNumber = this._nextPageNumber;
+                    if (nextPageNumber.GetValueOrDefault() >= _pageCount & nextPageNumber.HasValue)
+                        this._nextPageNumber = new int?(0);
+                }
+            }
+
+            toolbarRect.xMax = rect.xMin;
+
+            int pageCount = this.PageCount;
+            string text = "/ " + pageCount.ToString();
+
+            // Rect rect1 = toolbarRect.AlignRightForText(text, CustomGUIStyles.Label, 5f);
+            // toolbarRect.xMax = rect1.xMin;
+            // Rect rect2 = toolbarRect.AlignRightBefore(x, rect1);
+            // toolbarRect.xMax = rect2.xMin;
+
+            float x = CustomGUIStyles.Label.CalcSize(new GUIContent(text)).x;
+            Rect rect1 = toolbarRect.AlignRight(x + 5f, true);
+            toolbarRect.xMax = rect1.xMin;
+            Rect rect2 = toolbarRect.AlignRight(x - 4f, true);
+            toolbarRect.xMax = rect2.xMin;
+            rect2.xMin += 4f;
+            --rect2.y;
+            GUI.Label(rect1, text, CustomGUIStyles.CenteredLabel);
+            int pageIndex = CustomEditorGUI.TrackMouseDragForIntegerChange(rect1, 0, this.CurrentPage);
+            if (pageIndex != this.CurrentPage)
+                this._nextPageNumber = new int?(pageIndex);
+            int num3 = EditorGUI.IntField(rect2.AlignCenterVertical(15f), this.CurrentPage + 1) - 1;
+            if (num3 != this.CurrentPage)
+                this._nextPageNumber = new int?(num3);
+
+            rect = toolbarRect.AlignRight((float) btnWidth, true);
+            if (GUI.Button(rect, GUIContent.none, CustomGUIStyles.ToolbarTab))
+            {
+                CustomEditorGUI.RemoveFocusControl();
+                if (Event.current.button == 1)
+                {
+                    this._nextPageNumber = new int?(0);
+                }
+                else
+                {
+                    this._nextPageNumber = new int?(this._currentPage - 1);
+                    nextPageNumber = this._nextPageNumber;
+                    pageCount = 0;
+                    if (nextPageNumber.GetValueOrDefault() < pageCount & nextPageNumber.HasValue)
+                        this._nextPageNumber = new int?(this._pageCount - 1);
+                }
+            }
+
+            Texture t = UnityIcon.AssetIcon("Fa_AngleLeft");
+            EditorGUI.DrawTextureTransparent(rect, t);
+            toolbarRect.xMax = rect.xMin;
         }
 
         protected void Resize(int elementCount)
@@ -167,19 +160,12 @@ namespace Rhinox.Magnus.Tasks.Editor
             this._elementCount = elementCount >= 0
                 ? elementCount
                 : throw new ArgumentOutOfRangeException("Non-negative number required.");
-            if (this.IsEnabled)
-            {
-                this._pageCount = Mathf.Max(1,
-                    Mathf.CeilToInt((float) this._elementCount / (float) this._itemsPerPage));
-                this._currentPage = Mathf.Clamp(this._currentPage, 0, this._pageCount - 1);
-                this._startIndex = this._currentPage * this._itemsPerPage;
-                this._endIndex = Mathf.Min(this._elementCount, this._startIndex + this._itemsPerPage);
-            }
-            else
-            {
-                this._startIndex = 0;
-                this._endIndex = this._elementCount;
-            }
+
+            this._pageCount = Mathf.Max(1,
+                Mathf.CeilToInt((float) this._elementCount / (float) this._itemsPerPage));
+            this._currentPage = Mathf.Clamp(this._currentPage, 0, this._pageCount - 1);
+            this._startIndex = this._currentPage * this._itemsPerPage;
+            this._endIndex = Mathf.Min(this._elementCount, this._startIndex + this._itemsPerPage);
 
             if (Event.current.type != UnityEngine.EventType.Layout)
                 return;
