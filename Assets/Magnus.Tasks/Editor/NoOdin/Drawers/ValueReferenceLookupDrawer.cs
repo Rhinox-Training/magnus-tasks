@@ -255,7 +255,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                     float buttonFooter = EditorGUIUtility.singleLineHeight;
                     float elementHeight = 2.0f * EditorGUIUtility.singleLineHeight;
                     float visibleElements = elementHeight * _pager.VisibleLines;
-                    float pageHeight = visibleElements + (_pager.SearchFieldEnabled ? EditorGUIUtility.singleLineHeight : 0.0f);
+                    float pageHeight = visibleElements + EditorGUIUtility.singleLineHeight;
                     return pageHeight + buttonFooter + tabHeaderHeight;
                 }
                 else if (_activeTab == Tabs.DefaultsTab)
@@ -277,11 +277,11 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             if (_keysValueEntry.SmartValue == null)
                 _keysValueEntry.SmartValue = new List<ReferenceKey>();
 
-            //SirenixEditorGUI.BeginVerticalList(false, false);
-
+            // Leave space for buttons at end
             if (pageRect.IsValid())
                 pageRect.yMax -= EditorGUIUtility.singleLineHeight;
-            _pager.BeginDrawPager(ref pageRect, _validKeyIds);
+            
+            _pager.BeginDrawPager(pageRect, _validKeyIds);
 
             int elementCount = _pager.EndIndex - _pager.StartIndex;
             var elementRect = pageRect.BeginList(elementCount);
@@ -294,37 +294,28 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 var i = _validKeyIds[elementIndex];
                 var key = _keysValueEntry.SmartValue[i];
 
-                //SirenixEditorGUI.BeginListItem();
+                
+                if (!_resolverPropertyByKey.ContainsKey(key) || _resolverPropertyByKey[key] == null)
+                    _resolverPropertyByKey[key] = FindResolverPropertyForKey(key);
 
+                var resolverProp = _resolverPropertyByKey[key];
+                
+                var elementFirstLine = elementRect.SetHeight(EditorGUIUtility.singleLineHeight);    
 
-                //using (new EditorGUILayout.HorizontalScope())
+                //_keysProperty.Children[i].Draw();
+                var elementSecondLine = elementFirstLine.MoveDownLine();
+                if (resolverProp != null)
+                    resolverProp.Draw(elementSecondLine, GUIContent.none);
+
+                var iconRect = elementSecondLine.AlignRight(18.0f);
+                // Delete
+                if (CustomEditorGUI.IconButton(iconRect, UnityIcon.AssetIcon("Fa_Times")))
                 {
-                    if (!_resolverPropertyByKey.ContainsKey(key) || _resolverPropertyByKey[key] == null)
-                        _resolverPropertyByKey[key] = FindResolverPropertyForKey(key);
+                    SmartValue.Deregister(_keysValueEntry.SmartValue[i].Guid);
+                    RefreshData();
+                }
 
-                    var resolverProp = _resolverPropertyByKey[key];
-                    
-                    //using (new EditorGUILayout.VerticalScope())
-                    //{
-                        var elementFirstLine = elementRect.SetHeight(EditorGUIUtility.singleLineHeight);    
-
-                        //_keysProperty.Children[i].Draw();
-                        var elementSecondLine = elementFirstLine.MoveDownLine();
-                        if (resolverProp != null)
-                            resolverProp.Draw(elementSecondLine, GUIContent.none);
-                    //}
-
-                    //using (new EditorGUILayout.VerticalScope(GUILayout.Width(20)))
-                    //{
-                        var iconRect = elementSecondLine.AlignRight(18.0f);
-                        // Delete
-                        if (CustomEditorGUI.IconButton(iconRect, UnityIcon.AssetIcon("Fa_Times")))
-                        {
-                            SmartValue.Deregister(_keysValueEntry.SmartValue[i].Guid);
-                            RefreshData();
-                        }
-
-                        // Check usages
+                    // Check usages
 //                         var hasUsageData = HostInfo.Parent.GetReturnType()
 //                             .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
 //                         if (hasUsageData && host != null &&
@@ -337,19 +328,16 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 //                         OdinEditorWindow.InspectObjectInDropDown(usagesInfo);
 // #endif
 //                         }
-                    //}
-                }
 
                 elementRect = elementRect.MoveNext(pageRect);
-                //SirenixEditorGUI.EndListItem();
             }
 
             _pager.EndDrawPager();
 
 
 
-            pageRect = pageRect.MoveBeneath(EditorGUIUtility.singleLineHeight);
-            DrawKeyListButtons(pageRect, host);
+            var keylistButtonsRect = pageRect.MoveBeneath(EditorGUIUtility.singleLineHeight);
+            DrawKeyListButtons(keylistButtonsRect, host);
             //SirenixEditorGUI.EndVerticalList();
 
         }

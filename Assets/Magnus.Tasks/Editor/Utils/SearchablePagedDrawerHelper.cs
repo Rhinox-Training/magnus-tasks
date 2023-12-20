@@ -16,7 +16,7 @@ namespace Rhinox.Magnus.Tasks.Editor
         public bool SearchFieldEnabled;
         public string SearchText;
         public bool RequiresRefresh { get; private set; }
-        public int VisibleLines => Math.Min(NumberOfItemsPerPage, _optionsCache?.Count ?? 0);
+        public int VisibleLines => Math.Min(NumberOfItemsPerPage, _elementCount);
 
         private Rect _prevRect;
 
@@ -48,7 +48,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             return toolbarRect;
         }
         
-        public void BeginDrawPager(ref Rect pageRect, ICollection options, bool showPaging = true, bool showItemCount = true)
+        public void BeginDrawPager(Rect pageRect, ICollection options, bool showPaging = true, bool showItemCount = true)
         {
             _optionsCache = options;
             Resize(_optionsCache.Count);

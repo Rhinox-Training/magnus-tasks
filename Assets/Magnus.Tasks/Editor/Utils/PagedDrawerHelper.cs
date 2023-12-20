@@ -33,7 +33,7 @@ namespace Rhinox.Magnus.Tasks.Editor
         public bool ExpandAllPages;
 
         private Rect _prevRect;
-        private int _elementCount;
+        protected int _elementCount;
         private int _currentPage;
         private int _startIndex;
         private int _endIndex;

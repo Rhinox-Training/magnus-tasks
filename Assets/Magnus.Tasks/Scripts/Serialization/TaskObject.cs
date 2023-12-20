@@ -4,6 +4,7 @@ using System.Linq;
 using Rhinox.Lightspeed;
 using Rhinox.Perceptor;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Rhinox.Magnus.Tasks
 {
@@ -12,6 +13,7 @@ namespace Rhinox.Magnus.Tasks
     {
         public int ID;
         public string Name;
+        [SerializeReference]
         public List<StepData> Steps;
         public ValueReferenceLookup Lookup;
         public TagContainer TagContainer;

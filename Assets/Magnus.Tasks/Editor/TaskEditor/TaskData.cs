@@ -21,7 +21,7 @@ namespace Rhinox.Magnus.Tasks.Editor
         public string TaskName => Task.Name;
         
         [ShowInInspector, HideLabel]
-        [HorizontalGroup("TaskEntry/Left", MaxWidth = 90)]
+        [HorizontalGroup("TaskEntry/Left", MaxWidth = 90)] 
         [CustomValueDrawer(nameof(NumberOfStepsDrawer))]
         public int NumberOfSteps => Task.Steps != null ? Task.Steps.Count : 0;
         
