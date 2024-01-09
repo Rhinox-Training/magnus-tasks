@@ -61,6 +61,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             // SirenixEditorGUI.HorizontalLineSeparator but it respects indent
             r = EditorGUI.IndentedRect(r);
             CustomEditorGUI.DrawSolidRect(r, CustomGUIStyles.BorderColor);
+            var originalRect = r;
 
             List<string> _tagsToRemove = new List<string>();
 
@@ -114,7 +115,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                 var plusIconRect = innerRect.SetHeight(14).AlignRight(14);
                 if (CustomEditorGUI.IconButton(plusIconRect, UnityIcon.AssetIcon("Fa_Plus")))
                 {
-                    OpenSelector(r, container);
+                    OpenSelector(originalRect, container);
                 }
                 //SirenixEditorGUI.EndBox();
             }

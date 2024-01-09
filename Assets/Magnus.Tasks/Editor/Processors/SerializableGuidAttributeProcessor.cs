@@ -9,6 +9,10 @@ using Rhinox.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector.Editor;
+#endif
+
 namespace Rhinox.Magnus.Tasks.Editor
 {
     public class SerializableGuidAttributeProcessor : BaseAttributeProcessor<SerializableGuid>
