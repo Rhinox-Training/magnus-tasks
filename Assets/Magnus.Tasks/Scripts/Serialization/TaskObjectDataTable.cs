@@ -7,7 +7,6 @@ using Rhinox.Vortex.File;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [DataEndPoint(typeof(FileEndPoint))]
     public class TaskObjectDataTable : DataTable<TaskObject>
     {
         protected override string _tableName => "task-objects";
