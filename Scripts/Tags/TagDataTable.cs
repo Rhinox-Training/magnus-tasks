@@ -3,7 +3,6 @@ using Rhinox.Vortex.File;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [DataEndPoint(typeof(FileEndPoint))]
     public class TagDataTable : DataTable<TagData>
     {
         protected override string _tableName => "tagdata";

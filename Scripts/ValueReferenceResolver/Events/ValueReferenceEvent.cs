@@ -17,7 +17,7 @@ namespace Rhinox.Magnus.Tasks
         [HideDuplicateReferenceBox]
         [HideReferenceObjectPicker,
          ListDrawerSettings(OnTitleBarGUI = "DrawInvokeButton", Expanded = true, CustomAddFunction = nameof(AddEvent))]
-        [LabelText("$property.Parent.NiceName")]
+        [LabelText("@$property.Parent.NiceName")]
         public List<ValueReferenceEventEntry> Events;
 
         private IReferenceResolver _referenceResolver;
