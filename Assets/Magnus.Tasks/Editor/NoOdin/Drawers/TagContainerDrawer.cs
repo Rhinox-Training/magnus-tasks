@@ -58,6 +58,13 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         protected override void DrawProperty(Rect r, ref GenericHostInfo data, GUIContent label)
         {
             TagContainer container = SmartValue;
+
+            if (container == null)
+            {
+                container = new TagContainer();
+                SmartValue = container;
+            }
+            
             // SirenixEditorGUI.HorizontalLineSeparator but it respects indent
             r = EditorGUI.IndentedRect(r);
             CustomEditorGUI.DrawSolidRect(r, CustomGUIStyles.BorderColor);
