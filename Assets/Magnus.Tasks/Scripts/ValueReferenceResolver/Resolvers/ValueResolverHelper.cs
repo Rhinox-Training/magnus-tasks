@@ -14,7 +14,7 @@ namespace Rhinox.Magnus.Tasks
             else
                 resolverType = typeof(ConstValueResolver<>).MakeGenericType(t);
 
-            return Activator.CreateInstance(resolverType) as IValueResolver;
+            return UnitySafeActivator.CreateInstance(resolverType) as IValueResolver;
         }
 
         public static IValueResolver CreateDefaultResolver(object value)

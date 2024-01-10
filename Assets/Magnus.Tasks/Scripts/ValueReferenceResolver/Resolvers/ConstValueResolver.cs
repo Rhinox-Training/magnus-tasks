@@ -10,7 +10,7 @@ namespace Rhinox.Magnus.Tasks
     }
 
 
-    [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
+    [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain"), GenericTypeGeneration]
     public class ConstValueResolver<T> : BaseValueResolver<T>
     {
         public override string SimpleName => "Constant";

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Rhinox.GUIUtils;
 using Rhinox.Lightspeed;
 using Rhinox.Magnus.Tasks;
@@ -14,13 +15,13 @@ namespace Rhinox.Magnus.Tasks.Editor
     public static class CrossoutConditionDrawer
     {
         private static bool _needsRefresh = true;
-        private static Dictionary<int, BaseStep> _stepById;
+        private static Dictionary<int, StepBehaviour> _stepById;
 
         private static TickDelay _delay;
 
         static CrossoutConditionDrawer()
         {
-            _stepById = new Dictionary<int, BaseStep>();
+            _stepById = new Dictionary<int, StepBehaviour>();
 
             EditorApplication.update += OnEditorUpdate;
             EditorApplication.hierarchyWindowItemOnGUI += DrawCrossOutCondition;
@@ -34,12 +35,13 @@ namespace Rhinox.Magnus.Tasks.Editor
 
         private static void DrawCrossOutCondition(int instanceID, Rect selectionRect)
         {
-            if (!Application.isPlaying || !TaskManager.HasInstance) return;
+            if (!Application.isPlaying || !TaskManager.HasInstance) 
+                return;
 
             if (_needsRefresh)
                 _stepById.Clear();
 
-            BaseStep step;
+            StepBehaviour step;
 
             if (_stepById.ContainsKey(instanceID))
             {
@@ -48,30 +50,33 @@ namespace Rhinox.Magnus.Tasks.Editor
             else
             {
                 var currentObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-                if (currentObject == null) return;
-                step = currentObject?.GetComponent<BaseStep>();
+                if (currentObject == null) 
+                    return;
+                step = currentObject.GetComponent<StepBehaviour>();
                 _stepById[instanceID] = step;
             }
 
-            if (step == null || step.Task == null)
+            if (step == null || step.StepData == null)
                 return;
 
-            bool hasPassedTask = false;
-            bool taskIsActive = step.Task.IsActive;
-            if (taskIsActive)
-            {
-                int activeI = step.Task.GetStepIndex(step.Task.ActiveStep);
-                int thisI = step.Task.GetStepIndex(step);
-                hasPassedTask = activeI > thisI;
-                taskIsActive = activeI >= 0;
-            }
+            var stepState = TaskManager.Instance.GetStateForStep(step.StepData);
+            if (stepState == null || stepState.State != ProcessState.Finished)
+                return;
 
-            if (step.IsStepCompleted() && (!taskIsActive || hasPassedTask))
+            if (stepState.CompletionState == CompletionState.Success)
             {
                 var rect = selectionRect.SetHeight(1);
                 rect = RectExtensions.AddY(rect, selectionRect.height / 2 - 1);
                 // Crossout
                 EditorGUI.DrawRect(rect, CustomGUIStyles.HoverColor);
+            }
+
+            if (stepState.CompletionState == CompletionState.Failure)
+            {
+                var rect = selectionRect.SetHeight(1);
+                rect = RectExtensions.AddY(rect, selectionRect.height - 1);
+                // Crossout
+                EditorGUI.DrawRect(rect, Color.red);
             }
         }
     }

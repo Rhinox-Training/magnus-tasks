@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -150,13 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9dc0d3caaf8c364ba6e8f37ee246065, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoLoadTasks: 0
-  _tasks:
-  - {fileID: 1651541341}
-  RunTaskOnStart: 1
-  TasksCompleted:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &121692909
 Transform:
   m_ObjectHideFlags: 0
@@ -305,33 +298,67 @@ MonoBehaviour:
   m_GameObject: {fileID: 214511418}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e03c3536fb6dbbc43a96de27dee83d26, type: 3}
+  m_Script: {fileID: 11500000, guid: e9977623255243c4ac692705a0f61b24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TagContainer:
-    Tags: []
-  Title: 
-  Description: 
-  StepTimingEvents: []
-  StepStarted:
-    m_PersistentCalls:
-      m_Calls: []
-  StepCompleted:
-    m_PersistentCalls:
-      m_Calls: []
-  OrderedConditions: 0
-  Conditions:
-  - id: 0
+  StepData:
+    id: 0
   references:
     version: 1
     00000000:
-      type: {class: TimeElapsedCondition, ns: Rhinox.VOLT.Domain, asm: com.rhinox.open.magnus.tasks}
+      type: {class: ConditionStepData, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
       data:
-        OnConditionMet:
+        TagContainer:
+          Tags: []
+        ID:
+          SerializedBytes: 82029e9f40f7ef48b4738aa190208f74
+        Name: Wait Step
+        Description: 
+        OnStarted:
           Events: []
-        OnBetterConditionMet:
+        OnCompleted:
           Events: []
-        TimeToWait: 5
+        OrderedConditions: 0
+        Conditions:
+        - id: 1
+    00000001:
+      type: {class: ObjectDataContainer, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        ReferenceDatas: []
+        ObjectType:
+          _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          _assemblyQualifiedName: Rhinox.Magnus.Tasks.TimeElapsedCondition, com.rhinox.open.magnus.tasks,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          _name: TimeElapsedCondition
+        Params:
+        - MemberInfo:
+            id: 2
+          MemberData:
+            id: 3
+    00000002:
+      type: {class: SerializableFieldInfo, ns: Rhinox.Lightspeed, asm: com.rhinox.open.lightspeed}
+      data:
+        _declaringType:
+          _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          _assemblyQualifiedName: Rhinox.Magnus.Tasks.TimeElapsedCondition, com.rhinox.open.magnus.tasks,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          _name: TimeElapsedCondition
+        _fieldType:
+          _assemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+          _assemblyQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+          _name: Single
+        _memberTypes: 4
+        _fieldName: TimeToWait
+        _isPublic: 1
+        _isStatic: 0
+    00000003:
+      type: {class: System_Single_Rhinox_Magnus_Tasks_ConstantDataSource_Generated,
+        ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        Data: 4
 --- !u!1 &528675022
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,75 +458,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &632705190
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 632705191}
-  - component: {fileID: 632705192}
-  m_Layer: 0
-  m_Name: Step 3
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &632705191
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 632705190}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1651541342}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &632705192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 632705190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e03c3536fb6dbbc43a96de27dee83d26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TagContainer:
-    Tags: []
-  Title: 
-  Description: 
-  StepTimingEvents: []
-  StepStarted:
-    m_PersistentCalls:
-      m_Calls: []
-  StepCompleted:
-    m_PersistentCalls:
-      m_Calls: []
-  OrderedConditions: 0
-  Conditions:
-  - id: 0
-  references:
-    version: 1
-    00000000:
-      type: {class: ButtonClickCondition, ns: , asm: com.rhinox.open.magnus.tasks}
-      data:
-        OnConditionMet:
-          Events: []
-        OnBetterConditionMet:
-          Events: []
-        ButtonToPress: {fileID: 1442867501}
-        ButtonIdentifier:
-          SerializedBytes: 
 --- !u!1 &862892886
 GameObject:
   m_ObjectHideFlags: 0
@@ -540,33 +498,67 @@ MonoBehaviour:
   m_GameObject: {fileID: 862892886}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e03c3536fb6dbbc43a96de27dee83d26, type: 3}
+  m_Script: {fileID: 11500000, guid: e9977623255243c4ac692705a0f61b24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TagContainer:
-    Tags: []
-  Title: 
-  Description: 
-  StepTimingEvents: []
-  StepStarted:
-    m_PersistentCalls:
-      m_Calls: []
-  StepCompleted:
-    m_PersistentCalls:
-      m_Calls: []
-  OrderedConditions: 0
-  Conditions:
-  - id: 0
+  StepData:
+    id: 0
   references:
     version: 1
     00000000:
-      type: {class: ObjectDestroyedCondition, ns: Rhinox.VOLT.Domain, asm: com.rhinox.open.magnus.tasks}
+      type: {class: ConditionStepData, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
       data:
-        OnConditionMet:
+        TagContainer:
+          Tags: []
+        ID:
+          SerializedBytes: 8dd7f21e36d08c4b829a9ba66b8093cd
+        Name: Step 2
+        Description: 
+        OnStarted:
           Events: []
-        OnBetterConditionMet:
+        OnCompleted:
           Events: []
-        Object: {fileID: 1641351294}
+        OrderedConditions: 0
+        Conditions:
+        - id: 1
+    00000001:
+      type: {class: ObjectDataContainer, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        ReferenceDatas: []
+        ObjectType:
+          _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          _assemblyQualifiedName: Rhinox.Magnus.Tasks.ButtonClickCondition, com.rhinox.open.magnus.tasks,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          _name: ButtonClickCondition
+        Params:
+        - MemberInfo:
+            id: 2
+          MemberData:
+            id: 3
+    00000002:
+      type: {class: SerializableFieldInfo, ns: Rhinox.Lightspeed, asm: com.rhinox.open.lightspeed}
+      data:
+        _declaringType:
+          _assemblyName: com.rhinox.open.magnus.tasks, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          _assemblyQualifiedName: Rhinox.Magnus.Tasks.ButtonClickCondition, com.rhinox.open.magnus.tasks,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          _name: ButtonClickCondition
+        _fieldType:
+          _assemblyName: UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+          _assemblyQualifiedName: UnityEngine.UI.Button, UnityEngine.UI, Version=1.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+          _name: Button
+        _memberTypes: 4
+        _fieldName: ButtonToPress
+        _isPublic: 1
+        _isStatic: 0
+    00000003:
+      type: {class: UnityEngine_UI_Button_Rhinox_Magnus_Tasks_ConstantDataSource_Generated,
+        ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        Data: {fileID: 1442867501}
 --- !u!1 &1045048719
 GameObject:
   m_ObjectHideFlags: 0
@@ -693,9 +685,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 503d75f879cb42b48bb0862bcf5c2898, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TagContainer:
-    Tags: []
+  TaskData:
+    ID: 0
+    Name: Data Task Test
+    Lookup:
+      DefaultsByType:
+        _keyData: []
+        _valueData: []
+      ValueResolversByKey:
+        _keyData: []
+        _valueData: []
+      Keys: []
+    TagContainer:
+      Tags: []
   TaskId: -1
+  EndStep:
+    SerializedBytes: 
+  references:
+    version: 1
 --- !u!1 &1284236223
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,6 +1003,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1651541342}
   - component: {fileID: 1651541341}
+  - component: {fileID: 1651541343}
   m_Layer: 0
   m_Name: BasicTask
   m_TagString: Untagged
@@ -1015,19 +1023,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d427c5fae48e442a409d1000cd07fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TagContainer:
-    Tags: []
-  ValueReferenceLookup:
-    Keys: []
-  OnTaskStarted:
-    m_PersistentCalls:
-      m_Calls: []
-  OnTaskStopped:
-    m_PersistentCalls:
-      m_Calls: []
-  OnTaskCompleted:
-    m_PersistentCalls:
-      m_Calls: []
+  TaskData:
+    ID: 0
+    Name: Basic Task
+    Lookup:
+      DefaultsByType:
+        _keyData: []
+        _valueData: []
+      ValueResolversByKey:
+        _keyData:
+        - SerializedBytes: 3ad0234e185f184998fbb690b342553c
+        _valueData:
+        - id: 0
+      Keys:
+      - Guid:
+          SerializedBytes: 3ad0234e185f184998fbb690b342553c
+        Name: asdfsaf
+        ValueType:
+          _assemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+          _assemblyQualifiedName: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+          _name: Boolean
+        OverrideIndex: 0
+        CustomName: 
+    TagContainer:
+      Tags: []
+  AutoPopulate: 2
+  ClearStepsInTaskData: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: System_Boolean_Rhinox_Magnus_Tasks_ConstValueResolver_Generated,
+        ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        Value: 0
 --- !u!4 &1651541342
 Transform:
   m_ObjectHideFlags: 0
@@ -1041,9 +1070,82 @@ Transform:
   m_Children:
   - {fileID: 214511419}
   - {fileID: 862892887}
-  - {fileID: 632705191}
   m_Father: {fileID: 121692909}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1651541343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651541340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05bf50cc005448e88bcb9d05c5b8921a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1869751122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1869751124}
+  - component: {fileID: 1869751123}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1869751123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869751122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9977623255243c4ac692705a0f61b24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StepData:
+    id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: ConditionStepData, ns: Rhinox.Magnus.Tasks, asm: com.rhinox.open.magnus.tasks}
+      data:
+        TagContainer:
+          Tags: []
+        ID:
+          SerializedBytes: af34331fb216c449997d3d1ae9774626
+        Name: Unnamed ConditionStep
+        Description: 
+        OnStarted:
+          Events: []
+        OnCompleted:
+          Events: []
+        OrderedConditions: 0
+        Conditions: []
+--- !u!4 &1869751124
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869751122}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 319.56992, y: 295.17444, z: 19.889023}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1948525999
 GameObject:

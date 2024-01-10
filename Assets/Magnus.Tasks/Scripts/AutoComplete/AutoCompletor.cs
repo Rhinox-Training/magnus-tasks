@@ -12,7 +12,7 @@ namespace Rhinox.Magnus.Tasks
     [ExecuteBefore(typeof(TaskManager)) ]
     public class AutoCompletor : Singleton<AutoCompletor>
     {
-        [SerializeField]
+        [SerializeField, SerializeReference]
         private AutocompleteBot _autocompleteBot;
         public AutocompleteBot AutocompleteBot => _autocompleteBot;
 
@@ -20,7 +20,7 @@ namespace Rhinox.Magnus.Tasks
 
         [ShowReadOnly]
         private Queue<AutocompleteAction> _queue = new Queue<AutocompleteAction>();
-        private ConditionStep _conditionsStep;
+        private ConditionStepState _conditionsStep;
         private int _atStep = -1;
 
         [ShowReadOnly]
@@ -28,9 +28,9 @@ namespace Rhinox.Magnus.Tasks
         private AutocompleteAction _runningAutocompleteAction;
 
         public bool IsIdle => !Running && _queue.Count == 0;
-        public bool CanRun => _conditionsStep != null && !_conditionsStep.IsStepCompleted();
+        public bool CanRun => _conditionsStep != null && _conditionsStep.State != ProcessState.Finished;
 
-        public delegate void StepAction(ConditionStep step);
+        public delegate void StepAction(ConditionStepState step);
         public event StepAction BeforeAutocomplete;
 
         private void Start()
@@ -97,17 +97,17 @@ namespace Rhinox.Magnus.Tasks
             RunNextTask();
         }
 
-        private void OnStepStarted(BaseStep step)
+        private void OnStepStarted(BaseStepState step)
         {
             _atStep++;
-            var conditionStep = step as ConditionStep;
+            var conditionStep = step as ConditionStepState;
             if (conditionStep == null)
                 return;
 
             _conditionsStep = conditionStep;
         }
 
-        private void OnStepCompleted(BaseStep step)
+        private void OnStepCompleted(BaseStepState step)
         {
             _conditionsStep = null;
         }
@@ -125,7 +125,7 @@ namespace Rhinox.Magnus.Tasks
             Autocomplete(_conditionsStep);
         }
         
-        public void Autocomplete(ConditionStep step)
+        public void Autocomplete(ConditionStepState step)
         {
             // We want to get this signal even if the step is null; mostly due to audio coming after the step is completed
             BeforeAutocomplete?.Invoke(step);

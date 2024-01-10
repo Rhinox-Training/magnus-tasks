@@ -142,7 +142,7 @@ namespace Rhinox.Magnus.Tasks.Editor
             var typesString = EditorPrefs.GetString(TypesKey);
             if (string.IsNullOrWhiteSpace(typesString))
             {
-                AddType(typeof(BaseStep), "name", "Title", "Description");
+                AddType(typeof(BaseStepState), "name", "Title", "Description");
                 return;
             }
 

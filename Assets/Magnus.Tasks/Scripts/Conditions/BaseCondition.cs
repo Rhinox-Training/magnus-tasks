@@ -18,9 +18,11 @@ namespace Rhinox.Magnus.Tasks
 
         [ShowInInspector, ReadOnly, HorizontalGroup("Title", width: 55f, Order = -5)]
         [LabelWidth(40f)]
-        public bool IsMet { get; private set; }
+        public bool IsMet => CompletionState != CompletionState.None;
+        
+        public CompletionState CompletionState { get; private set; }
 
-        public BaseStep Step { get; set; }
+        public BaseStepState Step { get; set; }
 
         public bool IsStarted { get; private set; }
 
@@ -49,7 +51,7 @@ namespace Rhinox.Magnus.Tasks
             return true; // NOTE: Do not change this, should always be 'return true;' and nothing else
         }
 
-        protected virtual void OnMet()
+        protected virtual void OnMet(bool hasFailed = false)
         {
         }
 
@@ -66,7 +68,7 @@ namespace Rhinox.Magnus.Tasks
         /// </summary>
         public virtual void ResetCondition()
         {
-            IsMet = false;
+            CompletionState = CompletionState.None;
         }
 
         /// <summary>
@@ -87,16 +89,16 @@ namespace Rhinox.Magnus.Tasks
         }
 
         // TODO: Make this protected but accessible by the autocompletor
-        public void SetConditionMet()
+        public void SetConditionMet(bool hasFailed = false)
         {
             if (IsMet)
                 return;
 
-            IsMet = true;
+            CompletionState = hasFailed ? CompletionState.Failure : CompletionState.Success;
             OnConditionMet.Invoke();
             OnBetterConditionMet.Invoke();
 
-            OnMet();
+            OnMet(hasFailed);
         }
 
         public bool Resolve<T>(SerializableGuid key, ref T value)
@@ -110,12 +112,12 @@ namespace Rhinox.Magnus.Tasks
 
         public T[] GetSiblingConditions<T>()
         {
-            return ((ConditionStep)Step).Conditions.OfType<T>().ToArray();
+            return ((ConditionStepState)Step).Conditions.OfType<T>().ToArray();
         }
 
         public T GetSiblingCondition<T>() where T : BaseCondition
         {
-            foreach (var condition in ((ConditionStep)Step).Conditions)
+            foreach (var condition in ((ConditionStepState)Step).Conditions)
                 if (condition is T typedCondition)
                     return typedCondition;
             return null;

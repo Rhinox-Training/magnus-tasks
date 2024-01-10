@@ -14,7 +14,7 @@ namespace Rhinox.Magnus.Tasks
     [HideReferenceObjectPicker, HideLabel]
     [JsonConverter(typeof(TagContainerConverter))]
     [Serializable, RefactoringOldNamespace("Rhinox.VOLT.Training", "com.rhinox.volt.training")]
-    public class TagContainer
+    public class TagContainer : ITagContainer
     {
         [ValueDropdown("GetAllTags"), ListDrawerSettings(Expanded = true, DraggableItems = false)]
         [OnValueChanged(nameof(OnTagsChanged))]
@@ -77,7 +77,7 @@ namespace Rhinox.Magnus.Tasks
                 Changed?.Invoke();
         }
         
-        public void RemoveDoubles()
+        public void Validate()
         {
             if (Tags == null)
             {

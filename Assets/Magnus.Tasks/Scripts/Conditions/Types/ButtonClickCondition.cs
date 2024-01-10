@@ -7,15 +7,15 @@ namespace Rhinox.Magnus.Tasks
     [RefactoringOldNamespace("", "com.rhinox.volt.domain")]
     public class ButtonClickCondition : BaseCondition
     {
-        [NotConvertedToDataLayer] public Button ButtonToPress;
-        private IValueResolver ImportButtonToPress() => UnityValueResolver<Button>.Create(ButtonToPress);
-
-        [ValueReference(typeof(Button), "Button")] [ImportValueForValueReference(nameof(ImportButtonToPress))]
-        public SerializableGuid ButtonIdentifier;
+        public Button ButtonToPress;
+        // private IValueResolver ImportButtonToPress() => UnityValueResolver<Button>.Create(ButtonToPress);
+        //
+        // [ValueReference(typeof(Button), "Button")] [ImportValueForValueReference(nameof(ImportButtonToPress))]
+        // public SerializableGuid ButtonIdentifier;
 
         protected override bool OnInit()
         {
-            Resolve(ButtonIdentifier, ref ButtonToPress);
+            //Resolve(ButtonIdentifier, ref ButtonToPress);
             return ButtonToPress != null;
         }
 
@@ -24,7 +24,7 @@ namespace Rhinox.Magnus.Tasks
             base.Terminate();
             // ButtonToPress.interactable = false;
             if (ButtonToPress != null)
-                ButtonToPress.onClick.RemoveListener(SetConditionMet);
+                ButtonToPress.onClick.RemoveListener(HandleClick);
         }
 
         public override void Start()
@@ -38,12 +38,16 @@ namespace Rhinox.Magnus.Tasks
             if (!ButtonToPress.isActiveAndEnabled)
             {
                 SetConditionMet();
-                PLog.Error<MagnusLogger>("Autocompleted ButtonClickCondition due to unavailable button.",
-                    associatedObject: Step);
+                PLog.Error<MagnusLogger>("Autocompleted ButtonClickCondition due to unavailable button.");
                 return;
             }
 
-            ButtonToPress.onClick.AddListener(SetConditionMet);
+            ButtonToPress.onClick.AddListener(HandleClick);
+        }
+
+        private void HandleClick()
+        {
+            SetConditionMet();
         }
     }
 }

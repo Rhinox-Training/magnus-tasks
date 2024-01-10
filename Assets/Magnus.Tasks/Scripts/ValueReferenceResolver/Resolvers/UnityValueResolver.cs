@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace Rhinox.Magnus.Tasks
 {
-    [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
+    [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain"), GenericTypeGeneration]
     public class UnityValueResolver<T> : BaseValueResolver<T> where T : UnityEngine.Object
     {
         public override string SimpleName => $"Unity Object";

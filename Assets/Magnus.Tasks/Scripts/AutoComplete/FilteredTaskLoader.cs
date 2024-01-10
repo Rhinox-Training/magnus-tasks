@@ -31,7 +31,7 @@ namespace Rhinox.Magnus.Tasks
             _taskManager.TaskStarted -= OnTaskStarted;
         }
 
-        private void OnTaskStarted(BaseTask task)
+        private void OnTaskStarted(ITaskObjectState task)
         {
             if (!AutoCompletor.HasInstance)
             {
@@ -43,10 +43,11 @@ namespace Rhinox.Magnus.Tasks
 
             // return if it skips contained tags & it does not contain it
             // OR when it contains the tag and preserves those tags
-            if (SkipTags && !containsTag || !containsTag) return;
+            if (SkipTags && !containsTag || !containsTag) 
+                return;
 
             // TODO what about other types of steps?
-            foreach (var step in task.Steps.OfType<ConditionStep>())
+            foreach (var step in task.EnumerateStepNodes().OfType<ConditionStepState>()) // TODO: this will break
             {
                 PLog.TraceDetailed<MagnusLogger>($"Enqueuing Autocomplete for step '{step}'");
                 AutoCompletor.Instance.Autocomplete(step);

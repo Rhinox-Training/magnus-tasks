@@ -305,7 +305,7 @@ namespace Rhinox.Magnus.Tasks.Editor
                 GUILayout.FlexibleSpace();
                 if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Crosshairs")))
                 {
-                    Steps.Insert(i + 1, new ConditionStepObject());
+                    Steps.Insert(i + 1, new ConditionStepData());
                 }
 
                 if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Times")))

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Rhinox.GUIUtils;
 using Rhinox.GUIUtils.Editor;
+using Rhinox.Lightspeed;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,22 +13,23 @@ namespace Rhinox.Magnus.Tasks.Editor
     {
         private ICollection _optionsCache;
 
-        public bool SearchField;
+        public bool SearchFieldEnabled;
         public string SearchText;
         public bool RequiresRefresh { get; private set; }
+        public int VisibleLines => Math.Min(NumberOfItemsPerPage, _elementCount);
 
         private Rect _prevRect;
 
         public delegate void SearchTextChangedHandler(string searchText);
         public event SearchTextChangedHandler SearchTextChanged;
 
-        public SearchablePagedDrawerHelper(int itemsPerPage, bool searchField = false)
+        public SearchablePagedDrawerHelper(int itemsPerPage, bool searchFieldEnabled = false)
             : base(itemsPerPage)
         {
-            this.SearchField = searchField;
+            this.SearchFieldEnabled = searchFieldEnabled;
         }
         
-        public Rect BeginDrawPager(ICollection options, bool showPaging = true, bool showItemCount = true)
+        public Rect BeginDrawPagerLayout(ICollection options, bool showPaging = true, bool showItemCount = true)
         {
             _optionsCache = options;
             Resize(_optionsCache.Count);
@@ -34,8 +37,8 @@ namespace Rhinox.Magnus.Tasks.Editor
             EditorGUILayout.BeginVertical();
             var toolbarRect = CustomEditorGUI.BeginHorizontalToolbar();
             {
-                DrawSearchField();
                 DrawHeaderPagingButtons(ref toolbarRect, showPaging, showItemCount);
+                DrawSearchField(toolbarRect);
             }
             CustomEditorGUI.EndHorizontalToolbar();
             
@@ -44,24 +47,34 @@ namespace Rhinox.Magnus.Tasks.Editor
             
             return toolbarRect;
         }
-
-        private void DrawSearchField()
+        
+        public void BeginDrawPager(Rect pageRect, ICollection options, bool showPaging = true, bool showItemCount = true)
         {
-            if (_prevRect.height == 0.0)
-                return;
-            
-            if (SearchField)
-            {
-                var searchRect = _prevRect;
-                searchRect.yMin += 3;
+            _optionsCache = options;
+            Resize(_optionsCache.Count);
 
-                var newSearchText = CustomEditorGUI.ToolbarSearchField(searchRect, SearchText);
-                if (newSearchText != SearchText)
-                {
-                    SearchText = newSearchText;
-                    RequiresRefresh = true;
-                }
+            var headerRect = pageRect.SetHeight(EditorGUIUtility.singleLineHeight);
+            CustomGUIStyles.ToolbarBackground.Draw(headerRect);
+            DrawHeaderPagingButtons(ref headerRect, showPaging, showItemCount);
+            DrawSearchField(headerRect);
+        }
+
+        private void DrawSearchField(Rect searchFieldRect)
+        {
+            if (!SearchFieldEnabled || !searchFieldRect.IsValid())
+                return;
+
+            var position = searchFieldRect;
+            position.height = EditorGUIUtility.singleLineHeight;
+            position.yMin += 3;
+
+            var newSearchText = CustomEditorGUI.ToolbarSearchField(position, SearchText);
+            if (newSearchText != SearchText)
+            {
+                SearchText = newSearchText;
+                RequiresRefresh = true;
             }
+
         }
 
         public void Refresh()
@@ -72,12 +85,24 @@ namespace Rhinox.Magnus.Tasks.Editor
                 Resize(_optionsCache.Count);
         }
 
-        public void EndDrawPager()
+        public void EndDrawPagerLayout()
         {
             Resize(_optionsCache.Count);
             _optionsCache = null;
             EditorGUILayout.EndVertical();
 
+            if (RequiresRefresh)
+            {
+                SearchTextChanged?.Invoke(SearchText);
+                RequiresRefresh = false;
+            }
+        }
+
+        public void EndDrawPager()
+        {
+            Resize(_optionsCache.Count);
+            _optionsCache = null;
+            
             if (RequiresRefresh)
             {
                 SearchTextChanged?.Invoke(SearchText);

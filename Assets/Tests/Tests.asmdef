@@ -1,0 +1,26 @@
+{
+    "name": "Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "com.rhinox.open.magnus",
+        "com.rhinox.open.magnus.tasks",
+        "com.rhinox.open.utilities",
+        "com.rhinox.open.guiutils",
+        "com.rhinox.open.guiutils.attributes",
+        "com.rhinox.open.lightspeed"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

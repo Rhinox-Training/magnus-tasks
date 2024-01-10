@@ -98,7 +98,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         // private InspectorProperty _defaultsProperty;
         // private IPropertyValueEntry<Dictionary<SerializableType, DefaultTypeReferenceKey[]>> _defaultsValueEntry;
 
-        private Dictionary<ReferenceKey, DrawablePropertyView> _resolverPropertyByKey;
+        private Dictionary<ReferenceKey, IEditorDrawable> _resolverPropertyByKey;
 
         private List<int> _validKeyIds;
         private bool _requiresRefresh;
@@ -111,7 +111,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 
             _activeTab = Tabs.Initial;
 
-            _resolverPropertyByKey = new Dictionary<ReferenceKey, DrawablePropertyView>();
+            _resolverPropertyByKey = new Dictionary<ReferenceKey, IEditorDrawable>();
 
             _pager = new SearchablePagedDrawerHelper(10, true);
             _pager.SearchTextChanged += UpdateKeyFilter;
@@ -152,16 +152,19 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             }
 
             int oldIndex = Tabs.All.IndexOf(_activeTab);
-            int newIndex = GUI.Toolbar(position, oldIndex, Tabs.All);
+            int newIndex = GUI.Toolbar(position.SetHeight(EditorGUIUtility.singleLineHeight), oldIndex, Tabs.All);
             if (newIndex != oldIndex)
                 _activeTab = Tabs.All[newIndex];
 
             if (_expanded)
             {
+                
+                var pageRect = position.MoveDownLine(autoClamp: true);
+                
                 if (_activeTab == Tabs.ResolversTab)
-                    DrawKeys(position);
-                // else if (_activeTab == Tabs.DefaultsTab)
-                //     DrawDefaults(position);
+                    DrawKeys(pageRect);
+                else if (_activeTab == Tabs.DefaultsTab)
+                    DrawDefaults(pageRect);
             }
         }
 
@@ -175,10 +178,26 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
         //     });
         // }
 
-        private DrawablePropertyView FindResolverPropertyForKey(ReferenceKey key)
+        private IEditorDrawable FindResolverPropertyForKey(ReferenceKey key)
         {
             HostInfo.TryGetChild(nameof(ValueReferenceLookup.ValueResolversByKey),
                 out TypedHostInfoWrapper<Dictionary<SerializableGuid, IValueResolver>> valueResolversByKey);
+            valueResolversByKey.HostInfo.TryGetChild("Values", out var horribleHack);
+
+            if (!valueResolversByKey.SmartValue.ContainsKey(key.Guid))
+                return null;
+            
+            var actualValue = valueResolversByKey.SmartValue[key.Guid];
+            for (int i = 0; i < valueResolversByKey.SmartValue.Count; ++i)
+            {
+                if (horribleHack.TryGetChild<IValueResolver>(i, out var horribleHackChild))
+                {
+                    if (!ReferenceEquals(horribleHackChild.SmartValue, actualValue))
+                        continue;
+                    return GetChildDrawer(horribleHackChild.HostInfo);
+                }
+                
+            }
 
             return null;
             // valueResolversByKey.SmartValue.
@@ -225,11 +244,31 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             return true;
         }
 
-        private void DrawKeys(Rect position)
+        protected override float GetPropertyHeight(GUIContent label, in GenericHostInfo data)
+        {
+            if (_expanded)
+            {
+                float tabHeaderHeight = EditorGUIUtility.singleLineHeight;
+
+                if (_activeTab == Tabs.ResolversTab)
+                {
+                    float buttonFooter = EditorGUIUtility.singleLineHeight;
+                    float elementHeight = 2.0f * EditorGUIUtility.singleLineHeight;
+                    float visibleElements = elementHeight * _pager.VisibleLines;
+                    float pageHeight = visibleElements + EditorGUIUtility.singleLineHeight;
+                    return pageHeight + buttonFooter + tabHeaderHeight;
+                }
+                else if (_activeTab == Tabs.DefaultsTab)
+                    return EditorGUIUtility.singleLineHeight;
+            }
+            return base.GetPropertyHeight(label, in data);
+        }
+
+        private void DrawKeys(Rect pageRect)
         {
             if (_keysValueEntry == null /* || _keysProperty == null*/)
             {
-                EditorGUI.HelpBox(position, "Cannot find keys property...", MessageType.Error);
+                EditorGUI.HelpBox(pageRect, "Cannot find keys property...", MessageType.Error);
                 return;
             }
 
@@ -238,71 +277,75 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             if (_keysValueEntry.SmartValue == null)
                 _keysValueEntry.SmartValue = new List<ReferenceKey>();
 
-            //SirenixEditorGUI.BeginVerticalList(false, false);
+            // Leave space for buttons at end
+            if (pageRect.IsValid())
+                pageRect.yMax -= EditorGUIUtility.singleLineHeight;
+            
+            _pager.BeginDrawPager(pageRect, _validKeyIds);
 
-            var toolbarRect = _pager.BeginDrawPager(_validKeyIds);
-
-            for (int pageI = _pager.StartIndex; pageI < _pager.EndIndex; ++pageI)
+            int elementCount = _pager.EndIndex - _pager.StartIndex;
+            var elementRect = pageRect.BeginList(elementCount);
+            
+            for (int elementIndex = _pager.StartIndex; elementIndex < _pager.EndIndex; ++elementIndex)
             {
-                if (!_validKeyIds.HasIndex(pageI)) continue;
+                if (!_validKeyIds.HasIndex(elementIndex)) 
+                    continue;
 
-                var i = _validKeyIds[pageI];
+                var i = _validKeyIds[elementIndex];
                 var key = _keysValueEntry.SmartValue[i];
 
-                //SirenixEditorGUI.BeginListItem();
+                
+                if (!_resolverPropertyByKey.ContainsKey(key) || _resolverPropertyByKey[key] == null)
+                    _resolverPropertyByKey[key] = FindResolverPropertyForKey(key);
 
-                using (new EditorGUILayout.HorizontalScope())
+                var resolverProp = _resolverPropertyByKey[key];
+                
+                var elementFirstLine = elementRect.SetHeight(EditorGUIUtility.singleLineHeight);    
+
+                //_keysProperty.Children[i].Draw();
+                var elementSecondLine = elementFirstLine.MoveDownLine();
+                if (resolverProp != null)
+                    resolverProp.Draw(elementSecondLine, GUIContent.none);
+
+                var iconRect = elementSecondLine.AlignRight(18.0f);
+                // Delete
+                if (CustomEditorGUI.IconButton(iconRect, UnityIcon.AssetIcon("Fa_Times")))
                 {
-                    if (!_resolverPropertyByKey.ContainsKey(key))
-                        _resolverPropertyByKey[key] = FindResolverPropertyForKey(key);
-
-                    var resolverProp = _resolverPropertyByKey[key];
-
-                    using (new EditorGUILayout.VerticalScope())
-                    {
-                        //_keysProperty.Children[i].Draw();
-                        resolverProp.Draw();
-                    }
-
-                    using (new EditorGUILayout.VerticalScope(GUILayout.Width(20)))
-                    {
-                        // Delete
-                        if (CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Times")))
-                        {
-                            SmartValue.Deregister(_keysValueEntry.SmartValue[i].Guid);
-                            RefreshData();
-                        }
-
-                        // Check usages
-                        var hasUsageData = HostInfo.Parent.GetReturnType()
-                            .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
-                        if (hasUsageData && host != null &&
-                            CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Asterisk")))
-                        {
-                            var usagesInfo = new ValueReferenceInfo(host, _keysValueEntry.SmartValue[i].Guid);
-                            usagesInfo.MakeUsages();
-                            // TODO: how to inspect
-#if ODIN_INSPECTOR
-                        OdinEditorWindow.InspectObjectInDropDown(usagesInfo);
-#endif
-                        }
-                    }
+                    SmartValue.Deregister(_keysValueEntry.SmartValue[i].Guid);
+                    RefreshData();
                 }
 
-                //SirenixEditorGUI.EndListItem();
+                    // Check usages
+//                         var hasUsageData = HostInfo.Parent.GetReturnType()
+//                             .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
+//                         if (hasUsageData && host != null &&
+//                             CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Asterisk")))
+//                         {
+//                             var usagesInfo = new ValueReferenceInfo(host, _keysValueEntry.SmartValue[i].Guid);
+//                             usagesInfo.MakeUsages();
+//                             // TODO: how to inspect
+// #if ODIN_INSPECTOR
+//                         OdinEditorWindow.InspectObjectInDropDown(usagesInfo);
+// #endif
+//                         }
+
+                elementRect = elementRect.MoveNext(pageRect);
             }
 
-            DrawKeyListButtons(host);
-
             _pager.EndDrawPager();
+
+
+
+            var keylistButtonsRect = pageRect.MoveBeneath(EditorGUIUtility.singleLineHeight);
+            DrawKeyListButtons(keylistButtonsRect, host);
             //SirenixEditorGUI.EndVerticalList();
 
         }
 
-        private void DrawKeyListButtons(object host)
+        private void DrawKeyListButtons(Rect buttonRect, object host)
         {
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add new Key", CustomGUIStyles.ButtonLeft))
+            buttonRect.SplitX(buttonRect.width / 2.0f, out Rect addRect, out Rect otherRect);
+            if (GUI.Button(addRect, "Add new Key", CustomGUIStyles.ButtonLeft))
             {
                 EditorInputDialog.Create("Create ReferenceKey", "Input the default name for the ReferenceKey:",
                         "Add New Key")
@@ -311,6 +354,7 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                     .OnAccept(() =>
                     {
                         SmartValue.Register(name, type); // TODO: Test duplicate key + add logging
+                        HostInfo.ForceNotifyValueChanged();
                         RefreshData();
                     })
                     .ShowInPopup();
@@ -318,14 +362,14 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
 
             var content = GUIContentHelper.TempContent("Simplify",
                 "If multiple keys refer to the same object, condenses those into 1 and rectifies all usages.");
-            if (host != null && GUILayout.Button(content, CustomGUIStyles.ButtonRight, GUILayout.ExpandWidth(false)))
+            if (host != null && GUI.Button(otherRect, content, CustomGUIStyles.ButtonRight))
             {
                 var replacementKeyByKey = new Dictionary<SerializableGuid, SerializableGuid>();
                 var keyResolverPairToKeep = new PairList<SerializableGuid, IValueResolver>();
                 foreach (var (guid, resolver) in SmartValue.ValueResolversByKey)
                 {
                     // Find a resolver that matches the given resolver
-                    var matchedPairI = keyResolverPairToKeep.FindIndex(pair => pair.V2.Equals(resolver));
+                    var matchedPairI = keyResolverPairToKeep.FindIndex(pair => pair.V2 != null && pair.V2.Equals(resolver));
 
                     if (matchedPairI >= 0)
                     {
@@ -358,8 +402,6 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                     PLog.Info<MagnusLogger>("Nothing to simplify...");
                 }
             }
-
-            GUILayout.EndHorizontal();
         }
 
         private void RefreshData()
@@ -389,63 +431,69 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             }
         }
 
-        // private void DrawDefaults(Rect position)
-        // {
-        //     if (_defaultsValueEntry == null || _defaultsProperty == null)
-        //     {
-        //         EditorGUI.HelpBox(position, "Cannot find defaults property...", MessageType.Error);
-        //         return;
-        //     }
-        //     
-        //     if (_defaultsSmartValue == null)
-        //         _defaultsSmartValue = new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
-        //     
-        //     Rect rect = EditorGUILayout.GetControlRect();
-        //     GetLabelFieldRects(rect, out Rect labelRect, out Rect fieldRect);
-        //     GUI.Label(labelRect, "Choose a ReferenceKey Type:");
-        //     
-        //     if (GUI.Button(fieldRect, _selectedDefaultFilter != null ? _selectedDefaultFilter.Name : "null"))
-        //     {
-        //         DrawDropdown(rect, "", GetRegisteredReferenceKeyTypes(), (x) =>
-        //         {
-        //             _selectedDefaultFilter = x;
-        //             RefreshDefaultValueSet();
-        //         });
-        //     }
-        //
-        //     if (_selectedPropertyToInspect != null)
-        //     {
-        //         var property = GetChildProperty("#Value", _selectedPropertyToInspect);
-        //         _defaultsPager.BeginDrawPager(_defaultsSmartValue[_selectedDefaultFilter]);
-        //         
-        //         for (int i = _defaultsPager.StartIndex; i < _defaultsPager.EndIndex; ++i)
-        //         {
-        //             if (i >= property.Children.Count)
-        //             {
-        //                 // NOTE: refresh needed, when deleting items and reading otherwise drawer is not up to date
-        //                 RefreshDefaultValueSet();
-        //                 property = GetChildProperty("#Value", _selectedPropertyToInspect);
-        //                 if (i >= property.Children.Count)
-        //                     continue;
-        //             }
-        //
-        //             var child = property.Children[i];
-        //             EditorGUILayout.BeginHorizontal();
-        //             EditorGUILayout.BeginVertical();
-        //             child.Draw(null);
-        //             EditorGUILayout.EndVertical();
-        //             if (GUILayout.Button("X", EditorStyles.toolbarButton))
-        //             {
-        //                 // Remove
-        //                 SmartValue.RemoveDefault(_selectedDefaultFilter, ((DefaultTypeReferenceKey)child.ValueEntry.WeakSmartValue).FieldData.Field);
-        //                 _defaultsPager.Refresh();
-        //             }
-        //             EditorGUILayout.EndHorizontal();
-        //         }
-        //
-        //         _defaultsPager.EndDrawPager();
-        //     }
-        // }
+        private void DrawDefaults(Rect position)
+        {
+            // if (_defaultsValueEntry == null || _defaultsProperty == null)
+            // {
+            //     EditorGUI.HelpBox(position, "Cannot find defaults property...", MessageType.Error);
+            //     return;
+            // }
+            //
+            // if (_defaultsSmartValue == null)
+            //     _defaultsSmartValue = new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
+
+            Rect labelRect = default, fieldRect = default;
+            if (position.IsValid())
+                position.SplitX(0.5f * position.width, out labelRect, out fieldRect);
+            GUI.Label(labelRect, "Choose a ReferenceKey Type:");
+            
+            if (GUI.Button(fieldRect, _selectedDefaultFilter != null ? _selectedDefaultFilter.Name : "null"))
+            {
+                GenericPicker.Show(position, GetRegisteredReferenceKeyTypes(), (x) =>
+                {
+                    _selectedDefaultFilter = x;
+                    //RefreshDefaultValueSet();
+                });
+                // DrawDropdown(position, "", GetRegisteredReferenceKeyTypes(), (x) =>
+                // {
+                //     _selectedDefaultFilter = x;
+                //     //RefreshDefaultValueSet();
+                // });
+            }
+        
+            // if (_selectedPropertyToInspect != null)
+            // {
+            //     var property = GetChildProperty("#Value", _selectedPropertyToInspect);
+            //     _defaultsPager.BeginDrawPager(_defaultsSmartValue[_selectedDefaultFilter]);
+            //     
+            //     for (int i = _defaultsPager.StartIndex; i < _defaultsPager.EndIndex; ++i)
+            //     {
+            //         if (i >= property.Children.Count)
+            //         {
+            //             // NOTE: refresh needed, when deleting items and reading otherwise drawer is not up to date
+            //             RefreshDefaultValueSet();
+            //             property = GetChildProperty("#Value", _selectedPropertyToInspect);
+            //             if (i >= property.Children.Count)
+            //                 continue;
+            //         }
+            //
+            //         var child = property.Children[i];
+            //         EditorGUILayout.BeginHorizontal();
+            //         EditorGUILayout.BeginVertical();
+            //         child.Draw(null);
+            //         EditorGUILayout.EndVertical();
+            //         if (GUILayout.Button("X", EditorStyles.toolbarButton))
+            //         {
+            //             // Remove
+            //             SmartValue.RemoveDefault(_selectedDefaultFilter, ((DefaultTypeReferenceKey)child.ValueEntry.WeakSmartValue).FieldData.Field);
+            //             _defaultsPager.Refresh();
+            //         }
+            //         EditorGUILayout.EndHorizontal();
+            //     }
+            //
+            //     _defaultsPager.EndDrawPager();
+            // }
+        }
 
         private ICollection<Type> GetReferenceKeyTypeOptions()
         {
