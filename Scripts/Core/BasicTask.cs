@@ -50,7 +50,7 @@ namespace Rhinox.Magnus.Tasks
             OnTaskCompleted?.Invoke();
         }
 
-        [Button, ShowIf("@ValueReferenceLookup != null")]
+        [Button, HideIf(nameof(ValueReferenceLookup), null)]
         [TabGroup("Configuration")]
         private void RefreshValueReferencesInStep()
         {
@@ -107,14 +107,7 @@ namespace Rhinox.Magnus.Tasks
                 object fieldValue = constantOverridesToImport[key];
 
                 if (fieldValue != null)
-                {
-                    var resolverType = typeof(ConstValueResolver<>).MakeGenericType(fieldValue.GetType());
-                    var resolverInstance = Activator.CreateInstance(resolverType);
-                    var setterField = resolverType.GetField("Value", BindingFlags.Instance | BindingFlags.Public);
-                    setterField.SetValue(resolverInstance, fieldValue);
-
-                    fieldValue = resolverInstance;
-                }
+                    fieldValue = new ConstValueResolver(fieldValue.GetType(), fieldValue);
 
                 this.ValueReferenceLookup.Register(key, fieldValue as IValueResolver);
             }

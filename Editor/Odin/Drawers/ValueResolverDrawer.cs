@@ -68,7 +68,7 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
                 .Where(x => x.ImplementsOrInherits(typeof(IValueResolver)))
                 .Where(x => !x.IsInterface && !x.IsAbstract && x.IsPublic)
                 .Where(x => !x.ContainsGenericParameters || x.AreGenericConstraintsSatisfiedBy(_targetType))
-                .Where(x => !isUnityObject || !x.InheritsFrom(typeof(ConstValueResolver<>)))
+                .Where(x => !isUnityObject || !x.InheritsFrom(typeof(ConstValueResolver)))
                 .ToArray();
         }
     }

@@ -13,7 +13,7 @@ using UnityEditor;
 namespace Rhinox.Magnus.Tasks
 {
     [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
-    public class UnityValueResolver<T> : BaseValueResolver<T> where T : UnityEngine.Object
+    public class UnityValueResolver<T> : BaseTypedValueResolver<T> where T : UnityEngine.Object
     {
         public override string SimpleName => $"Unity Object";
         public override string ComplexName => $"Unity Object of type [{typeof(T).Name}]";
@@ -46,7 +46,7 @@ namespace Rhinox.Magnus.Tasks
 
         protected virtual string LoadErrorMessage => Resolver?.ErrorMessage;
 
-        public override bool TryResolve(ref T value)
+        public override bool TryResolveGeneric(ref T value)
         {
             T result = Resolver?.Resolve() as T;
             if (result == null)

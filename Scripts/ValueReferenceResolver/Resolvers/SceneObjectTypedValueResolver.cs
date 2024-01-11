@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace Rhinox.Magnus.Tasks
 {
     [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
-    public class SceneObjectValueResolver : BaseValueResolver<Object>
+    public class SceneObjectTypedValueResolver : BaseTypedValueResolver<Object>
     {
         private string TargetType => ComponentType?.Name ?? "GameObject";
         public override string SimpleName => "Scene Object";
@@ -19,7 +19,7 @@ namespace Rhinox.Magnus.Tasks
         public string ScenePath;
         public bool FindLoosely;
 
-        public override bool TryResolve(ref Object value)
+        public override bool TryResolveGeneric(ref Object value)
         {
             // var newSW = Stopwatch.StartNew();
             Object result;
@@ -44,10 +44,10 @@ namespace Rhinox.Magnus.Tasks
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             if (other.GetType() != this.GetType()) return false;
-            return Equals((SceneObjectValueResolver) other);
+            return Equals((SceneObjectTypedValueResolver) other);
         }
 
-        protected bool Equals(SceneObjectValueResolver other)
+        protected bool Equals(SceneObjectTypedValueResolver other)
         {
             // If null && other is not, return false; if null and other is also null, check scenepath
             if (ComponentType == null && other.ComponentType != null)
