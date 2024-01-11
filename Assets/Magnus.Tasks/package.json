@@ -1,7 +1,7 @@
 {
   "name": "com.rhinox.open.magnus.tasks",
   "displayName": "Magnus.Tasks - Task System Integration",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "unity": "2019.4",
   "description": "Flexible and Procedural Task System with Editor for Unity",
   "keywords": [
@@ -10,12 +10,12 @@
   ],
   "category": "Unity",
   "dependencies": {
-	"com.rhinox.open.lightspeed": "1.7.0",
-	"com.rhinox.open.guiutils": "2.12.1",
+	"com.rhinox.open.utilities": "1.10.3",
+	"com.rhinox.open.guiutils": "3.1.0",
+    "com.rhinox.open.lightspeed": "1.9.2",
 	"com.rhinox.open.perceptor": "0.2.0",
-    "com.rhinox.open.utilities": "1.8.0",
-    "com.rhinox.open.magnus": "0.7.1",
-    "com.rhinox.open.vortex": "0.5.0-alpha.2"
+    "com.rhinox.open.magnus": "0.8.2",
+    "com.rhinox.open.vortex": "0.5.0"
   },
    "repository": {
     "type": "git",

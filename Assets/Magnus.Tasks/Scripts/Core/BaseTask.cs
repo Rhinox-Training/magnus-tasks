@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Rhinox.GUIUtils.Attributes;
 using Rhinox.Lightspeed;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
@@ -15,11 +16,11 @@ namespace Rhinox.Magnus.Tasks
         
         public abstract IReadOnlyList<BaseStep> Steps { get; }
 
-        [ShowInInspector, ReadOnly, HideInEditorMode]
+        [ShowReadOnlyInPlayMode]
         [TabGroup("State")]
         public BaseStep ActiveStep { get; private set; }
         
-        [ShowInInspector, ReadOnly, HideInEditorMode]
+        [ShowReadOnlyInPlayMode]
         [TabGroup("State")]
         public int CurrentStepId { get; protected set; }
         
@@ -41,7 +42,7 @@ namespace Rhinox.Magnus.Tasks
         public event AwaitStepEvent PreStartStep;
         public event AwaitStepEvent PreStopStep;
 
-        [ShowInInspector, ReadOnly, HideInEditorMode]
+        [ShowReadOnlyInPlayMode]
         [TabGroup("State")]
         public bool IsActive { get; protected set; }
         

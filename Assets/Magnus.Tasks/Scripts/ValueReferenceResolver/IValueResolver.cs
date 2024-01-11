@@ -15,6 +15,6 @@ namespace Rhinox.Magnus.Tasks
 
     public interface IValueResolver<T> : IValueResolver
     {
-        bool TryResolve(ref T value);
+        bool TryResolveGeneric(ref T value);
     }
 }

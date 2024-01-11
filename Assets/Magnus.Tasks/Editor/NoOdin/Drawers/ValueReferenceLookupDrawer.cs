@@ -180,8 +180,8 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
             HostInfo.TryGetChild(nameof(ValueReferenceLookup.ValueResolversByKey),
                 out TypedHostInfoWrapper<Dictionary<SerializableGuid, IValueResolver>> valueResolversByKey);
 
-            return null;
-            // valueResolversByKey.SmartValue.
+            var resolver = valueResolversByKey.SmartValue[key.Guid];
+            return new DrawablePropertyView(resolver);
             //
             // var pairProperty = _resolversProperty
             //     .FindChild(x => x.Children.Count > 0 && Equals(x.Children[0].ValueEntry.WeakSmartValue, key.Guid), false);
@@ -274,8 +274,11 @@ namespace Rhinox.Magnus.Tasks.Editor.NoOdin
                         }
 
                         // Check usages
-                        var hasUsageData = HostInfo.Parent.GetReturnType()
-                            .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
+                        bool hasUsageData = false;
+                        if (HostInfo.Parent != null)
+                            hasUsageData = HostInfo.Parent.GetReturnType()
+                                .EqualsOneOf(typeof(TaskObject), typeof(TaskEditViewPage));
+                        
                         if (hasUsageData && host != null &&
                             CustomEditorGUI.IconButton(UnityIcon.AssetIcon("Fa_Asterisk")))
                         {

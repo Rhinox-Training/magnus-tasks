@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Rhinox.GUIUtils.Editor;
 using Rhinox.GUIUtils.Odin.Editor;
 using Rhinox.Lightspeed;
 using Rhinox.Lightspeed.Reflection;
@@ -52,15 +53,19 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
                     var actionProperty = GetChildProperty(nameof(ValueReferenceEventEntry.Action));
                     string selectedEntry = actionProperty.ValueEntry.WeakSmartValue == null ? "<None>" : actionProperty.ValueEntry.WeakSmartValue.GetType().Name;
                     var rect = EditorGUILayout.GetControlRect();
-                    if (GUI.Button(rect, selectedEntry))
+                    using (new eUtility.DisabledGroup(targetValueEntry.SmartValue.IsNullOrEmpty()))
                     {
-                        DrawTypeDropdown(rect, GetEventTypes(_currentReferenceKey.ValueType.Type), (selectedType) =>
+                        if (GUI.Button(rect, selectedEntry))
                         {
-                            if (selectedType.ContainsGenericParameters)
-                                selectedType = selectedType.MakeGenericType(_currentReferenceKey.ValueType);
-                            actionProperty.ValueEntry.WeakSmartValue = Activator.CreateInstance(selectedType);
-                        });
+                            DrawTypeDropdown(rect, GetEventTypes(_currentReferenceKey.ValueType.Type), (selectedType) =>
+                            {
+                                if (selectedType.ContainsGenericParameters)
+                                    selectedType = selectedType.MakeGenericType(_currentReferenceKey.ValueType);
+                                actionProperty.ValueEntry.WeakSmartValue = Activator.CreateInstance(selectedType);
+                            });
+                        }
                     }
+                    
 
                     GUILayout.BeginHorizontal();
                     actionProperty.Draw();

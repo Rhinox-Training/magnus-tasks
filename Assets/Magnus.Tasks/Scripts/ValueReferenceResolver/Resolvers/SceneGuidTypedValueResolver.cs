@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 namespace Rhinox.Magnus.Tasks
 {
     [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
-    public class SceneGuidValueResolver : BaseValueResolver<Object>
+    public class SceneGuidTypedValueResolver : BaseTypedValueResolver<Object>
     {
         private string TargetType => _resolvedIdentifier == null ? "Object" : _resolvedIdentifier.TargetType?.Name;
         public override string SimpleName => "Scene Object";
@@ -15,7 +15,7 @@ namespace Rhinox.Magnus.Tasks
 
         private GuidIdentifier _resolvedIdentifier;
 
-        public override bool TryResolve(ref Object value)
+        public override bool TryResolveGeneric(ref Object value)
         {
             var guidAsset = GuidAsset.Find(GuidAssetIdentifier);
             _resolvedIdentifier = GuidIdentifier.GetFor(guidAsset);
@@ -31,10 +31,10 @@ namespace Rhinox.Magnus.Tasks
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             if (other.GetType() != this.GetType()) return false;
-            return Equals((SceneGuidValueResolver) other);
+            return Equals((SceneGuidTypedValueResolver) other);
         }
 
-        protected bool Equals(SceneGuidValueResolver other)
+        protected bool Equals(SceneGuidTypedValueResolver other)
         {
             if (GuidAssetIdentifier.IsNullOrEmpty())
                 return other.GuidAssetIdentifier.IsNullOrEmpty();
