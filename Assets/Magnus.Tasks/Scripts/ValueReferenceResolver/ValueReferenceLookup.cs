@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Rhinox.Lightspeed;
+using Rhinox.Lightspeed.Collections;
 using Rhinox.Lightspeed.Reflection;
 using Rhinox.Perceptor;
 using Rhinox.Utilities;
@@ -30,17 +31,19 @@ namespace Rhinox.Magnus.Tasks
             return true;
         }
     }
+    
+    [Serializable]
+    public class DefaultReferenceKeyDictionary : SerializableDictionary<SerializableType, DefaultTypeReferenceKey[]> {}
 
     [Serializable]
-// [ShowOdinSerializedPropertiesInInspector]
+    public class ValueResolverDictionary : SerializableDictionary<SerializableGuid, IValueResolver> {}
+    
+    [Serializable]
     public class ValueReferenceLookup : IReferenceResolver
     {
+        public DefaultReferenceKeyDictionary DefaultsByType = new DefaultReferenceKeyDictionary();
 
-        public Dictionary<SerializableType, DefaultTypeReferenceKey[]> DefaultsByType =
-            new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
-
-        public Dictionary<SerializableGuid, IValueResolver> ValueResolversByKey =
-            new Dictionary<SerializableGuid, IValueResolver>();
+        public ValueResolverDictionary ValueResolversByKey = new ValueResolverDictionary();
 
         public List<ReferenceKey> Keys = new List<ReferenceKey>();
 
@@ -200,7 +203,7 @@ namespace Rhinox.Magnus.Tasks
         {
             if (typeof(T).InheritsFrom<UnityEngine.Object>())
                 return Register(defaultName, ValueResolverHelper.Create(typeof(T)));
-            return Register(defaultName, new ConstValueResolver<T>());
+            return Register(defaultName, new ConstValueResolver(typeof(T)));
         }
 
         public SerializableGuid Register(string defaultName, Type objectType)

@@ -97,9 +97,9 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
         private InspectorProperty _keysProperty;
         private IPropertyValueEntry<List<ReferenceKey>> _keysValueEntry;
         private InspectorProperty _resolversProperty;
-        private IPropertyValueEntry<Dictionary<SerializableGuid, IValueResolver>> _resolversValueEntry;
+        private IPropertyValueEntry<ValueResolverDictionary> _resolversValueEntry;
         private InspectorProperty _defaultsProperty;
-        private IPropertyValueEntry<Dictionary<SerializableType, DefaultTypeReferenceKey[]>> _defaultsValueEntry;
+        private IPropertyValueEntry<DefaultReferenceKeyDictionary> _defaultsValueEntry;
 
         private Dictionary<ReferenceKey, InspectorProperty> _resolverPropertyByKey;
 
@@ -191,6 +191,9 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
             var pairProperty = _resolversProperty
                 .FindChild(x => x.Children.Count > 0 && Equals(x.Children[0].ValueEntry.WeakSmartValue, key.Guid),
                     false);
+            if (pairProperty == null)
+                return null;
+            
             return pairProperty.Children[1];
         }
 
@@ -263,12 +266,18 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
                         _resolverPropertyByKey[key] = FindResolverPropertyForKey(key);
 
                     var resolverProp = _resolverPropertyByKey[key];
-
-                    using (new EditorGUILayout.VerticalScope())
+                    
+                    if (resolverProp == null)
+                        SirenixEditorGUI.InfoMessageBox("idk");
+                    else
                     {
-                        _keysProperty.Children[i].Draw();
-                        resolverProp.Draw();
+                        using (new EditorGUILayout.VerticalScope())
+                        {
+                            _keysProperty.Children[i].Draw();
+                            resolverProp.Draw();
+                        }
                     }
+
 
                     using (new EditorGUILayout.VerticalScope(GUILayoutOptions.Width(20)))
                     {
@@ -401,7 +410,7 @@ namespace Rhinox.Magnus.Tasks.Editor.Odin
             }
 
             if (_defaultsValueEntry.SmartValue == null)
-                _defaultsValueEntry.SmartValue = new Dictionary<SerializableType, DefaultTypeReferenceKey[]>();
+                _defaultsValueEntry.SmartValue = new DefaultReferenceKeyDictionary();
 
             Rect rect = EditorGUILayout.GetControlRect();
             GetLabelFieldRects(rect, out Rect labelRect, out Rect fieldRect);

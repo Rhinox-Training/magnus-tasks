@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Rhinox.Magnus.Tasks
 {
     [Serializable, RefactoringOldNamespace("", "com.rhinox.volt.domain")]
-    public class GameObjectWithTagResolver : BaseValueResolver<GameObject>
+    public class GameObjectWithTagResolver : BaseTypedValueResolver<GameObject>
     {
         public override string SimpleName => "Object with Tag";
 
@@ -17,7 +17,7 @@ namespace Rhinox.Magnus.Tasks
 
         private GameObject _cache;
 
-        public override bool TryResolve(ref GameObject value)
+        public override bool TryResolveGeneric(ref GameObject value)
         {
             if (_cache == null)
                 _cache = GameObject.FindWithTag(Tag);

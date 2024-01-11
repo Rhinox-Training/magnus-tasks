@@ -7,14 +7,13 @@ namespace Rhinox.Magnus.Tasks
     {
         public static IValueResolver Create(Type t)
         {
-            Type resolverType;
-
             if (t.InheritsFrom(typeof(UnityEngine.Object)))
-                resolverType = typeof(UnityValueResolver<>).MakeGenericType(t);
-            else
-                resolverType = typeof(ConstValueResolver<>).MakeGenericType(t);
-
-            return Activator.CreateInstance(resolverType) as IValueResolver;
+            {
+                var resolverType = typeof(UnityValueResolver<>).MakeGenericType(t);
+                return Activator.CreateInstance(resolverType) as IValueResolver;
+            }
+            
+            return new ConstValueResolver(t);
         }
 
         public static IValueResolver CreateDefaultResolver(object value)
@@ -30,14 +29,8 @@ namespace Rhinox.Magnus.Tasks
                 var createMethodInfo = resolverType.GetMethod(nameof(UnityValueResolver<UnityEngine.Object>.Create));
                 return (IValueResolver) createMethodInfo.Invoke(null, new[] {value});
             }
-            else
-            {
-                var resolverType = typeof(ConstValueResolver<>).MakeGenericType(valueType);
-                var valueSetter = resolverType.GetProperty(nameof(ConstValueResolver<object>.Value));
-                IValueResolver resolver = (IValueResolver) Activator.CreateInstance(resolverType);
-                valueSetter.SetValue(resolver, new[] {value});
-                return resolver;
-            }
+            
+            return new ConstValueResolver(valueType, value);
         }
     }
 }
